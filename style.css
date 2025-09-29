@@ -1,0 +1,326 @@
+/* --- 基礎設定與字體 --- */
+:root {
+    --color-dark-bg: #1a1a1a;
+    --color-text-light: #f4f4f4;
+    --color-accent-gold: #FFD700; /* 金色點綴 */
+    --color-accent-hover: #ffc400; 
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
+    background-color: var(--color-dark-bg);
+    color: var(--color-text-light);
+    line-height: 1.6;
+}
+
+a {
+    color: var(--color-accent-gold);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: var(--color-accent-hover);
+}
+
+/* --- 區塊標題 --- */
+h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5em;
+    font-weight: 700;
+    color: var(--color-accent-gold);
+    text-align: center;
+    margin-bottom: 40px;
+    letter-spacing: 2px;
+}
+
+.section {
+    padding: 80px 5%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* --- 英雄區 (Hero) --- */
+.hero {
+    height: 100vh;
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    /* 啟用滾動視差，圖片路徑需在 HTML 中設定或此處替換 */
+    background-attachment: fixed; 
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* 黑色半透明遮罩 */
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+}
+
+/* --- 英雄區 (Hero) --- */
+.hero {
+    height: 100vh;
+    /* 新增或修改此行，指向您的圖片路徑 */
+    background-image: url('assets/hero_background.jpg'); 
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    background-attachment: fixed; /* 保持滾動視差效果 */
+}
+
+.tagline {
+    font-size: 1.5em;
+    font-style: italic;
+    margin-bottom: 30px;
+}
+
+/* --- CTA 按鈕 --- */
+.cta-button, .online-reservation-cta, .cta-button-small {
+    display: inline-block;
+    padding: 12px 30px;
+    background-color: transparent;
+    border: 2px solid var(--color-accent-gold);
+    color: var(--color-accent-gold);
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: background-color 0.3s, color 0.3s;
+    border-radius: 4px;
+}
+
+.cta-button:hover, .online-reservation-cta:hover {
+    background-color: var(--color-accent-gold);
+    color: var(--color-dark-bg);
+}
+
+.cta-button-small {
+    padding: 8px 15px;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+.pulse-effect {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.5); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+}
+
+/* --- 空間氛圍 (Gallery) --- */
+.gallery {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.gallery-item {
+    /* 調整為約 23% 的寬度，讓四張圖能在一行顯示，並考慮間距 */
+    flex: 1 1 calc(25% - 15px); 
+    text-align: center;
+    overflow: hidden;
+}
+
+/* --- 空間氛圍區塊的總結文字 --- */
+.ambiance-text {
+    /* 新增或修改此行，設定為兩端對齊 */
+    text-align: justify; 
+    
+    font-size: 1.1em;
+    line-height: 1.8;
+    margin: 40px auto 0;
+    max-width: 800px; /* 限制寬度讓文字不至於太長 */
+    padding: 0 20px;
+}
+
+/* --- 響應式設計 (RWD) --- */
+@media (max-width: 1024px) {
+    /* 在較大平板上，改為兩欄顯示 */
+    .gallery-item {
+        flex: 1 1 calc(50% - 10px);
+    }
+}
+
+.gallery-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+    opacity: 0.8;
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+.gallery-item img:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.gallery-item p {
+    margin-top: 10px;
+    color: var(--color-text-light);
+    font-style: italic;
+}
+
+/* --- 菜單亮點 --- */
+.menu-highlights {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.menu-card {
+    background-color: #252525;
+    padding: 20px;
+    border-radius: 8px;
+    flex: 1 1 250px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    border-top: 3px solid var(--color-accent-gold);
+}
+
+.menu-card img {
+    width: 100%;
+    /* 1. 調整 max-height，讓圖片有更多空間來顯示完整內容 */
+    max-height: 250px; /* 從 200px 增加到 250px */
+    
+    /* 2. 確保圖片的內容被「包含」在容器內，而不是「覆蓋」並裁切 */
+    object-fit: contain; 
+    
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.menu-card h3 {
+    color: var(--color-accent-gold);
+    margin-bottom: 5px;
+}
+
+.full-menu-link {
+    display: block;
+    text-align: center;
+    margin-top: 40px;
+    font-size: 1.1em;
+    text-transform: uppercase;
+}
+
+/* --- 聯絡資訊 --- */
+.contact-info-grid {
+    display: flex;
+    justify-content: space-around;
+    gap: 30px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.info-block {
+    text-align: center;
+    padding: 20px;
+    background-color: #252525;
+    border-radius: 8px;
+    flex: 1 1 250px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.info-block i {
+    font-size: 2em;
+    color: var(--color-accent-gold);
+    margin-bottom: 10px;
+}
+
+.info-block h3 {
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.online-reservation-cta {
+    display: block;
+    max-width: 300px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    background-color: var(--color-accent-gold);
+    color: var(--color-dark-bg);
+    border: none;
+    font-weight: bold;
+}
+
+.online-reservation-cta:hover {
+    background-color: var(--color-accent-hover);
+    transform: scale(1.05);
+}
+
+/* --- 頁腳 (Footer) --- */
+footer {
+    text-align: center;
+    padding: 30px 5%;
+    background-color: #0d0d0d;
+    border-top: 1px solid rgba(255, 215, 0, 0.2);
+    font-size: 0.9em;
+}
+
+.social-links a {
+    font-size: 1.5em;
+    margin: 0 10px;
+    transition: transform 0.3s;
+}
+
+.social-links a:hover {
+    transform: scale(1.2);
+}
+
+.footer-note {
+    margin-top: 15px;
+    color: #888;
+}
+
+/* --- 響應式設計 (RWD) --- */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 3.5em;
+    }
+
+    .tagline {
+        font-size: 1.2em;
+    }
+
+    h2 {
+        font-size: 2em;
+    }
+
+    .gallery, .menu-highlights, .contact-info-grid {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .gallery-item, .menu-card, .info-block {
+        flex: 1 1 100%;
+    }
+}
