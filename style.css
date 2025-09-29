@@ -47,6 +47,25 @@ h2 {
 }
 
 /* --- 英雄區 (Hero) --- */
+
+/* **** 新增：英雄區社群連結容器樣式 **** */
+.hero-social-links {
+    margin-top: 20px;
+    /* 讓 Logo 和社群圖示之間有足夠空間 */
+    margin-bottom: 20px; 
+}
+
+/* **** 新增：英雄區社群圖示大小和間距 **** */
+.hero-social-links a {
+    /* 繼承全域 a 連結的顏色和過渡效果 */
+    font-size: 2.2em; /* 將字體放大！這就是圖示的大小 */
+    margin: 0 15px; /* 增加圖示之間的間距 */
+}
+
+.hero-social-links a:hover {
+    transform: scale(1.1);
+}
+
 .hero {
     height: 100vh;
     background-size: cover;
@@ -72,6 +91,26 @@ h2 {
 .hero-content {
     position: relative;
     z-index: 10;
+}
+
+/* **** Logo 圖片樣式 (加入旋轉動畫) **** */
+.hero-logo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--color-accent-gold);
+    margin-top: 30px;
+    object-fit: cover;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+
+    /* **** 新增動畫屬性 **** */
+    animation: spin 8s linear infinite; /* 動畫名稱, 持續時間, 速度曲線, 重複次數 */
+}
+
+/* **** 定義旋轉動畫 @keyframes **** */
+@keyframes spin {
+    0% { transform: rotate(0deg); } /* 從 0 度開始 */
+    100% { transform: rotate(360deg); } /* 轉到 360 度 (一圈) */
 }
 
 /* --- 英雄區 (Hero) --- */
@@ -188,18 +227,52 @@ h2 {
 
 /* --- 菜單亮點 --- */
 .menu-highlights {
+    /* 關鍵：設定為不換行，允許內容超出 */
     display: flex;
+    flex-wrap: nowrap; /* 確保卡片保持在同一行 */
+
+    /* 關鍵：允許水平滑動 */
+    overflow-x: auto;
+
+    /* 關鍵：在 iOS 裝置上啟用平滑慣性滑動 */
+    -webkit-overflow-scrolling: touch;
+    
+    /* **** 新增：設定預設游標為可抓取 (靜態時) **** */
+    cursor: grab; 
+    
+    /* **** 新增：啟用平滑捲動，與 JS 搭配使用效果更佳 **** */
+    scroll-behavior: smooth;
+
     gap: 30px;
-    justify-content: center;
+    justify-content: flex-start; /* 讓卡片從左邊開始排列 */
     margin-bottom: 30px;
-    flex-wrap: wrap;
+    padding-bottom: 20px; /* 增加底部內邊距，避免滑動條貼住卡片 */
+
+    /* 可選：隱藏標準滑動條，使介面更簡潔（僅在部分瀏覽器生效） */
+    scrollbar-width: none; /* Firefox */
 }
+
+/* 隱藏 Chrome, Safari 和 Opera 的滑動條 */
+.menu-highlights::-webkit-scrollbar {
+    display: none;
+}
+
+/* **** 新增：滑鼠拖曳時的游標樣式 **** */
+/* 這個 class 會由 script.js 在滑鼠按下時加入 */
+.menu-highlights.active-drag {
+    cursor: grabbing;
+    user-select: none; /* 防止在拖曳時選中文字 */
+}
+
 
 .menu-card {
     background-color: #252525;
     padding: 20px;
     border-radius: 8px;
-    flex: 1 1 250px;
+    
+    /* 關鍵：固定卡片寬度，防止 flex 擠壓它們 */
+    flex: 0 0 280px;
+
     text-align: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
     border-top: 3px solid var(--color-accent-gold);
@@ -231,6 +304,54 @@ h2 {
 }
 
 /* --- 聯絡資訊 --- */
+/* --- 聯絡資訊 --- */
+/* **** 新增：聯絡區塊背景圖片樣式 **** */
+.section.contact {
+    background-image: url('assets/contact_background.jpg'); /* 指向您的背景圖片路徑 */
+    background-size: cover;          /* 圖片覆蓋整個區塊 */
+    background-position: center center; /* 圖片置中 */
+    background-attachment: fixed;    /* 啟用滾動視差效果 */
+    position: relative;              /* 為 overlay 做定位參考 */
+    color: var(--color-text-light);  /* 確保文字顏色在深色背景下可讀 */
+    padding-top: 100px;              /* 增加上下內邊距，避免內容太擠 */
+    padding-bottom: 100px;
+}
+
+/* **** 新增：為背景圖片增加遮罩層 (提高文字可讀性) **** */
+.section.contact::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* 黑色半透明遮罩 (濃度可調整) */
+    z-index: 1; /* 確保遮罩在背景圖之上，內容之下 */
+}
+
+/* **** 確保聯絡資訊格線內容在遮罩之上 **** */
+.contact-info-grid, 
+.section.contact h2 {
+    position: relative; /* 讓這些元素在遮罩層之上 */
+    z-index: 2;
+}
+
+
+/* **** 調整聯絡資訊方塊的背景，讓文字更清晰 **** */
+.info-block {
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(37, 37, 37, 0.85); /* 原始背景色加半透明 */
+    border-radius: 8px;
+    flex: 1 1 250px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.3s ease; /* 新增過渡效果 */
+}
+
+.info-block:hover {
+    background-color: rgba(37, 37, 37, 0.95); /* 滑鼠移入時稍微不透明 */
+}
+
 .contact-info-grid {
     display: flex;
     justify-content: space-around;
@@ -323,4 +444,73 @@ footer {
     .gallery-item, .menu-card, .info-block {
         flex: 1 1 100%;
     }
+}
+/* --- 影片彈出視窗 (Modal) --- */
+.modal {
+    display: none; /* 預設隱藏 */
+
+    /* **** 關鍵設定一：固定在視窗上 (不隨捲動軸移動) **** */
+    position: fixed; 
+
+    /* **** 關鍵設定二：確保覆蓋整個視窗 **** */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* **** 關鍵設定三：確保在所有元素最上層 (數字越大越優先) **** */
+    z-index: 1000; 
+    
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.9); /* 黑色半透明背景 */
+    
+    /* 啟用淡入效果 */
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+
+.modal.open {
+    /* 彈窗開啟時的顯示狀態 */
+    display: flex;
+    justify-content: center; /* 水平置中 */
+    align-items: center;   /* 垂直置中 */
+    opacity: 1;
+}
+.modal-content {
+    /* 這個容器用來包住影片，並限制彈窗的實際大小 */
+    position: relative;
+    max-width: 90%; /* 限制最大寬度為視窗的 90% */
+    max-height: 90%; /* 限制最大高度為視窗的 90% */
+    background-color: #000; /* 影片背景 */
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7); /* 增加一點陰影 */
+}
+
+.modal-content video {
+    /* 讓影片填滿 modal-content 容器 */
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 80vh; /* 影片高度限制 (視窗高度的 80%) */
+}
+/* 關閉按鈕 (請新增這段程式碼) */
+.close-btn {
+    /* 讓按鈕固定在 modal-content 的右上方 */
+    position: absolute;
+    top: -30px; /* 將按鈕放在 modal-content 容器的上面，讓它與影片邊緣分開 */
+    right: 0px;
+    
+    /* 放大字體，讓按鈕更好點擊 */
+    color: #fff; /* 白色 */
+    font-size: 40px;
+    font-weight: bold;
+    transition: color 0.3s;
+    cursor: pointer;
+    
+    z-index: 1010; /* 確保它在黑色背景和影片之上 */
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: var(--color-accent-gold); /* 滑鼠移上去變金色 */
+    text-decoration: none;
 }
