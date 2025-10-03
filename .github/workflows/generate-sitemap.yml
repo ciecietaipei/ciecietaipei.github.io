@@ -1,0 +1,25 @@
+name: Generate sitemap
+
+on:
+  push:
+    branches: [main]   # 或你的主要分支名稱
+
+jobs:
+  generate-sitemap:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Generate sitemap.xml
+      uses: cicirello/generate-sitemap@v1
+      with:
+        base-url-path: https://ciecietaipei.github.io
+        # 可選用：https://your.custom.domain，如果你的 repo 針對自訂網域
+
+    - name: Commit sitemap.xml
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "chore: update sitemap.xml"
+        file_pattern: sitemap.xml
