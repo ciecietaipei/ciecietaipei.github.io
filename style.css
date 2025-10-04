@@ -477,20 +477,42 @@ footer {
     opacity: 1;
 }
 .modal-content {
-    /* 這個容器用來包住影片，並限制彈窗的實際大小 */
+    /* 這個容器用來包住影片,並限制彈窗的實際大小 */
     position: relative;
     max-width: 90%; /* 限制最大寬度為視窗的 90% */
-    max-height: 90%; /* 限制最大高度為視窗的 90% */
+    max-height: 90vh; /* 改為 90vh (視窗高度的 90%) */
+    
+    /* 新增以下屬性來處理 IG 內嵌 */
+    overflow-y: auto; /* 允許垂直滾動 */
+    overflow-x: hidden; /* 隱藏水平滾動條 */
+    
     background-color: #000; /* 影片背景 */
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.7); /* 增加一點陰影 */
+    
+    /* 新增內距,避免內容貼邊 */
+    padding: 20px;
+    
+    /* 讓滾動條更美觀 (可選) */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: var(--color-accent-gold) #252525; /* Firefox */
 }
 
-.modal-content video {
-    /* 讓影片填滿 modal-content 容器 */
-    display: block;
-    width: 100%;
-    height: auto;
-    max-height: 80vh; /* 影片高度限制 (視窗高度的 80%) */
+/* Chrome/Safari/Edge 的滾動條樣式 (可選) */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #252525;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: var(--color-accent-gold);
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent-hover);
 }
 /* 關閉按鈕 (請新增這段程式碼) */
 .close-btn {
