@@ -605,9 +605,9 @@ footer {
     }
 }
 
-/* --- 彈出視窗尺寸強制覆蓋修正 --- */
+/* --- 彈出視窗尺寸最終修正 --- */
 
-/* 1. 修正影片彈窗：移除內邊距、隱藏捲軸、用長寬比控制大小 */
+/* 1. 影片彈窗 (這個設定是正確的，保持不變) */
 #video-modal .modal-content {
     padding: 0 !important;
     overflow: hidden !important;
@@ -618,29 +618,33 @@ footer {
     aspect-ratio: 16 / 9;
     max-height: none !important; 
 }
-
 #video-modal .modal-content video {
     height: 100%;
     border-radius: 4px;
 }
 
-/* 2. 微調 FB/IG 貼文彈窗 */
+
+/* 2. 【核心修正】FB/IG 貼文彈窗 */
 #post-modal .modal-content {
-    max-width: 400px !important;
-    max-height: 70vh !important;
+    /* 拿掉寫死的寬高，讓它變回彈性尺寸 */
+    width: auto !important;
+    height: auto !important;
+    max-width: 500px !important;  /* 提供一個比較合理的寬度上限 */
+    max-height: 70vh !important;  /* 提供一個比較合理的高度上限 */
     padding: 0 !important;
     overflow: hidden !important;
     border-radius: 8px;
+    background-color: #fff !important;
 }
-
 #post-modal #random-post-container {
     width: 100%;
     height: 100%;
-    background-color: #fff;
+}
+#post-modal iframe {
+    /* 讓 iframe 自適應，但會被上面的 max-width/height 限制 */
+    max-width: 100%;
+    max-height: 85vh;
+    border: none;
+    display: block; /* 確保為塊級元素 */
 }
 
-#post-modal iframe {
-    width: 100% !important;
-    height: 100% !important;
-    border: none;
-}
