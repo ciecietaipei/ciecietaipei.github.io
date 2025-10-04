@@ -99,8 +99,78 @@ function showRandomPostModal() {
 
 
 // 頁面載入自動呼叫
-showRandomPostModal();
+// showRandomPostModal();
+// 綁定 FB/IG 圖示的點擊事件
+const fbLink = document.querySelector('.hero-social-links a[href*="facebook"]');
+const igLink = document.querySelector('.hero-social-links a[href*="instagram"]');
 
+// Facebook 圖示點擊事件
+if (fbLink) {
+    fbLink.addEventListener('click', (e) => {
+        e.preventDefault(); // 阻止直接跳轉到 FB 頁面
+        
+        // 只顯示 Facebook 貼文
+        const fbPosts = posts.filter(post => post.includes('facebook'));
+        if (fbPosts.length > 0) {
+            const modal = document.getElementById('post-modal');
+            const container = document.getElementById('random-post-container');
+            const closeBtn = document.getElementById('close-post');
+            
+            const randomIndex = Math.floor(Math.random() * fbPosts.length);
+            container.innerHTML = fbPosts[randomIndex];
+            modal.classList.add('open');
+            
+            closeBtn.onclick = () => {
+                modal.classList.remove('open');
+                container.innerHTML = '';
+            };
+            
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('open');
+                    container.innerHTML = '';
+                }
+            };
+        }
+    });
+}
+
+// Instagram 圖示點擊事件
+if (igLink) {
+    igLink.addEventListener('click', (e) => {
+        e.preventDefault(); // 阻止直接跳轉到 IG 頁面
+        
+        // 只顯示 Instagram 貼文
+        const igPosts = posts.filter(post => post.includes('instagram'));
+        if (igPosts.length > 0) {
+            const modal = document.getElementById('post-modal');
+            const container = document.getElementById('random-post-container');
+            const closeBtn = document.getElementById('close-post');
+            
+            const randomIndex = Math.floor(Math.random() * igPosts.length);
+            container.innerHTML = igPosts[randomIndex];
+            modal.classList.add('open');
+            
+            // 載入 Instagram embed script
+            const script = document.createElement('script');
+            script.src = '//www.instagram.com/embed.js';
+            script.async = true;
+            document.body.appendChild(script);
+            
+            closeBtn.onclick = () => {
+                modal.classList.remove('open');
+                container.innerHTML = '';
+            };
+            
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('open');
+                    container.innerHTML = '';
+                }
+            };
+        }
+    });
+}
 
 
 // ---------------------------------
