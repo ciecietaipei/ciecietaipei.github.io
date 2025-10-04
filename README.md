@@ -12,6 +12,7 @@
 # Grand Opening Party  
 ## 18:30 ~ 03:00, October 9th ~ 11th, 2025
 
-# [台北市大安區信義路四段390號](https://maps.app.goo.gl/Nmh4xbvaxhVPRcJU9)
-
+# 📍 地址：[台北市大安區信義路四段390號](https://maps.app.goo.gl/Nmh4xbvaxhVPRcJU9)
+# ⏰ 營業時間：18:30 – 02:00（週五六至 03:00）
+# 🥂 立即訂位 → 02-27093446
 </div>
