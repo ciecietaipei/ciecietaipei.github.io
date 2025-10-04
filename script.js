@@ -63,27 +63,36 @@ function showRandomPostModal() {
   const modal = document.getElementById('post-modal');
   const container = document.getElementById('random-post-container');
   const closeBtn = document.getElementById('close-post');
-  
   const randomIndex = Math.floor(Math.random() * posts.length);
   container.innerHTML = posts[randomIndex];
   
-  // 改用 classList.add('open') 而不是 style.display
+  // 改用 classList，配合 CSS 的 .modal.open 樣式
   modal.classList.add('open');
   
+  // 動態載入 Instagram embed script（如果貼文包含 instagram）
+  if (posts[randomIndex].includes('instagram')) {
+    const script = document.createElement('script');
+    script.src = '//www.instagram.com/embed.js';
+    script.async = true;
+    document.body.appendChild(script);
+  }
+  
   closeBtn.onclick = () => {
-    modal.classList.remove('open'); // 對應修改
+    modal.classList.remove('open');
     container.innerHTML = '';
   };
   
   modal.onclick = (e) => {
     if (e.target === modal) {
-      modal.classList.remove('open'); // 對應修改
+      modal.classList.remove('open');
       container.innerHTML = '';
     }
   };
 }
 
-// 頁面載入時自動呼叫
+
+
+// 頁面載入自動呼叫
 showRandomPostModal();
 
 
