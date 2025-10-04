@@ -54,6 +54,34 @@ document.addEventListener('DOMContentLoaded', () => {
     let scrollInterval; // 用於儲存自動滑動的計時器
     let scrollDirection = 1; // 1: 向右滑動, -1: 向左滑動 (新增方向控制變數)
 
+const posts = [
+  `<iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F828911806255422%2F&show_text=false&width=380&t=0" width="380" height="476" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>`,
+  `<blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DPLpns3E4_N/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:540px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:16px;"> ... </blockquote>`
+  // 以後只要往這裡加新貼文即可
+];
+
+function showRandomPostModal() {
+  const modal = document.getElementById('post-modal');
+  const container = document.getElementById('random-post-container');
+  const closeBtn = document.getElementById('close-post');
+  const randomIndex = Math.floor(Math.random() * posts.length);
+  container.innerHTML = posts[randomIndex];
+  modal.style.display = 'flex';
+  closeBtn.onclick = () => {
+    modal.style.display = 'none';
+    container.innerHTML = '';
+  };
+  modal.onclick = (e) => {
+    if (e.target === modal) {
+      modal.style.display = 'none';
+      container.innerHTML = '';
+    }
+  };
+}
+
+window.addEventListener('DOMContentLoaded', showRandomPostModal);
+
+
 // ---------------------------------
 // 自動滑動設定 (新增容錯值)
 // ---------------------------------
