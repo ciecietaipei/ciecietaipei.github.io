@@ -318,4 +318,46 @@ function startAutoScroll() {
     });
 
     // 提醒：淡入效果的 CSS 仍需在 style.css 中設定
+// ----------------------------------------------------
+// 圖片點擊放大功能
+// ----------------------------------------------------
+const imageModal = document.getElementById('image-modal');
+const modalImage = document.getElementById('modal-image');
+const closeImageModal = document.getElementById('close-image-modal');
+
+// 選取所有需要點擊放大的圖片
+const clickableImages = document.querySelectorAll('.gallery-item img, .menu-card img');
+
+// 為每張圖片綁定點擊事件
+clickableImages.forEach(img => {
+    img.addEventListener('click', () => {
+        imageModal.classList.add('open');
+        modalImage.src = img.src;
+        modalImage.alt = img.alt;
+    });
+});
+
+// 關閉 Modal：點擊 X 按鈕
+if (closeImageModal) {
+    closeImageModal.addEventListener('click', () => {
+        imageModal.classList.remove('open');
+        modalImage.src = '';
+    });
+}
+
+// 關閉 Modal：點擊黑色背景
+imageModal.addEventListener('click', (e) => {
+    if (e.target === imageModal) {
+        imageModal.classList.remove('open');
+        modalImage.src = '';
+    }
+});
+
+// 關閉 Modal：按下 ESC 鍵
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && imageModal.classList.contains('open')) {
+        imageModal.classList.remove('open');
+        modalImage.src = '';
+    }
+});    
 });
