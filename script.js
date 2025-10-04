@@ -63,22 +63,27 @@ function showRandomPostModal() {
   const modal = document.getElementById('post-modal');
   const container = document.getElementById('random-post-container');
   const closeBtn = document.getElementById('close-post');
+  
   const randomIndex = Math.floor(Math.random() * posts.length);
   container.innerHTML = posts[randomIndex];
-  modal.style.display = 'flex';
+  
+  // 改用 classList.add('open') 而不是 style.display
+  modal.classList.add('open');
+  
   closeBtn.onclick = () => {
-    modal.style.display = 'none';
+    modal.classList.remove('open'); // 對應修改
     container.innerHTML = '';
   };
+  
   modal.onclick = (e) => {
     if (e.target === modal) {
-      modal.style.display = 'none';
+      modal.classList.remove('open'); // 對應修改
       container.innerHTML = '';
     }
   };
 }
 
-// 直接呼叫，不要再用 window.addEventListener
+// 頁面載入時自動呼叫
 showRandomPostModal();
 
 
