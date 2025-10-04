@@ -95,8 +95,8 @@ h2 {
 
 /* **** Logo 圖片樣式 (加入旋轉動畫) **** */
 .hero-logo {
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     border: 3px solid var(--color-accent-gold);
     margin-top: 30px;
