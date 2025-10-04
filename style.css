@@ -476,25 +476,51 @@ footer {
     align-items: center;   /* 垂直置中 */
     opacity: 1;
 }
+
+/* 桌機版 - 影片彈出視窗 */
 .modal-content {
-    /* 這個容器用來包住影片,並限制彈窗的實際大小 */
     position: relative;
-    max-width: 90%; /* 限制最大寬度為視窗的 90% */
-    max-height: 90vh; /* 改為 90vh (視窗高度的 90%) */
-    
-    /* 新增以下屬性來處理 IG 內嵌 */
-    overflow-y: auto; /* 允許垂直滾動 */
-    overflow-x: hidden; /* 隱藏水平滾動條 */
-    
-    background-color: #000; /* 影片背景 */
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7); /* 增加一點陰影 */
-    
-    /* 新增內距,避免內容貼邊 */
+    max-width: 600px;    /* 改用固定寬度,避免在大螢幕上太大 */
+    max-height: 60vh;    /* 降低到 60vh */
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: #000;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
     padding: 20px;
-    
-    /* 讓滾動條更美觀 (可選) */
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: var(--color-accent-gold) #252525; /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent-gold) #252525;
+}
+
+.modal-content video {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+}
+
+/* 手機版 - 影片彈出視窗 */
+@media (max-width: 768px) {
+    .modal-content {
+        max-width: 85%;      /* 手機上寬度 85% */
+        max-height: 50vh;    /* 手機上高度 50vh,不會太大 */
+        padding: 15px;
+    }
+}
+
+/* 平板版 - 影片彈出視窗 */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .modal-content {
+        max-width: 500px;
+        max-height: 55vh;
+    }
+}
+
+/* Instagram/Facebook 貼文特殊處理 */
+#random-post-container .instagram-media,
+#random-post-container .fb-post {
+    max-width: 100% !important;
+    min-width: auto !important;
+    margin: 0 auto !important;
 }
 
 /* Chrome/Safari/Edge 的滾動條樣式 (可選) */
