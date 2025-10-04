@@ -553,7 +553,7 @@ footer {
     font-weight: bold;
     transition: color 0.3s;
     cursor: pointer;
-    
+
     z-index: 1010; /* 確保它在黑色背景和影片之上 */
 }
 
@@ -583,9 +583,12 @@ footer {
 }
 
 /* 為可點擊的圖片增加視覺提示 */
-.gallery-item img,
-.menu-card img {
+.gallery-item img {
     cursor: pointer;
+    transition: opacity 0.5s, transform 0.5s, box-shadow 0.3s;
+}
+
+.menu-card img {
     transition: opacity 0.5s, transform 0.5s, box-shadow 0.3s;
 }
 
@@ -600,4 +603,44 @@ footer {
         max-width: 95vw;
         max-height: 80vh;
     }
+}
+
+/* --- 彈出視窗尺寸強制覆蓋修正 --- */
+
+/* 1. 修正影片彈窗：移除內邊距、隱藏捲軸、用長寬比控制大小 */
+#video-modal .modal-content {
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    width: 90vw;
+    max-width: 960px;
+    aspect-ratio: 16 / 9;
+    max-height: none !important; 
+}
+
+#video-modal .modal-content video {
+    height: 100%;
+    border-radius: 4px;
+}
+
+/* 2. 微調 FB/IG 貼文彈窗 */
+#post-modal .modal-content {
+    max-width: 400px !important;
+    max-height: 70vh !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border-radius: 8px;
+}
+
+#post-modal #random-post-container {
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+}
+
+#post-modal iframe {
+    width: 100% !important;
+    height: 100% !important;
+    border: none;
 }
