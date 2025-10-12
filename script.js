@@ -90,6 +90,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ----------------------------------------------------
+    // 【新增】雞尾酒影片彈出視窗邏輯
+    // ----------------------------------------------------
+    const cocktailVideoModal = document.getElementById('cocktail-video-modal');
+    const cocktailVideoPlayer = document.getElementById('cocktail-popup-video');
+    const cocktailVideoCloseBtn = cocktailVideoModal ? cocktailVideoModal.querySelector('.close-btn') : null;
+
+    const closeCocktailVideoModal = () => {
+        if (cocktailVideoModal && cocktailVideoPlayer) {
+            cocktailVideoModal.classList.remove('open');
+            cocktailVideoPlayer.pause();
+            cocktailVideoPlayer.currentTime = 0;
+            cocktailVideoPlayer.querySelector('source').src = "";
+            cocktailVideoPlayer.load();
+        }
+    };
+
+    if (cocktailVideoModal && cocktailVideoCloseBtn && cocktailVideoPlayer) {
+        cocktailVideoCloseBtn.addEventListener('click', closeCocktailVideoModal);
+        cocktailVideoModal.addEventListener('click', (e) => {
+            if (e.target === cocktailVideoModal) closeCocktailVideoModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && cocktailVideoModal.classList.contains('open')) {
+                closeCocktailVideoModal();
+            }
+        });
+    }
+    // ----------------------------------------------------
     // 【唯一的核心修正】讓所有菜單都能滑動
     // ----------------------------------------------------
     const sliders = document.querySelectorAll('.menu-highlights');
@@ -205,47 +233,65 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ----------------------------------------------------
-    // 圖片點擊放大功能 (此區塊完全不變)
+    // 【核心修正】整合性的圖片與影片點擊處理
     // ----------------------------------------------------
     const imageModal = document.getElementById('image-modal');
-    if (imageModal) {
-        const modalImage = document.getElementById('modal-image');
-        const closeImageModal = document.getElementById('close-image-modal');
-        const clickableImages = document.querySelectorAll('.gallery-item img, .menu-card img');
-        
-        clickableImages.forEach(img => {
-            img.addEventListener('click', (e) => {
-                if (isDragging) { // 讀取上面迴圈設定的 isDragging 狀態
-                    e.preventDefault();
-                    return;
-                }
-                imageModal.classList.add('open');
-                modalImage.src = img.src;
-                modalImage.alt = img.alt;
-            });
-        });
+    const modalImage = document.getElementById('modal-image');
+    const closeImageModalBtn = document.getElementById('close-image-modal');
 
-        if (closeImageModal) {
-            closeImageModal.addEventListener('click', () => {
-                imageModal.classList.remove('open');
-                modalImage.src = '';
-            });
+    // 關閉圖片放大視窗的邏輯
+    const closeImageModal = () => {
+        if (imageModal) {
+            imageModal.classList.remove('open');
+            modalImage.src = '';
         }
+    };
+    if (closeImageModalBtn) closeImageModalBtn.addEventListener('click', closeImageModal);
+    if (imageModal) imageModal.addEventListener('click', (e) => {
+        if (e.target === imageModal) closeImageModal();
+    });
 
-        imageModal.addEventListener('click', (e) => {
-            if (e.target === imageModal) {
-                imageModal.classList.remove('open');
-                modalImage.src = '';
+    // 處理 Escape 鍵關閉
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (imageModal && imageModal.classList.contains('open')) closeImageModal();
+            // 同時檢查雞尾酒影片視窗是否開啟
+            if (cocktailVideoModal && cocktailVideoModal.classList.contains('open')) closeCocktailVideoModal();
+        }
+    });
+
+    // 統一處理所有可點擊圖片的事件
+    const clickableImages = document.querySelectorAll('.gallery-item img, .menu-card img');
+    clickableImages.forEach(img => {
+        img.addEventListener('click', (e) => {
+            // isDragging 變數來自上方的滑動邏輯區塊，確保拖曳時不觸發點擊
+            if (isDragging) {
+                e.preventDefault();
+                return;
+            }
+
+            const videoSrc = img.dataset.videoSrc;
+
+            // 優先判斷是否有影片連結
+            if (videoSrc) {
+                // 如果有，則呼叫雞尾酒影片彈窗的邏輯
+                if (cocktailVideoModal && cocktailVideoPlayer) {
+                    const source = cocktailVideoPlayer.querySelector('source');
+                    source.src = videoSrc;
+                    cocktailVideoPlayer.load();
+                    cocktailVideoModal.classList.add('open');
+                    cocktailVideoPlayer.play().catch(error => console.error("影片播放失敗:", error));
+                }
+            } else {
+                // 如果沒有，則執行圖片放大
+                if (imageModal && modalImage) {
+                    imageModal.classList.add('open');
+                    modalImage.src = img.src;
+                    modalImage.alt = img.alt;
+                }
             }
         });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && imageModal.classList.contains('open')) {
-                imageModal.classList.remove('open');
-                modalImage.src = '';
-            }
-        });
-    }
+    });
 
     // ----------------------------------------------------
     // 更新頁尾年份 (此區塊完全不變)
