@@ -93,6 +93,38 @@ h2 {
     z-index: 10;
 }
 
+/* Hero 快速定位列 */
+.quick-anchors {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 12px auto 0;
+  max-width: 720px;
+  padding: 0 12px;
+}
+.qa-link {
+  display: inline-block;
+  padding: 8px 14px;
+  font-size: 14px;
+  color: #fff;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,.6);
+  border-radius: 999px;
+  background: rgba(0,0,0,.25);
+  backdrop-filter: blur(6px);
+  transition: all .2s ease;
+}
+.qa-link:hover { border-color: #fff; background: rgba(255,255,255,.15); }
+
+/* 捲動定位微調，避免被上方區塊遮住 */
+#ambience, #food, #cocktails { scroll-margin-top: 80px; }
+
+@media (max-width: 480px) {
+  .qa-link { font-size: 13px; padding: 7px 12px; }
+  #ambience, #food, #cocktails { scroll-margin-top: 72px; }
+}
+
 /* **** Logo 圖片樣式 (加入旋轉動畫) **** */
 .hero-logo {
     width: 150px;
