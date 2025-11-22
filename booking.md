@@ -1,17 +1,16 @@
-<div align="center">
-
 // ======================================================
 // 全域設定區 (請務必修改這三行)
 // ======================================================
 
 // 1. LINE Channel Access Token (請填入您的 Token)
-const CHANNEL_ACCESS_TOKEN = "您的_LINE_Channel_Access_Token_貼在這裡";
+const CHANNEL_ACCESS_TOKEN = "";
 
 // 2. Google Sheet ID (請填入您的試算表 ID)
-const SHEET_ID = "您的_Google_Sheet_ID_貼在這裡";
+const SHEET_ID = "";
 
 // 3. Web App 網址 (部署後取得的網址，請填入)
-const WEB_APP_URL = "您的_Web_App_網址_貼在這裡";
+const WEB_APP_URL = ""; 
+
 
 // ======================================================
 // 核心程式碼開始 (已針對 C 欄空白、Email 在 F 欄修正)
@@ -44,20 +43,37 @@ function onFormSubmit(e) {
   
   // ⚠️ 欄位對應 (基於 image_1a35c0.png)
   // Index: 0=A, 1=B, 2=C(空), 3=D(名), 4=E(電), 5=F(信), 6=G(日), 7=H(時), 8=I(人)
-  var customerName = rowData[3]; // D欄
-  var date = rowData[6];         // G欄
-  var time = rowData[7];         // H欄
-  var pax = rowData[8];          // I欄
+  var customerName = rowData[2]; // D欄 (姓名)
+  var dateRaw = rowData[5];      // G欄 (日期原始資料)
+  var timeRaw = rowData[6];      // H欄 (時間原始資料)
+  var pax = rowData[7];          // I欄 (人數)
   
-  // 格式化日期
-  var dateStr = "未知日期";
-  if (date) {
-    dateStr = Utilities.formatDate(new Date(date), "GMT+8", "yyyy/MM/dd");
+// 1. 格式化日期 (yyyy/MM/dd)
+  var dateStr = "";
+  if (dateRaw) {
+    // 如果讀出來是字串就直接用，如果是物件就格式化
+    if (typeof dateRaw === 'object') {
+      dateStr = Utilities.formatDate(new Date(dateRaw), "GMT+8", "yyyy/MM/dd");
+    } else {
+      dateStr = dateRaw.toString().substring(0, 10); // 簡單防呆
+    }
+  }
+
+// 2. 格式化時間 (HH:mm) -> 這是修正亂碼的關鍵！
+  var timeStr = "";
+  if (timeRaw) {
+    // 檢查是否為時間物件 (通常 Google Form 來的時間會是物件)
+    if (typeof timeRaw === 'object') {
+      timeStr = Utilities.formatDate(new Date(timeRaw), "GMT+8", "HH:mm");
+    } else {
+      // 如果已經是字串 (例如 "20:30") 就直接用
+      timeStr = timeRaw.toString();
+    }
   }
   
-  var msg = "🔔 新訂位通知！\n" + 
+  var msg = "🔔 CIECIE Taipei 新訂位通知！\n" + 
             "姓名：" + customerName + "\n" + 
-            "時間：" + dateStr + " " + time + "\n" + 
+            "時間：" + dateStr + " " + timeStr + "\n" +  // 這裡改用 timeStr
             "人數：" + pax + "\n" +
             "狀態：待處理";
             
@@ -68,76 +84,77 @@ function onFormSubmit(e) {
 // 功能 2：當店家手動更改狀態時 (寄送確認信)
 // ⚠️ 注意：必須手動設定「編輯時 (On edit)」觸發器連結此函式
 // ------------------------------------------------------
+// ------------------------------------------------------
+// 終極智慧版：自動辨識標題 (不怕欄位移動)
+// ------------------------------------------------------
 function sendEmailOnEdit(e) {
-  // 基本防呆
-  if (!e) return;
-  
+  // 0. 安全檢查
+  if (!e) {
+    console.log("❌ 請勿直接執行，請去試算表改下拉選單。");
+    return;
+  }
+
   var range = e.range;
   var currentSheet = range.getSheet();
   var row = range.getRow();
   var col = range.getColumn();
   var val = e.value;
+  var sheetName = currentSheet.getName();
 
-  // 確保只在正確的工作表運作
-  // 注意：這裡比較保險是用 ss.getSheetByName("表單回應 1") 取得的物件來比對名稱
-  if (currentSheet.getName() !== "表單回應 1" && currentSheet.getName() !== "Form Responses 1") return;
+  // 1. 檢查分頁 (只要名字包含 "表單" 或 "Form" 都可以)
+  if (sheetName.indexOf("表單") === -1 && sheetName.indexOf("Form") === -1) {
+    return;
+  }
 
-  // 檢查條件：
-  // 1. 編輯的是 J 欄 (第 10 欄)
-  // 2. 內容變成了 "發送確認信"
-  // 3. 不是標題列 (row > 1)
-  if (col === 10 && val === "發送確認信" && row > 1) {
+  // 2. 取得第一列所有的標題 (關鍵步驟！)
+  var lastCol = currentSheet.getLastColumn();
+  var headers = currentSheet.getRange(1, 1, 1, lastCol).getValues()[0];
+
+  // 3. 自動尋找欄位位置 (模糊搜尋，只要標題包含關鍵字就抓)
+  var statusIndex = headers.findIndex(h => h.toString().indexOf("訂位狀態") > -1);
+  var emailIndex = headers.findIndex(h => h.toString().indexOf("Email") > -1);
+  var nameIndex = headers.findIndex(h => h.toString().indexOf("姓名") > -1);
+  var idIndex = headers.findIndex(h => h.toString().indexOf("編號") > -1);
+
+  // 如果找不到 Email 或 狀態欄，就報錯
+  if (statusIndex === -1 || emailIndex === -1) {
+    ss.toast("❌ 程式找不到『訂位狀態』或『Email』欄位，請檢查標題列。");
+    return;
+  }
+
+  // 4. 檢查是否觸發：編輯的欄位必須是「狀態欄」 且 值為「發送確認信」
+  // (statusIndex 是從 0 開始算，但 col 是從 1 開始算，所以要 +1)
+  if (col === (statusIndex + 1) && val === "發送確認信" && row > 1) {
     
     // 取得該列資料
-    var lastCol = currentSheet.getLastColumn();
     var data = currentSheet.getRange(row, 1, 1, lastCol).getValues()[0];
-    
-    // ⚠️ 欄位對應 (基於 image_1a35c0.png)
-    var bookingId = data[0];       // A欄 (ID) -> index 0
-    var customerName = data[3];    // D欄 (姓名) -> index 3
-    var customerEmail = data[5];   // F欄 (Email) -> index 5 
-    var bookingDateRaw = data[6];  // G欄 (日期) -> index 6
-    var bookingTime = data[7];     // H欄 (時間) -> index 7
-    var pax = data[8];             // I欄 (人數) -> index 8
 
-    // 格式化日期
-    var bookingDate = Utilities.formatDate(new Date(bookingDateRaw), "GMT+8", "yyyy/MM/dd");
+    // 🎯 關鍵：使用自動找到的 Index 來抓資料，絕對不會錯！
+    var bookingId = (idIndex > -1) ? data[idIndex] : "Unknown";
+    var customerName = (nameIndex > -1) ? data[nameIndex] : "貴賓";
+    var customerEmail = data[emailIndex]; // 這下絕對會抓到 E 欄！
 
-    // 產生確認連結
+    console.log("準備寄信給：" + customerName + " <" + customerEmail + ">");
+
+    // 檢查 Email 格式
+    if (!customerEmail || customerEmail.toString().indexOf("@") === -1) {
+      ss.toast("❌ Email 格式錯誤，抓到的資料是：" + customerEmail);
+      return;
+    }
+
+    // 準備寄信
     var confirmLink = WEB_APP_URL + "?action=confirm&id=" + bookingId;
-    
-    // Email 內容
     var subject = "[Cié Cié Taipei] 訂位保留確認通知";
-    var body = 
-      "<div style='font-family: sans-serif; color: #333;'>" +
-        "<h3>" + customerName + " 您好，</h3>" +
-        "<p>感謝您的預約，我們已收到您的訂位申請：</p>" +
-        "<ul>" +
-          "<li><b>日期：</b>" + bookingDate + "</li>" +
-          "<li><b>時間：</b>" + bookingTime + "</li>" +
-          "<li><b>人數：</b>" + pax + "</li>" +
-        "</ul>" +
-        "<p>座位目前為您<b>保留中</b>，請點擊下方按鈕確認您的出席：</p>" +
-        "<br>" +
-        "<a href='" + confirmLink + "' style='background-color:#BFA46F; color:white; padding:12px 24px; text-decoration:none; border-radius:4px; font-weight:bold;'>確認出席 (Confirm Booking)</a>" +
-        "<br><br>" +
-        "<p style='font-size: 12px; color: #888;'>若按鈕無法點擊，請複製連結開啟：<br>" + confirmLink + "</p>" +
-      "</div>";
-               
+    var body = "<h3>" + customerName + " 您好，</h3>" +
+               "<p>感謝您的預約，座位為您保留中，請點擊下方連結確認出席：</p>" +
+               "<br>" +
+               "<a href='" + confirmLink + "' style='background-color:#BFA46F; color:white; padding:12px 24px; text-decoration:none; border-radius:4px;'>確認出席</a>";
+
     try {
-      MailApp.sendEmail({
-        to: customerEmail,
-        subject: subject,
-        htmlBody: body
-      });
-      
-      // 🟢 修正點在這裡：改成 ss.toast (ss 是全域變數，代表整個檔案)
-      ss.toast("✅ 已寄出確認信給 " + customerName + " (" + customerEmail + ")");
-      
+      MailApp.sendEmail({to: customerEmail, subject: subject, htmlBody: body});
+      ss.toast("✅ 已寄出確認信給 " + customerName);
     } catch (err) {
-      // 🔴 這裡也修正成 ss.toast
       ss.toast("❌ 寄信失敗：" + err.message);
-      console.log("寄信錯誤: " + err);
     }
   }
 }
@@ -171,8 +188,8 @@ function confirmBooking(targetId) {
   }
   
   if (rowIndex > 0) {
-    // 1. 更新 J 欄 (第 10 欄) 為 "已確認"
-    sheet.getRange(rowIndex, 10).setValue("已確認");
+    // 1. 更新 J 欄 (第 10 欄) 為 "客戶已確認"
+    sheet.getRange(rowIndex, 10).setValue("客戶已確認");
     
     // 2. 把整列變綠色
     sheet.getRange(rowIndex, 1, 1, 10).setBackground("#E6F4EA");
@@ -239,4 +256,3 @@ function sendLineMessage(msg) {
     Logger.log("LINE Error: " + e.toString());
   }
 }
-</div>
