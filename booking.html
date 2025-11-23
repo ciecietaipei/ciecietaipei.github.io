@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-REW7E7RH9B"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-REW7E7RH9B');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>餐飲數位轉型實例 | Google Sheets + Apps Script 自建訂位系統 | CIE CIE TAIPEI</title>
+    <meta name="description" content="餐飲/餐酒館/酒吧(開店)數位轉型實例分享。免月費、免寫 Code，教你用 Google Sheets + Apps Script + LINE Messaging API 自建專業級訂位管理後台。">
+
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* 針對文章頁面的額外微調 CSS，可整合進 style.css */
+        .article-content {
+            max-width: 900px; /* 限制文章寬度，閱讀更舒適 */
+            margin: 0 auto;
+            text-align: left; /* 文章預設靠左對齊 */
+            line-height: 1.8;
+            color: #dcdcdc; /* 配合深色背景的文字顏色 */
+        }
+        
+        .article-content h3 {
+            color: #d4af37; /* 金色標題，配合原網站風格 */
+            margin-top: 40px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .article-content ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 20px;
+        }
+
+        .article-content li {
+            margin-bottom: 10px;
+        }
+
+        .article-content b, .article-content strong {
+            color: #fff; /* 粗體字改為亮白 */
+        }
+        
+        .article-content a {
+            color: #d4af37;
+            text-decoration: underline;
+        }
+
+        /* 讓圖片容器適應文章 */
+        .article-image-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .article-image-container img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        
+        .step-block {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <header class="hero" id="home">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <a href="index.html" target="_top">
+                <img src="assets/ciecie_logo_circle.png" alt="Cie Cie Taipei Logo" class="hero-logo">
+            </a>
+            <div class="hero-social-links">
+                <a href="https://www.facebook.com/ciecietaipei/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://lin.ee/2nxT8n1" target="_blank"><i class="fab fa-line"></i></a>
+                <a href="https://www.instagram.com/ciecietaipei" target="_blank"><i class="fab fa-instagram"></i></a>
+            </div>
+                <h1>餐飲數位轉型實例</h1>
+                <p class="tagline">✦ Google Sheets 自建訂位系統 ✦</p>
+                
+                <h3>
+                <p>免月費、免寫 Code</p>
+                <p>打造專業級訂位管理後台</p>
+                </h3>
+        </div>
+    </header>
+
+    <section class="section menu" id="article">
+        <p class="ambiance-text">
+            <a href="index.html" target="_TOP" class="full-menu-link">回首頁</a>
+        </p>
+
+        <div class="article-content">
+            
+            <p class="ambiance-text">
+                開店每一分錢都要花在刀口上。市面上的訂位系統雖然強大，但每月的月費或以「訂位人數」抽成的費用，對剛起步的餐酒館或小餐廳來說是一筆不小的負擔。<br><br>
+                這篇文章以從幫 <a href="https://blog.twman.org/2023/01/ciecietaipei.html" target="_blank">朋友的餐酒館製作為 Github Pages 網站</a> 的經驗開始，聊到了線上訂位的需求問題，於是就不囉唆，來個手把手教你如何利用 Google 全家桶 (Forms + Sheets + Gmail) 搭配 LINE Messaging API，打造完全免費、且具備「雙向確認」功能的自動化訂位系統。
+            </p>
+
+            <div class="step-block">
+                <h3>🚀 這套系統能做什麼？</h3>
+                <ul>
+                    <li><b>自動接單</b>：客人填寫 Google 表單，資料自動進入後台（Google Sheet）。</li>
+                    <li><b>LINE 秒通知</b>：店家手機立刻跳出 LINE 通知（即時掌握桌況）。</li>
+                    <li><b>一鍵確認</b>：店家在手機上點一下，系統自動寄出「保留確認信」。</li>
+                    <li><b>雙向互動</b>：客人點擊信中連結確認出席，系統自動更新狀態為「已確認」，防止 No-show。</li>
+                </ul>
+            </div>
+
+            <div class="step-block">
+                <h3>🛠️ 準備工作 (Pre-requisites)</h3>
+                <p>在開始之前，你需要準備：</p>
+                <ul>
+                    <li>一個 Google 帳號 (建議用店家的專用帳號)</li>
+                    <li>一個 LINE 官方帳號 (用於發送通知)</li>
+                </ul>
+            </div>
+
+            <h3>步驟一：建立 Google 表單與資料庫</h3>
+            <p>這是系統的「門面」與「地基」。</p>
+            
+            <ul>
+                <li>建立 <a href="https://docs.google.com/spreadsheets/create" target="_blank"><b>Google Sheets (試算表)</b></a>：
+                    <ul>
+                        <li>新增一個試算表，命名為「訂位管理系統」。</li>
+                        <li>建立以下幾個欄位：訂位姓名、聯絡電話、Email、訂位日期、訂位時間、用餐人數 (下拉選單)、備註。</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="article-image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEgSctKVXa5T3Ttbrqa49UabGUyoqFk6fNnEnocXNMHcCFVlzOMpxVtrz4NKEQglA_APnBsJmYi9bkQwuOUOgYBJOOSW1xYavY-42eloEfTEK-MlinUpxC1tYEVWs3twgDZSFqygykH85VEjE0AWG6q3U4yR8agp2x5rOhL1NXMnzatdGDuACHoIQDvYytTp=w640-h316" alt="Google Sheets 欄位設定範例">
+            </div>
+
+            <ul>
+                <li>建立 <a href="https://docs.google.com/forms/" target="_blank"><b>Google Form (表單)</b></a>：
+                    <ul>
+                        <li>在試算表中點選「工具」>「建立新表單」。</li>
+                        <li>依序建立題目 (必填)：訂位姓名、聯絡電話、Email、訂位日期、訂位時間、用餐人數、備註。</li>
+                        <li>設定技巧：關閉「自動收集電子郵件」，改用我們自己建立的 Email 題目，以確保欄位順序可控。</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="article-image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEjtvAgQFnSevDMAQ1_iF-TVPGPERELzgY8FNjmVyOIWlLsUZETT1F20XxVp5ZCjqUSCfk31CixqtEag-MEDWgfDSCdCZA56DEvEQCU2sqj73Cwt_TjugnDUAdUWjBQ9tbQI6CSpFWWBTdxGtYOKv8CitzrJe5LevPAYOV_vq-56mwjDYUhtsjQjGGfnP5_y=w310-h320" alt="Google Form 設定畫面">
+            </div>
+
+            <ul>
+                <li><b>關鍵調整：校正欄位</b>
+                    <ul>
+                        <li>回到試算表，會看到「表單回應 1」分頁。</li>
+                        <li>重要！ 在 A 欄（原本的時間戳記）按右鍵 >「在左側插入 1 欄」。</li>
+                        <li>將新 A 欄命名為 <b>訂位編號</b>；調整後的 Excel 欄位，B 欄是時間戳記，E 欄是 Email。</li>
+                    </ul>
+                </li>
+                <li><b>關鍵調整：新增狀態欄與下拉選單</b>
+                    <ul>
+                        <li>滑到最右邊的空白欄位（通常是 J 欄或 K 欄），將標題命名為 <b>訂位狀態</b>。</li>
+                        <li>選擇上方選單的 「資料」>「資料驗證」。</li>
+                        <li>新增規則 > 條件選 「下拉式選單」。</li>
+                        <li>輸入選項："<b>待處理</b>"、"<b>發送確認信</b>"、"<b>客戶已確認</b>"、"<b>客戶已取消</b>"。</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="article-image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhbU15_Q0sPFHeKnjFX7SiFIGm7zpHF8PgGcFHfvclgvecKXWodcqT0KngL9ZKrqbUYbwZxPeOiGf_hNGynckji3mgRKRTpXw_xp3RYXKYi3pGguUj0XVFgFz0CuqHb6AtWA-fN12VLtNvRT6J1n4T_PY9E2x6NVNJrWWTMxAgZeneYlhVugnT_SdhsxyYT=w640-h426" alt="Excel 資料驗證設定">
+            </div>
+
+            <h3>步驟二：申請 LINE Messaging API (新版通知神器)</h3>
+            <p>由於 LINE Notify 即將走入歷史，我們直接使用最新的 Messaging API。</p>
+
+            <ul>
+                <li>前往 <a href="https://manager.line.biz/" target="_blank">LINE Official Account Manager</a> 建立一個官方帳號 (例如：Cié Cié Taipei 訂位通知)。</li>
+            </ul>
+
+            <div class="article-image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhAFG-d1A_ObukWOJmPCq4t-jrkMwJASCJ96DpWaB71wy_FEKyi2s1oOV7_rLqJZsBKZIKyoN28-gl7UZGJgubqSUZ4k0y3AqjHDMUdNevSlvAbJs7mOHw44QngNLMaOq6MtsxjxFeNdPjh5Un0lP3S2y8BHoKIFG_LVFvoC9qfXTG-hC3sHsrDBVWULjRR=w640-h316" alt="LINE Official Account Manager">
+            </div>
+
+            <ul>
+                <li>進入 設定 > Messaging API，啟用 API。</li>
+                <li>前往 <a href="https://developers.line.biz/" target="_blank">LINE Developers Console</a>，在 Channel settings 中取得 Channel Access Token (Long-lived)。</li>
+            </ul>
+
+            <div class="article-image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEj1S67kkbZ9e9PfMbRQdQWtQ6PLOEPrjub6gejFIsU8Vn19aUSXwBbaOC4XrYTejeJUMH6oVLFnrc0Vum_nCdhtyb_nRjH92ZArKsJPE6xf_2BI6tB3UFp3XfojAejbo5j3N_QiuOullIXrH1SqOD_Iqz11B_jKniW-xEV_cQiFxomcBZtyPEeBDuCs0amN=w640-h344" alt="LINE Developers Console Token">
+            </div>
+
+            <ul>
+                <li>員工加入好友：掃描官方帳號 QR Code 加入好友。</li>
+            </ul>
+            <p class="small-text" style="color: #ff6b6b; text-align: center;">注意：請至官方帳號後台關閉「自動回應訊息」，以免機器人一直回話。</p>
+
+            <h3>步驟三：植入核心大腦 (Google Apps Script)</h3>
+            <p>這是讓系統動起來的魔法。</p>
+            <ul>
+                <li>在 Google Sheets 點選 「擴充功能」>「Apps Script」。</li>
+                <li>將編輯區清空，貼上 <a href="https://raw.githubusercontent.com/ciecietaipei/ciecietaipei.github.io/refs/heads/main/booking.md" target="_blank"><b>完整的自動化程式碼</b></a>。</li>
+                <li>修改關鍵變數：
+                    <ul>
+                        <li>CHANNEL_ACCESS_TOKEN：填入步驟二取得的 LINE Token。</li>
+                        <li>SHEET_ID：填入試算表網址 /d/ 後面的亂碼。</li>
+                        <li>WEB_APP_URL：先留空，下一步填。</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="article-image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhUEpcyLXD4ZpiDp1rnNU2XgGoRmTdJjOO2ApUZzN4blJegTgLINdrytY9opE-7VAJGVroVXz4bFJnEOdQBJOVHREEIZfQuwM2c2a2cOA5P79mFxL0eNA1On1_wvJu_ibTSxuFYgbsCZ0iRD7-gEaOJRBM1oMqkaH5Bdc_ieXUpjWQ4M8cUw8dTpUCks01I=w640-h306" alt="Apps Script 編輯畫面">
+            </div>
+
+            <h3>步驟四：部署與自動化設定 (Deployment)</h3>
+            <ul>
+                <li><b>部署為 Web App：</b>
+                    <ul>
+                        <li>點擊右上角「部署」>「新增部署」> 選取「網頁應用程式」。</li>
+                        <li>執行身分：我 (Me)。</li>
+                        <li>誰可以存取：所有人 (Anyone) <--- 這點最重要！</li>
+                        <li>複製產生的網址，貼回程式碼中的 WEB_APP_URL，並建立新版本再次部署。</li>
+                    </ul>
+                </li>
+                <li><b>設定觸發條件 (Triggers)：</b>
+                    <ul>
+                        <li>點擊左側鬧鐘圖示。</li>
+                        <li>新增 <b>onFormSubmit</b> -> 觸發時機：提交表單時。</li>
+                        <li>新增 <b>sendEmailOnEdit</b> -> 觸發時機：編輯時。</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="article-image-container">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEjjqzMrv9Jxu1CjNBdhfLtpmZ_OVVcYU8LR4JiyqfYjJyre865ZJkb4H_yCSnJeEsMAPCJ1KrSPwzMJCa0TqXv_D89JSr1I8GeXdOyRl4RTYXgDBiswEK1bvFWF2OSf6o-SHubQruB_PgL3017aMcFlAjk2HWXKIISVsy_dN0tx3BRwzPzrnXJINjWoHoh2=w640-h306" alt="Trigger 設定畫面">
+            </div>
+
+            <h3>步驟五：實際操作流程演練</h3>
+            <p>系統上線後，您的日常營運流程將變得超級順暢：</p>
+            
+            <div class="step-block">
+                <p><b>1. 客人訂位</b><br>客人填寫表單後，您的 LINE 群組會立刻響起：「🔔 新訂位通知！王先生 4位...」。</p>
+                <div class="article-image-container">
+                     <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhSwl8cqkYmPGB31U7l4WyD6FzEyavJODW2GBlbvpYqSWG3RMLs7rojz1fl4M-0r16dSiDVUnDIIFR8qlG9fDb-xIXzFx1U_0RiHuv6e6p-bLWXM5SAWW57qwQyhP_8j7e3fTHYnSUeYLcELA-cf5o37s_FKfJvPT_26XVoGSUDmPd3GfttQydngzbVh9Ec=w552-h640" style="max-width: 300px;" alt="LINE 通知範例">
+                </div>
+            </div>
+
+            <div class="step-block">
+                <p><b>2. 店家確認 (手機操作)</b><br>打開 Google Sheets App，看到新訂位。若確認有位子，在「訂位狀態」欄位選擇 「<b>發送確認信</b>」。</p>
+                <div class="article-image-container">
+                    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEgbS_d2GF3cnuz_2ShRkgEPKcKjYWqFTiNqweKZAKUlEXJ-HqHWzxoFKh-qeevd2hG41EhsRYEwOhfP3Icx3LR-0X187ip37D7tcnsFjkpZJyXVXnel8Iz0nh02_0fHOyeif3W9K2YkhAcTKrtQ6HPZSxpdQYqPSSvBZyByMENISNsBRlWdQxV6a_Vo4Pkl=w640-h172" alt="手機版 Sheets 操作">
+                </div>
+            </div>
+
+            <div class="step-block">
+                <p><b>3. 系統自動寄信</b><br>系統會自動寄出一封排版精美的 Email 給客人，信中包含「確認出席」的按鈕。</p>
+                <div class="article-image-container">
+                    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEgmWGLOTPllY5yMO8o-K5rFkqg5PiyR85PuuUf8OUfg4i52bQ97GH-RtaTFxdvde315SFW4eIe3X7rWfvROxDxz8_-akYEVufJ1wDHhrahED4BIpKkS1dftEKprz12vL-94yG0vsRD0mMf9RpellZhso4o79HiFWCnOJAGrX6EorCHCoGm7fOf7HPXAj4tG" alt="Email 確認信範例">
+                </div>
+            </div>
+
+            <div class="step-block">
+                <p><b>4. 雙向確認閉環</b><br>客人點擊按鈕後，會看到「確認成功」的網頁。同時，您的後台 Excel 該筆資料會自動變成 綠色 (已確認)，LINE 也會再次通知您：「✅ 訂單成立！」。</p>
+                <div class="article-image-container">
+                    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEghe593U3TUh3nlOPJhdLDvjGCflHdh47sOSFEkcVoVI-1wPQ77kQRslFjsxrGbvGqbgE44eCbSQfrFQv4K4aDa1A-_DKczhgaFF0Ci8wMEKlq4zp-gWAzCK-Pt9n5vbdZjUFJWfoUTmE0SWriHyq7Q93ZpTn4WnlikFeTcSRrg2vxKgfVZvOEp8VEWlOOY=w640-h304" alt="確認成功頁面">
+                </div>
+            </div>
+
+            <h3>💡 進階優化心得</h3>
+            <ul>
+                <li><b>數據資產自己握</b>：不同於外部平台，這些客戶資料都在自己的 Google 雲端，未來要做 EDM 行銷或會員分析非常方便。</li>
+                <li><b>完全客製化</b>：Email 的文案、Logo、顏色，甚至 LINE 通知的格式，全部都能依照品牌風格調整。</li>
+                <li><b>成本控制</b>：在月訂位量 200 組以內，這套系統幾乎是 0 元。</li>
+            </ul>
+
+            <p class="ambiance-text">
+                數位轉型不需要花大錢。透過聰明的工具組合，小店也能擁有專業級的營運效率！<br>
+                (如果您在設定過程中有任何問題，歡迎交流！)
+            </p>
+
+        </div>
+    </section>
+
+    <footer>
+        <a href="https://blog.twman.org/p/ciecietaipei.html" target="_blank"><p>© 2025 CIE CIE TAIPEI. All Rights Reserved.</p></a>
+        <p class="footer-note">未滿十八歲請勿飲酒。喝酒不開車，開車不喝酒。</p>
+        <p class="footer-note">📍店家地址：大安區信義路四段390號 📍訂位專線：02-27093446</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-REW7E7RH9B"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-REW7E7RH9B');
+    </script>
+
+    <script>
+      window.__ow = window.__ow || {};
+      window.__ow.organizationId = "8f27934a-6481-41d3-8c0f-ade1493aaa89";
+      window.__ow.integration_name = "manual_settings";
+      window.__ow.product_name = "openwidget";   
+      ;(function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n)}var e={_q:[],_h:null,_v:"2.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[OpenWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.openwidget.com/openwidget.js",t.head.appendChild(n)}};!n.__ow.asyncInit&&e.init(),n.OpenWidget=n.OpenWidget||e}(window,document,[].slice))
+    </script>
+    <noscript>You need to <a href="https://www.openwidget.com/enable-javascript" rel="noopener nofollow">enable JavaScript</a> to use the communication tool powered by <a href="https://www.openwidget.com/" rel="noopener nofollow" target="_blank">OpenWidget</a></noscript>
+    </body>
+</html>
