@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cié Cié Taipei 訂位</title>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        /* 簡單美觀的樣式 */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f8f9fa; padding: 20px; color: #333; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; margin-bottom: 20px; color: #111; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        button { width: 100%; padding: 14px; background-color: #06c755; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:disabled { background-color: #ccc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Cié Cié Taipei 訂位</h2>
+        <form id="bookingForm">
+            <div class="form-group"><label>姓名</label><input type="text" id="name" required></div>
+            <div class="form-group"><label>電話</label><input type="tel" id="phone" required></div>
+            <div class="form-group"><label>Email (接收確認信)</label><input type="email" id="email" required></div>
+            <div class="form-group"><label>日期</label><input type="date" id="date" required></div>
+            <div class="form-group"><label>時間</label><input type="time" id="time" required></div>
+            <div class="form-group">
+                <label>人數</label>
+                <select id="people">
+                    <option value="1">1位</option>
+                    <option value="2" selected>2位</option>
+                    <option value="3">3位</option>
+                    <option value="4">4位</option>
+                    <option value="5人以上">5位以上</option>
+                </select>
+            </div>
+            <div class="form-group"><label>備註</label><textarea id="note" rows="3"></textarea></div>
+            <button type="submit" id="submitBtn">立即訂位</button>
+        </form>
+    </div>
+
+    <script>
+        // ▼▼▼ 設定區 ▼▼▼
+        const LIFF_ID = '2008566627';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxhZ_kmBo65uNM_aYUUIq6AIEOyFrcD-KBbfJ1kMXhZauJgDGeKB27dejJGCcmPNOjT/exec';
+        // ▲▲▲ 設定區 ▲▲▲
+
+        let userId = '';
+
+        // 1. 初始化 LIFF
+        liff.init({ liffId: LIFF_ID }).then(() => {
+            if (!liff.isLoggedIn()) {
+                liff.login();
+            } else {
+                liff.getProfile().then(profile => {
+                    userId = profile.userId;
+                    // 自動填入 LINE 暱稱 (選用)
+                    // document.getElementById('name').value = profile.displayName;
+                });
+            }
+        }).catch(err => {
+            console.error(err);
+            alert('LIFF 初始化失敗');
+        });
+
+        // 2. 送出表單
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = '訂位處理中...';
+
+            const formData = {
+                type: 'new_booking', // 標記為新訂位
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                people: document.getElementById('people').value,
+                note: document.getElementById('note').value,
+                userId: userId
+            };
+
+            // 傳送到 GAS
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify(formData),
+                mode: 'no-cors', // 關鍵: 避免跨域錯誤
+                headers: { 'Content-Type': 'application/json' }
+            }).then(() => {
+                alert('訂位申請已送出！\n\n我們將審核您的訂位，確認後會發送 Email 通知。');
+                liff.closeWindow(); // 關閉視窗
+            }).catch(error => {
+                alert('系統忙碌中，請稍後再試');
+                btn.disabled = false;
+                btn.textContent = '立即訂位';
+            });
+        });
+    </script>
+</body>
+</html>
