@@ -12,6 +12,7 @@ const SHEET_ID = "";
 const WEB_APP_URL = ""; 
 
 
+
 // ======================================================
 // 核心程式碼開始 (已針對 C 欄空白、Email 在 F 欄修正)
 // ======================================================
@@ -255,4 +256,154 @@ function sendLineMessage(msg) {
   } catch (e) {
     Logger.log("LINE Error: " + e.toString());
   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ▼▼▼ 設定區 ▼▼▼
+const CHANNEL_ACCESS_TOKEN = '';
+const ADMIN_USER_ID = ''; // 測試第一次後，去Sheet複製你的ID填回來
+// ▲▲▲ 設定結束 ▲▲▲
+
+function doPost(e) {
+// ▼▼▼ 加這行，並確保用 console.error (比較顯眼) ▼▼▼
+  console.error("🔥 收到訊號了！參數 e: " + JSON.stringify(e));
+
+  let postData;
+  try {
+    postData = JSON.parse(e.postData.contents);
+    console.log("收到資料: " + JSON.stringify(postData)); // Log 2: 印出收到的內容
+  } catch (err) {
+    console.log("JSON 解析失敗: " + err.toString());
+    return ContentService.createTextOutput("JSON Error");
+  }
+
+  // 1. LIFF 新訂位
+  if (postData.type === 'new_booking') {
+    console.log("進入 new_booking 流程"); // Log 3
+    return handleNewBooking(postData);
+  } 
+  
+  // 2. 按鈕回傳
+  else if (postData.events && postData.events.length > 0) {
+    console.log("進入 Button Postback 流程");
+    postData.events.forEach(function(event) {
+      if (event.type === 'postback') { handlePostback(event); }
+    });
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleNewBooking(data) {
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    sheet.appendRow([
+      new Date(), data.name, data.phone, data.email, 
+      data.date, data.time, data.people, data.note, 
+      data.userId, '待確認', '未發送'
+    ]);
+    console.log("Sheet 寫入成功！"); // Log 4
+    
+    // 強制發送 LINE
+    const flexContent = createAdminFlex(data, sheet.getLastRow());
+    pushFlex(ADMIN_USER_ID, "新訂位通知", flexContent);
+    
+    return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
+  } catch (e) {
+    console.log("寫入或發送失敗: " + e.toString()); // Log 5: 抓出錯誤
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: e.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// ... (以下是工具函式，保持不變) ...
+
+function pushFlex(to, alt, contents) {
+  console.log("準備發送 LINE 給: " + to);
+  try {
+    const res = UrlFetchApp.fetch('https://api.line.me/v2/bot/message/push', {
+      method: 'post',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CHANNEL_ACCESS_TOKEN },
+      payload: JSON.stringify({ to: to, messages: [{ type: "flex", altText: alt, contents: contents }] }),
+      muteHttpExceptions: true
+    });
+    console.log("LINE 回應: " + res.getContentText());
+  } catch (e) {
+    console.log("LINE 發送崩潰: " + e.toString());
+  }
+}
+
+function createAdminFlex(data, row) {
+  return {
+    "type": "bubble",
+    "body": { "type": "box", "layout": "vertical", "contents": [
+        { "type": "text", "text": "🔔 新訂位", "weight": "bold", "size": "xl", "color": "#1DB446" },
+        { "type": "text", "text": `${data.name} / ${data.people}位`, "margin": "md" },
+        { "type": "text", "text": `${data.date} ${data.time}`, "weight": "bold", "size": "lg" }
+    ]},
+    "footer": { "type": "box", "layout": "vertical", "contents": [
+        { "type": "button", "style": "primary", "color": "#06c755", "action": { "type": "postback", "label": "✅ 確認接單", "data": JSON.stringify({ action: "admin_approve", row: row }) }}
+    ]}
+  };
+}
+
+function handlePostback(event) {
+  // 簡化版 Postback，確保不報錯
+  const data = JSON.parse(event.postback.data);
+  const rowIndex = data.row;
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  if (data.action === 'admin_approve') {
+     sheet.getRange(rowIndex, 10).setValue('已確認');
+     pushMessage(ADMIN_USER_ID, "✅ 訂單 #" + rowIndex + " 已確認");
+  }
+  if (data.action === 'user_confirm_attendance') {
+     sheet.getRange(rowIndex, 10).setValue('顧客已二確');
+     pushMessage(ADMIN_USER_ID, "🎉 顧客出席確認 (訂單 #" + rowIndex + ")");
+  }
+}
+
+function pushMessage(to, msg) {
+  UrlFetchApp.fetch('https://api.line.me/v2/bot/message/push', {
+    method: 'post',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CHANNEL_ACCESS_TOKEN },
+    payload: JSON.stringify({ to: to, messages: [{ type: 'text', text: msg }] }),
+    muteHttpExceptions: true
+  });
 }
