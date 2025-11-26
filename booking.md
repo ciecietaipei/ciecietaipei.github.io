@@ -48,6 +48,7 @@ function onFormSubmit(e) {
   var dateRaw = rowData[5];      // G欄 (日期原始資料)
   var timeRaw = rowData[6];      // H欄 (時間原始資料)
   var pax = rowData[7];          // I欄 (人數)
+  var tel = rowData[3];          // 電話
   
 // 1. 格式化日期 (yyyy/MM/dd)
   var dateStr = "";
@@ -74,6 +75,7 @@ function onFormSubmit(e) {
   
   var msg = "🔔 CIECIE Taipei 新訂位通知！\n" + 
             "姓名：" + customerName + "\n" + 
+            "電話：" + tel + "\n" +
             "時間：" + dateStr + " " + timeStr + "\n" +  // 這裡改用 timeStr
             "人數：" + pax + "\n" +
             "狀態：待處理";
@@ -198,14 +200,34 @@ function confirmBooking(targetId) {
     // 3. 取得資訊通知店家 (LINE)
     // 重新讀取該列確保資料最新
     var rowData = sheet.getRange(rowIndex, 1, 1, 12).getValues()[0];
-    var name = rowData[3]; // D欄
-    var dateRaw = rowData[6]; // G欄
-    var dateStr = Utilities.formatDate(new Date(dateRaw), "GMT+8", "MM/dd");
-    var timeStr = rowData[7]; // H欄
+    var name = rowData[2]; // D欄
     
+    var dateRaw = rowData[5]; // G欄
+    var dateStr = Utilities.formatDate(new Date(dateRaw), "GMT+8", "MM/dd");
+    
+    // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+    // 修正開始：這裡原本直接抓 rowData[6] 會變成 1899 年
+    // 請改用下面這段邏輯來處理時間
+    var timeRaw = rowData[6]; // H欄
+    var timeStr = "";
+    if (timeRaw) {
+      if (typeof timeRaw === 'object') {
+        // 如果是日期物件，就只取出 HH:mm，這樣就不會顯示 1899 年了
+        timeStr = Utilities.formatDate(new Date(timeRaw), "GMT+8", "HH:mm");
+      } else {
+        // 如果已經是字串 (例如 '19:30') 就直接用
+        timeStr = timeRaw.toString();
+      }
+    }
+    // 修正結束
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+    var tel = rowData[3];          // 電話
+
     var confirmMsg = "✅ 訂位成立 (客人已按確認)！\n" +
                      "編號：" + targetId + "\n" +
                      "姓名：" + name + "\n" +
+                     "電話：" + tel + "\n" +
                      "時間：" + dateStr + " " + timeStr;
                      
     sendLineMessage(confirmMsg);
@@ -297,40 +319,66 @@ function sendLineMessage(msg) {
 
 
 
-// ▼▼▼ 設定區 ▼▼▼
-const CHANNEL_ACCESS_TOKEN = '';
-const ADMIN_USER_ID = ''; // 測試第一次後，去Sheet複製你的ID填回來
+
+
+/**
+ * =========================================================
+ * 餐廳訂位系統 - 雙通道結構 (Customer Channel A / Admin Channel B)
+ * =========================================================
+ */
+
+// ▼▼▼ 設定區：請填入你的兩個通道 Token ▼▼▼
+// ⚠️ 通道 B: 管理者/通知帳號的 Token (Web App 的 Webhook 也應該設在這裡)
+// const ADMIN_CHANNEL_TOKEN = '請填入_Bot_B_老闆通知用的_Token'; 
+const ADMIN_CHANNEL_TOKEN = '';
+
+
+// ⚠️ 通道 A: 顧客訂位官方帳號的 Token (用於推播給顧客)
+// const CUSTOMER_CHANNEL_TOKEN = '請填入_Bot_A_原本舊帳號的_Token';
+const CUSTOMER_CHANNEL_TOKEN = '';
+
+// ⚠️ 管理者 User ID (接收通知的老闆 ID)
+// const ADMIN_USER_ID = '請填入_老闆你的_User_ID'; 
+const ADMIN_USER_ID = '';
 // ▲▲▲ 設定結束 ▲▲▲
 
+// ---------------------------------------------------------
+// 主函式 (不變)
+// ---------------------------------------------------------
+
 function doPost(e) {
-// ▼▼▼ 加這行，並確保用 console.error (比較顯眼) ▼▼▼
   console.error("🔥 收到訊號了！參數 e: " + JSON.stringify(e));
 
   let postData;
   try {
     postData = JSON.parse(e.postData.contents);
-    console.log("收到資料: " + JSON.stringify(postData)); // Log 2: 印出收到的內容
+    console.log("Log 2: 收到資料: " + JSON.stringify(postData)); 
   } catch (err) {
     console.log("JSON 解析失敗: " + err.toString());
     return ContentService.createTextOutput("JSON Error");
   }
 
-  // 1. LIFF 新訂位
   if (postData.type === 'new_booking') {
-    console.log("進入 new_booking 流程"); // Log 3
+    console.log("Log 3: 進入 new_booking 流程 (LIFF)"); 
     return handleNewBooking(postData);
   } 
   
-  // 2. 按鈕回傳
   else if (postData.events && postData.events.length > 0) {
-    console.log("進入 Button Postback 流程");
+    console.log("Log 3: 進入 LINE Webhook 事件流程 (按鈕)");
     postData.events.forEach(function(event) {
-      if (event.type === 'postback') { handlePostback(event); }
+      if (event.type === 'postback') { 
+        // ⚠️ Webhook 來自 Admin Channel B，所以使用 Admin Token
+        handlePostback(ADMIN_CHANNEL_TOKEN, event); 
+      }
     });
   }
   
   return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
 }
+
+// ---------------------------------------------------------
+// 流程函式：處理新訂位 (使用 Admin Channel B Token 推播給 Admin)
+// ---------------------------------------------------------
 
 function handleNewBooking(data) {
   try {
@@ -340,70 +388,149 @@ function handleNewBooking(data) {
       data.date, data.time, data.people, data.note, 
       data.userId, '待確認', '未發送'
     ]);
-    console.log("Sheet 寫入成功！"); // Log 4
+    console.log("Log 4: Sheet 寫入成功！"); 
     
-    // 強制發送 LINE
     const flexContent = createAdminFlex(data, sheet.getLastRow());
-    pushFlex(ADMIN_USER_ID, "新訂位通知", flexContent);
+    // ⚠️ 推播給 Admin (用 Admin Channel B Token)
+    pushFlex(ADMIN_CHANNEL_TOKEN, ADMIN_USER_ID, "新訂位通知", flexContent); 
     
     return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
   } catch (e) {
-    console.log("寫入或發送失敗: " + e.toString()); // Log 5: 抓出錯誤
+    console.log("Log 5: 寫入或發送失敗: " + e.toString()); 
     return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: e.toString() })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
-// ... (以下是工具函式，保持不變) ...
+// ---------------------------------------------------------
+// 流程函式：處理按鈕回傳 (重點修改處)
+// ---------------------------------------------------------
 
-function pushFlex(to, alt, contents) {
-  console.log("準備發送 LINE 給: " + to);
+function handlePostback(adminToken, event) {
+  const data = JSON.parse(event.postback.data);
+  const rowIndex = data.row;
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  
+  // 🔍 除錯點 1：確認讀取的是哪一列？
+  debugLog("開始處理按鈕回傳，目標列號：" + rowIndex + "，動作：" + data.action);
+
+  // 讀取顧客 ID (請確認您的 Sheet 裡，UserID 真的是在第 9 欄 (I欄) 嗎？)
+  const customerUserId = sheet.getRange(rowIndex, 9).getValue(); 
+  
+  // 🔍 除錯點 2：確認抓到的 ID 是什麼？
+  debugLog("讀取到的顧客 UserID：" + customerUserId);
+
+  if (data.action === 'admin_approve') {
+      sheet.getRange(rowIndex, 10).setValue('已確認');
+      
+      // 1. 回覆 Admin
+      pushMessage(adminToken, ADMIN_USER_ID, "✅ 訂單 #" + rowIndex + " 已確認"); 
+
+      // 2. 通知 Customer
+      debugLog("準備發送給顧客，使用 Token A (Customer Channel)");
+      pushMessage(CUSTOMER_CHANNEL_TOKEN, customerUserId, 
+                  "🎉 您的訂位 (訂單 #" + rowIndex + ") 已被餐廳確認！期待您的光臨！");
+  }
+  
+  if (data.action === 'user_confirm_attendance') {
+      sheet.getRange(rowIndex, 10).setValue('顧客已二確');
+      pushMessage(adminToken, ADMIN_USER_ID, "🔔 顧客已完成出席二次確認 (訂單 #" + rowIndex + ")。");
+  }
+}
+
+// ---------------------------------------------------------
+// 工具函式：Flex Message 推播 (多了一個 token 參數)
+// ---------------------------------------------------------
+
+function pushFlex(token, to, alt, contents) {
+  console.log("準備發送 Flex 給: " + to + " (Token: " + (token === ADMIN_CHANNEL_TOKEN ? "Admin" : "Customer") + ")");
   try {
     const res = UrlFetchApp.fetch('https://api.line.me/v2/bot/message/push', {
       method: 'post',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CHANNEL_ACCESS_TOKEN },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       payload: JSON.stringify({ to: to, messages: [{ type: "flex", altText: alt, contents: contents }] }),
       muteHttpExceptions: true
     });
-    console.log("LINE 回應: " + res.getContentText());
+    console.log("LINE Flex 回應: " + res.getContentText()); 
   } catch (e) {
-    console.log("LINE 發送崩潰: " + e.toString());
+    console.log("LINE Flex 發送崩潰: " + e.toString());
   }
 }
+
+// ---------------------------------------------------------
+// 工具函式：文字訊息推播 (多了一個 token 參數)
+// ---------------------------------------------------------
+
+// ---------------------------------------------------------
+// 工具函式：文字訊息推播 (最終偵錯版)
+// ---------------------------------------------------------
+// 修改後的推播函式 (會把結果寫回 Sheet)
+function pushMessage(token, to, msg) {
+  debugLog("正在推播訊息給：" + to);
+  
+  try {
+    const res = UrlFetchApp.fetch('https://api.line.me/v2/bot/message/push', {
+      method: 'post',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      payload: JSON.stringify({ to: to, messages: [{ type: 'text', text: msg }] }),
+      muteHttpExceptions: true // 讓它不要直接報錯，這樣我們才能讀取錯誤碼
+    });
+    
+    const responseCode = res.getResponseCode();
+    const responseBody = res.getContentText();
+    
+    // 🔍 除錯點 3：LINE 到底回傳了什麼？
+    debugLog("LINE 回應碼：" + responseCode + "，回應內容：" + responseBody);
+    
+    if (responseCode !== 200) {
+      debugLog("❌ 發送失敗！請檢查上面的回應內容");
+    }
+
+  } catch (e) {
+    debugLog("💥 程式崩潰：" + e.toString());
+  }
+}
+
+// ---------------------------------------------------------
+// 工具函式：建立管理者 Flex 卡片 (不變)
+// ---------------------------------------------------------
 
 function createAdminFlex(data, row) {
   return {
     "type": "bubble",
-    "body": { "type": "box", "layout": "vertical", "contents": [
+    "body": { 
+      "type": "box", "layout": "vertical", "contents": [
         { "type": "text", "text": "🔔 新訂位", "weight": "bold", "size": "xl", "color": "#1DB446" },
         { "type": "text", "text": `${data.name} / ${data.people}位`, "margin": "md" },
         { "type": "text", "text": `${data.date} ${data.time}`, "weight": "bold", "size": "lg" }
     ]},
-    "footer": { "type": "box", "layout": "vertical", "contents": [
-        { "type": "button", "style": "primary", "color": "#06c755", "action": { "type": "postback", "label": "✅ 確認接單", "data": JSON.stringify({ action: "admin_approve", row: row }) }}
+    "footer": { 
+      "type": "box", "layout": "vertical", "contents": [
+        { 
+          "type": "button", 
+          "style": "primary", 
+          "color": "#06c755", 
+          "action": { 
+            "type": "postback", 
+            "label": "✅ 確認接單", 
+            "data": JSON.stringify({ action: "admin_approve", row: String(row) }) 
+          }
+        }
     ]}
   };
-}
 
-function handlePostback(event) {
-  // 簡化版 Postback，確保不報錯
-  const data = JSON.parse(event.postback.data);
-  const rowIndex = data.row;
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  if (data.action === 'admin_approve') {
-     sheet.getRange(rowIndex, 10).setValue('已確認');
-     pushMessage(ADMIN_USER_ID, "✅ 訂單 #" + rowIndex + " 已確認");
-  }
-  if (data.action === 'user_confirm_attendance') {
-     sheet.getRange(rowIndex, 10).setValue('顧客已二確');
-     pushMessage(ADMIN_USER_ID, "🎉 顧客出席確認 (訂單 #" + rowIndex + ")");
+  // ▼▼▼ 把這段加在程式碼最下面 ▼▼▼
+function debugLog(msg) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName("Debug_Log");
+    if (!sheet) {
+      sheet = ss.insertSheet("Debug_Log"); // 如果沒有就自動建立
+      sheet.appendRow(["時間", "訊息內容"]);
+    }
+    sheet.appendRow([new Date(), msg]);
+  } catch (e) {
+    // 如果連寫 Log 都失敗，那就真的沒辦法了
   }
 }
-
-function pushMessage(to, msg) {
-  UrlFetchApp.fetch('https://api.line.me/v2/bot/message/push', {
-    method: 'post',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CHANNEL_ACCESS_TOKEN },
-    payload: JSON.stringify({ to: to, messages: [{ type: 'text', text: msg }] }),
-    muteHttpExceptions: true
-  });
+// ▲▲▲ 除錯工具結束 ▲▲▲
 }
