@@ -1,26 +1,41 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ----------------------------------------------------
-    // 影片彈出視窗 (Modal) 邏輯 (此區塊完全不變)
+// ----------------------------------------------------
+    // 影片彈出視窗 (Modal) 邏輯 - 優化版 (解決卡頓+延遲播放)
     // ----------------------------------------------------
     const logoTrigger = document.querySelector('.logo-trigger');
     const videoModal = document.getElementById('video-modal');
-    // 【修正關閉按鈕選取範圍】
     const videoCloseBtn = videoModal ? videoModal.querySelector('.close-btn') : null;
     const videoPlayer = document.getElementById('popup-video');
+    const videoSrc = "assets/20251024.mp4"; // 影片路徑設定在這裡
 
-    if (logoTrigger && videoModal && videoCloseBtn && videoPlayer) {
-        const closeVideoModal = () => {
-            videoModal.classList.remove('open');
+    // 開啟影片的函式
+    const openVideoModal = () => {
+        if (videoPlayer && !videoPlayer.getAttribute('src')) {
+             videoPlayer.src = videoSrc; // 要看的時候才載入影片
+        }
+        if (videoModal) videoModal.classList.add('open');
+        if (videoPlayer) videoPlayer.play().catch(e => console.log("自動播放需使用者互動"));
+    };
+
+    // 關閉影片的函式
+    const closeVideoModal = () => {
+        if (videoModal) videoModal.classList.remove('open');
+        if (videoPlayer) {
             videoPlayer.pause();
             videoPlayer.currentTime = 0;
-        };
+            // 選擇性：若想省流量可清空 src，但在這裡保留以便重複觀看
+        }
+    };
 
+    if (logoTrigger && videoModal && videoCloseBtn && videoPlayer) {
+        // 1. 點擊 Logo 主動開啟
         logoTrigger.addEventListener('click', (e) => {
             e.preventDefault();
-            videoModal.classList.add('open');
-            videoPlayer.play();
+            openVideoModal();
         });
+
+        // 2. 關閉按鈕與點擊背景關閉
         videoCloseBtn.addEventListener('click', closeVideoModal);
         videoModal.addEventListener('click', (e) => {
             if (e.target === videoModal) closeVideoModal();
@@ -28,6 +43,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && videoModal.classList.contains('open')) closeVideoModal();
         });
+
+        // 3. 【新功能】延遲 3 秒自動彈出 (解決 GA4 顯示的跳出問題)
+        // 使用 sessionStorage 確保使用者「每次開瀏覽器」只會跳出一次，不會煩人
+        if (!sessionStorage.getItem('videoShown')) {
+            setTimeout(() => {
+                openVideoModal();
+                sessionStorage.setItem('videoShown', 'true');
+            }, 10000); // 10000 毫秒 = 10 秒
+        }
     }
 
     // ----------------------------------------------------
