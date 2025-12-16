@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 openVideoModal();
                 sessionStorage.setItem('videoShown', 'true');
-            }, 10000); // 10000 毫秒 = 10 秒
+            }, 30000); // 10000 毫秒 = 10 秒
         }
     }
 
