@@ -139,6 +139,15 @@ h2 {
     animation: spin 8s linear infinite; /* 動畫名稱, 持續時間, 速度曲線, 重複次數 */
 }
 
+/* 讓卡片裡的圖片有放大特效 */
+.card-img-zoom {
+    transition: transform 0.5s ease; /* 0.5秒平滑過渡 */
+}
+
+.card-img-zoom:hover {
+    transform: scale(1.1); /* 放大 1.1 倍 */
+}
+
 /* **** 定義旋轉動畫 @keyframes **** */
 @keyframes spin {
     0% { transform: rotate(0deg); } /* 從 0 度開始 */
