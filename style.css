@@ -305,12 +305,24 @@ h2 {
     user-select: none; /* 防止在拖曳時選中文字 */
 }
 
+.menu-card-2026 {
+    background-color: #252525;
+    padding: 20px;
+    border-radius: 8px;
+
+    /* 關鍵：固定卡片寬度，防止 flex 擠壓它們 */
+    flex: 0 0 280px;
+
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    border-top: 3px solid var(--color-accent-gold);
+}
 
 .menu-card {
     background-color: #252525;
     padding: 20px;
     border-radius: 8px;
-    
+
     /* 關鍵：固定卡片寬度，防止 flex 擠壓它們 */
     flex: 0 0 280px;
 
