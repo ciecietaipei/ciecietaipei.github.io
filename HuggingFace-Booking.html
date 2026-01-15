@@ -223,16 +223,28 @@ create table bookings (
             <pre>
 function doPost(e) {
   try {
+    // 1. 解析來自 HF Space 的資料
     var param = JSON.parse(e.postData.contents);
+    var to = param.to;
+    var subject = param.subject;
+    var htmlBody = param.htmlBody;
+    var name = param.name || "Cié Cié Taipei"; // 預設寄件者名稱
+
+    // 2. 使用 Gmail 發信 (這是 Google 內部功能，不會被擋)
     MailApp.sendEmail({
-      to: param.to,
-      subject: param.subject,
-      htmlBody: param.htmlBody,
-      name: param.name
+      to: to,
+      subject: subject,
+      htmlBody: htmlBody,
+      name: name
     });
-    return ContentService.createTextOutput(JSON.stringify({ "status": "success" })).setMimeType(ContentService.MimeType.JSON);
+
+    // 3. 回傳成功訊息
+    return ContentService.createTextOutput(JSON.stringify({ "status": "success" }))
+      .setMimeType(ContentService.MimeType.JSON);
+
   } catch (error) {
-    return ContentService.createTextOutput(JSON.stringify({ "status": "error" })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ "status": "error", "message": error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }</pre>
             <ul>
