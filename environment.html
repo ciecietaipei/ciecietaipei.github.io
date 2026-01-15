@@ -110,27 +110,60 @@ description: CIE CIE TAIPEI，大安區信義安和餐酒館，近捷運信義�
                 <img loading="lazy" loading="lazy" loading="lazy" src="assets/ciecie_logo_circle.png" alt="Cie Cie Taipei Logo" class="hero-logo">
             </a>
 
-<div class="quick-anchors" style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+<div class="quick-anchors" style="display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; max-width: 700px;">
 
     <a href="./booking.html"
        class="btn btn-warning shadow pulse-effect"
        target="_top"
-       style="background-color: #ffc107; color: #000; padding: 12px 30px; border-radius: 50px; font-weight: bold; font-size: 1.1rem; text-decoration: none; margin-bottom: 10px;">
-       📅 馬上訂位
+       style="background-color: #ffc107; color: #000; padding: 12px 35px; border-radius: 50px; font-weight: 700; font-size: 1.1rem; text-decoration: none; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4); letter-spacing: 1px; margin-bottom: 5px;">
+       📅 立即線上訂位
     </a>
 
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-bottom: 15px;">
-        <a href="./FAQ.html" class="qa-link" target="_top" style="color: white; text-decoration: none; border-bottom: 1px solid white;">FAQ</a>
-        <a href="./drinks.html" class="qa-link" style="color: white; text-decoration: none; border-bottom: 1px solid white;">查看酒單</a>
-        <a href="./foods.html" class="qa-link" style="color: white; text-decoration: none; border-bottom: 1px solid white;">精緻餐點</a>
-        <a href="./environment.html" class="qa-link" style="color: white; text-decoration: none; border-bottom: 1px solid white;">環境介紹</a>
-        <a href="https://drive.google.com/drive/folders/1z6CMGhriXizFs7NFf7QHYJ3_9K8njPaa" target="_blank" class="qa-link" style="color: white; text-decoration: none; border-bottom: 1px solid white;">完整菜單 (PDF)</a>
+    <style>
+        .nav-pill {
+            display: inline-flex;
+            align-items: center;
+            color: #eee; /* 稍微偏灰白，不搶眼 */
+            border: 1px solid rgba(255,255,255,0.25); /* 淡淡的邊框 */
+            padding: 8px 18px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.05); /* 極淡的背景 */
+            backdrop-filter: blur(4px); /* 磨砂質感 */
+        }
+        .nav-pill:hover {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+            transform: translateY(-2px); /* 懸停時微微上浮 */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .nav-pill i {
+            margin-right: 6px; /* 圖示與文字的距離 */
+        }
+    </style>
+
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+        <a href="./FAQ.html" target="_top" class="nav-pill"><i class="fas fa-question-circle"></i> FAQ</a>
+        <a href="./drinks.html" class="nav-pill"><i class="fas fa-wine-glass-alt"></i> 查看酒單</a>
+        <a href="./foods.html" class="nav-pill"><i class="fas fa-utensils"></i> 精緻餐點</a>
+        <a href="./environment.html" class="nav-pill"><i class="fas fa-store"></i> 環境介紹</a>
+        <a href="https://drive.google.com/drive/folders/1z6CMGhriXizFs7NFf7QHYJ3_9K8njPaa" target="_blank" class="nav-pill"><i class="fas fa-file-pdf"></i> 完整菜單</a>
     </div>
 
-    <div style="display: flex; justify-content: center; gap: 20px;">
-        <a href="./AppsScripts-Booking.html" class="qa-link" style="color: #ccc; font-size: 0.9em;">AppsScripts數位轉型</a>
-        <a href="./HuggingFace-Booking.html" class="qa-link" style="color: #ccc; font-size: 0.9em;">HuggingFace數位轉型</a>
+<div style="display: flex; justify-content: center; gap: 20px; margin-top: 12px;">
+        <a href="./AppsScripts-Booking.html" style="color: #e0e0e0; font-size: 0.85rem; text-decoration: none; border-bottom: 1px solid #888; padding-bottom: 2px; transition: all 0.3s;">
+            <i class="fas fa-code"></i> AppsScripts 轉型案例
+        </a>
+        <a href="./HuggingFace-Booking.html" style="color: #e0e0e0; font-size: 0.85rem; text-decoration: none; border-bottom: 1px solid #888; padding-bottom: 2px; transition: all 0.3s;">
+            <i class="fas fa-robot"></i> HuggingFace 轉型案例
+        </a>
     </div>
+
+</div>
 
             <div class="hero-social-links">
                 <a href="https://www.facebook.com/ciecietaipei/" target="_blank"><i class="fab fa-facebook-f"></i></a>
@@ -383,16 +416,6 @@ description: CIE CIE TAIPEI，大安區信義安和餐酒館，近捷運信義�
     </div>
 </div>
 
-<!-- Start of OpenWidget (www.openwidget.com) code -->
-<script>
-  window.__ow = window.__ow || {};
-  window.__ow.organizationId = "8f27934a-6481-41d3-8c0f-ade1493aaa89";
-  window.__ow.integration_name = "manual_settings";
-  window.__ow.product_name = "openwidget";   
-  ;(function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n)}var e={_q:[],_h:null,_v:"2.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[OpenWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.openwidget.com/openwidget.js",t.head.appendChild(n)}};!n.__ow.asyncInit&&e.init(),n.OpenWidget=n.OpenWidget||e}(window,document,[].slice))
-</script>
-<noscript>You need to <a href="https://www.openwidget.com/enable-javascript" rel="noopener nofollow">enable JavaScript</a> to use the communication tool powered by <a href="https://www.openwidget.com/" rel="noopener nofollow" target="_blank">OpenWidget</a></noscript>
-<!-- End of OpenWidget code -->
 
 <!-- 圖片放大彈出視窗 -->
 <div id="image-modal" class="modal">
