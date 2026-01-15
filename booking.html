@@ -161,6 +161,27 @@
             line-height: 1.6;
         }
 
+        /* Iframe 設定 */
+        #booking-frame {
+            width: 1px;
+            min-width: 100%;
+            /* 確保高度足夠，這裡建議寫死一個夠大的高度，或是透過 JS 動態調整，
+            但在跨域情況下 JS 很難抓到高度，所以寫死 1000px 是最穩的 */
+            height: 1000px;
+            border: none;
+            display: block;
+            border-radius: 8px;
+            /* 針對 iOS 的優化 */
+            overflow: hidden;
+        }
+
+        /* 針對 iOS 裝置的容器優化 */
+        .booking-section {
+            /* ... 原本的設定 ... */
+            -webkit-overflow-scrolling: touch; /* 讓滑動更順暢 */
+            overflow-y: auto;
+        }
+
     </style>
 </head>
 <body>

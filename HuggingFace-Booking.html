@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-REW7E7RH9B"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-REW7E7RH9B');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>餐飲數位轉型 2.0 | Hugging Face + Supabase 自建企業級訂位系統 | CIE CIE TAIPEI</title>
+    <meta name="description" content="餐飲數位轉型進階版。擺脫 Google Sheets 限制，教你用 Python (Gradio) + Supabase + LINE Messaging API 打造企業級前後端分離訂位系統。">
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="CIE CIE TAIPEI | 台北 101 跨年餐廳首選 | 信義安和餐酒館" />
+    <meta property="og:description" content="大安區酒吧，提供高質感調酒與義式餐點。立即線上訂位，享受微醺時光。" />
+    <meta property="og:image" content="https://ciecietaipei.github.io/assets/ciecie-image_1f-1.jpg" />
+    <meta property="og:url" content="https://ciecietaipei.github.io/" />
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* 文章頁面專用 CSS */
+        .article-content {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: left;
+            line-height: 1.8;
+            color: #dcdcdc;
+        }
+        
+        .article-content h3 {
+            color: #d4af37;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .article-content h4 {
+            color: #ffc107;
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+
+        .article-content ul, .article-content ol {
+            padding-left: 40px;
+            margin-bottom: 20px;
+        }
+
+        .article-content li {
+            margin-bottom: 10px;
+        }
+
+        .article-content b, .article-content strong {
+            color: #fff;
+        }
+        
+        .article-content a {
+            color: #d4af37;
+            text-decoration: underline;
+        }
+
+        .article-image-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .article-image-container img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .step-block {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        /* 程式碼區塊樣式 */
+        pre {
+            background: #1e1e1e;
+            color: #dcdcdc;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            border: 1px solid #444;
+        }
+        
+        code {
+            color: #d4af37;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <header class="hero" id="home">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <a href="#" class="logo-trigger">
+                <img src="assets/ciecie_logo_circle.png" alt="Cie Cie Taipei Logo" class="hero-logo">
+            </a>
+
+            <div class="quick-anchors" style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <a href="./booking.html"
+                   class="btn btn-warning shadow pulse-effect"
+                   target="_blank"
+                   style="background-color: #ffc107; color: #000; padding: 12px 30px; border-radius: 50px; font-weight: bold; font-size: 1.1rem; text-decoration: none; margin-bottom: 10px;">
+                   📅 立即線上訂位 (New)
+                </a>
+
+                <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
+                    <a href="./drinks.html" class="qa-link" style="color: white; text-decoration: none; border-bottom: 1px solid white;">查看酒單</a>
+                    <a href="./foods.html" class="qa-link" style="color: white; text-decoration: none; border-bottom: 1px solid white;">精緻餐點</a>
+                    <a href="./environment.html" class="qa-link" style="color: white; text-decoration: none; border-bottom: 1px solid white;">環境介紹</a>
+                    <a href="https://drive.google.com/drive/folders/1z6CMGhriXizFs7NFf7QHYJ3_9K8njPaa" target="_blank" class="qa-link" style="color: white; text-decoration: none; border-bottom: 1px solid white;">完整菜單 (PDF)</a>
+                    <a href="./FAQ.html" class="qa-link" target="_top" style="color: white; text-decoration: none; border-bottom: 1px solid white;">FAQ</a>
+                </div>
+            </div>
+
+            <div class="hero-social-links">
+                <a href="https://www.facebook.com/ciecietaipei/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://lin.ee/2nxT8n1" target="_blank"><i class="fab fa-line"></i></a>
+                <a href="https://www.instagram.com/ciecietaipei" target="_blank"><i class="fab fa-instagram"></i></a>
+            </div>
+            
+            <h1>CIE CIE TAIPEI</h1>
+            <a href="https://maps.app.goo.gl/WSmBry9GLkLZT45o8" class="cta-button pulse-effect" target="_blank"><i class="fas fa-map-marker-alt"> 台北市大安區信義路四段390號 <br><br> 02-2709-3446</i></a>
+            
+            <h1>餐飲數位轉型 2.0 實戰</h1>
+            <p>告別 Google 表單！用 Hugging Face + Supabase + Python</p>
+            <p>打造「企業級」前後端分離訂位系統 (免月費、高效能)</p>
+        </div>
+    </header>
+
+    <section class="section menu" id="article">
+        <p class="ambiance-text">
+            <a href="index.html" target="_TOP" class="full-menu-link">回首頁</a>
+        </p>
+
+        <div class="article-content">
+            <p style="text-align: center;">
+                <b><span style="font-size: x-large;">餐飲數位轉型 2.0：自建企業級訂位系統</span></b>
+            </p>
+            
+            <p class="ambiance-text" style="text-align: justify;">
+                繼上一篇「Google Sheets + Apps Script」入門教學後，我們發現當訂位量變大，或是需要更精緻的 UI 互動（如即時檢查重複訂位、手機版滑動體驗）時，原本的方案會稍顯吃力。這次，我們將架構全面升級，使用 <b>Python (Gradio)</b> 結合 <b>Supabase 資料庫</b>，打造一套邏輯更嚴謹、前後端分離的專業系統。
+            </p>
+
+            <div class="step-block" id="architecture">
+                <h3>🏛️ 系統架構全貌 (Architecture)</h3>
+                <ul>
+                    <li><b>核心大腦 (Database)</b>：Supabase (取代 Google Sheets，效能更強)。</li>
+                    <li><b>顧客入口 (Frontend)</b>：Hugging Face Space A (Python) ➔ 嵌入官網。
+                        <ul><li>負責接收訂單、防呆檢查、發送 LINE 通知。</li></ul>
+                    </li>
+                    <li><b>老闆後台 (Backend)</b>：Hugging Face Space B (Python) ➔ 嵌入官網 (需密碼)。
+                        <ul><li>負責查看清單、一鍵發送確認信 (含取消連結)。</li></ul>
+                    </li>
+                    <li><b>郵差 (Email)</b>：Google Apps Script (GAS) ➔ 負責繞過防火牆寄送確認信。</li>
+                </ul>
+            </div>
+
+            <div class="step-block">
+                <h3>🛠️ 準備工作 (Pre-requisites)</h3>
+                <ul>
+                    <li>一個 <b>Hugging Face</b> 帳號 (部署 Python 程式)。</li>
+                    <li>一個 <b>Supabase</b> 帳號 (免費版資料庫)。</li>
+                    <li>一個 <b>LINE Messaging API Channel</b> (發送通知)。</li>
+                    <li>一個 <b>Google 帳號</b> (用於 GAS 發信)。</li>
+                </ul>
+            </div>
+
+            <h3>步驟一：建立資料庫 (Supabase)</h3>
+            <p>這是我們的新地基，比 Excel 更穩定。</p>
+            <ul>
+                <li>註冊並登入 <a href="https://supabase.com/" target="_blank">Supabase</a>，建立一個新專案。</li>
+                <li>進入 <b>SQL Editor</b>，貼上以下指令建立表格：</li>
+            </ul>
+            <pre>
+create table bookings (
+  id bigint generated by default as identity primary key,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  name text not null,     -- 姓名
+  tel text not null,      -- 電話
+  email text,             -- Email
+  date text not null,     -- 日期
+  time text not null,     -- 時間
+  pax int not null,       -- 人數
+  remarks text,           -- 備註
+  status text default '待處理' -- 狀態
+);</pre>
+            <ul>
+                <li>前往 <b>Project Settings > API</b>，記下 <code>Project URL</code> 與 <code>anon public key</code>。</li>
+            </ul>
+
+            <h3>步驟二：設定發信中繼站 (GAS)</h3>
+            <p>為了突破免費伺服器的發信限制，我們用 Google 自己的腳本來寄信。</p>
+            <ul>
+                <li>前往 <a href="https://script.google.com/" target="_blank">Google Apps Script</a> 建立新專案。</li>
+                <li>貼上以下程式碼：</li>
+            </ul>
+            <pre>
+function doPost(e) {
+  try {
+    var param = JSON.parse(e.postData.contents);
+    MailApp.sendEmail({
+      to: param.to,
+      subject: param.subject,
+      htmlBody: param.htmlBody,
+      name: param.name
+    });
+    return ContentService.createTextOutput(JSON.stringify({ "status": "success" })).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ "status": "error" })).setMimeType(ContentService.MimeType.JSON);
+  }
+}</pre>
+            <ul>
+                <li><b>關鍵部署設定：</b>
+                    <ul>
+                        <li>點擊「部署」>「新增部署」>「網頁應用程式」。</li>
+                        <li>執行身分：<b>我 (Me)</b>。</li>
+                        <li>誰可以存取：<b>所有人 (Anyone)</b> (⚠️這點最重要)。</li>
+                    </ul>
+                </li>
+                <li>複製得到的 <b>Web App URL</b> (稍後會用到)。</li>
+            </ul>
+
+            <h3>步驟三：部署顧客前端 (HF Space A)</h3>
+            <p>這是客人看到的漂亮介面，負責第一線接待。</p>
+            <ul>
+                <li>在 Hugging Face 建立新的 Space (SDK 選 Gradio)。</li>
+                <li>設定 <b>Secrets</b> (環境變數)：<code>SUPABASE_URL</code>, <code>SUPABASE_KEY</code>, <code>LINE_ACCESS_TOKEN</code>, <code>LINE_ADMIN_ID</code>。</li>
+                <li>建立 <code>requirements.txt</code>，加入：<code>gradio</code>, <code>supabase</code>, <code>requests</code>。</li>
+                <li>在 <code>app.py</code> 貼上完整的前端程式碼 (含防重複提交與 LINE 通知邏輯)。</li>
+                <li>取得 Space 的 <b>Direct URL</b> (結尾是 .hf.space 的網址)。</li>
+            </ul>
+
+            <h3>步驟四：部署老闆後台 (HF Space B)</h3>
+            <p>這是您的中控台，擁有最高權限。</p>
+            <ul>
+                <li>建立另一個 Space，這次設定為 <b>Public</b> (我們會用程式碼鎖密碼)。</li>
+                <li>設定 <b>Secrets</b>：<code>SUPABASE_URL</code>, <code>SUPABASE_KEY</code>, <code>GAS_MAIL_URL</code> (步驟二的網址), <code>ADMIN_USER</code>, <code>ADMIN_PASSWORD</code>。</li>
+                <li>建立 <code>requirements.txt</code>，加入：<code>gradio</code>, <code>supabase</code>, <code>pandas</code>, <code>requests</code>。</li>
+                <li>在 <code>app.py</code> 貼上完整的後台程式碼 (含發信雙按鈕與 Auth 驗證)。</li>
+                <li><b>注意：</b>後台程式碼中的 <code>PUBLIC_SPACE_URL</code> 需填入步驟三的前端網址。</li>
+            </ul>
+
+            <h3>步驟五：網站整合 (GitHub Pages)</h3>
+            <p>最後，將兩個系統嵌入官網，實現無縫體驗。</p>
+            
+            <div class="step-block">
+                <h4>1. 顧客訂位頁 (booking.html)</h4>
+                <p>使用 <code>iframe</code> 嵌入 Space A。為了 iOS 滑動順暢，記得在 CSS 加入優化：</p>
+                <pre>.booking-section { -webkit-overflow-scrolling: touch; overflow-y: auto; }</pre>
+            </div>
+
+            <div class="step-block">
+                <h4>2. 後台管理頁 (admin.html)</h4>
+                <p>使用 <code>iframe</code> 嵌入 Space B。雖然網址公開，但系統會強制彈出帳號密碼視窗，只有您能登入。</p>
+            </div>
+
+            <h3>⚠️ 重要維運檢查表 (Checklist)</h3>
+            <ul>
+                <li><b>防止休眠</b>：Supabase 免費版若 7 天無人使用會暫停。建議每週登入一次後台按「重新整理」，或使用 UptimeRobot 定時監控。</li>
+                <li><b>時區設定</b>：程式碼中已加入 <code>TAIPEI_TZ</code>，確保訂位日期不會因為伺服器在國外而跑掉。</li>
+                <li><b>垃圾信提醒</b>：因為是透過 GAS 代發，信件有時會掉入垃圾桶，網頁上已加入紅色警語提醒客人。</li>
+            </ul>
+
+            <p class="ambiance-text" style="text-align: center;">
+                透過這套架構，您不僅擁有完全的數據掌控權，還實現了「訂位 -> 通知 -> 確認 -> 取消」的全自動閉環，而且依然 <b>免月費</b>！
+            </p>
+
+        </div>
+    </section>
+
+    <footer>
+        <a href="https://blog.twman.org/p/ciecietaipei.html" target="_blank"><p>© 2026 CIE CIE TAIPEI. All Rights Reserved.</p></a>
+        <p class="footer-note">未滿十八歲請勿飲酒。喝酒不開車，開車不喝酒。</p>
+        <p class="footer-note">📍店家地址：大安區信義路四段390號 📍訂位專線：02-2709-3446</p>
+    </footer>
+
+    <script>
+      window.__ow = window.__ow || {};
+      window.__ow.organizationId = "8f27934a-6481-41d3-8c0f-ade1493aaa89";
+      window.__ow.integration_name = "manual_settings";
+      window.__ow.product_name = "openwidget";   
+      ;(function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n)}var e={_q:[],_h:null,_v:"2.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[OpenWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.openwidget.com/openwidget.js",t.head.appendChild(n)}};!n.__ow.asyncInit&&e.init(),n.OpenWidget=n.OpenWidget||e}(window,document,[].slice))
+    </script>
+    <noscript>You need to <a href="https://www.openwidget.com/enable-javascript" rel="noopener nofollow">enable JavaScript</a> to use the communication tool powered by <a href="https://www.openwidget.com/" rel="noopener nofollow" target="_blank">OpenWidget</a></noscript>
+
+    <div class="mobile-sticky-bar">
+        <a href="environment.html" target="_TOP" class="sticky-btn menu-btn">
+            <i class="fas fa-store"></i> 環境
+        </a>
+        <a href="foods.html" target="_TOP" class="sticky-btn menu-btn">
+            <i class="fas fa-utensils"></i> ✦餐✦
+        </a>
+        <a href="./booking.html" class="sticky-btn booking-btn">
+            <i class="far fa-calendar-check"></i> ✦訂位✦
+        </a>
+        <a href="drinks.html" target="_TOP" class="sticky-btn menu-btn">
+            <i class="fas fa-wine-glass-alt"></i> ✦酒✦
+        </a>
+        <a href="FAQ.html" target="_TOP" class="sticky-btn menu-btn">
+            <i class="fas fa-question-circle"></i> FAQ
+        </a>
+    </div>
+</body>
+</html>
