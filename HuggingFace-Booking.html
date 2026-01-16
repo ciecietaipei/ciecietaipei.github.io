@@ -143,10 +143,10 @@
                 <a href="https://lin.ee/2nxT8n1" target="_blank"><i class="fab fa-line"></i></a>
                 <a href="https://www.instagram.com/ciecietaipei" target="_blank"><i class="fab fa-instagram"></i></a>
             </div>
-            
+
             <h1>CIE CIE TAIPEI</h1>
             <a href="https://maps.app.goo.gl/WSmBry9GLkLZT45o8" class="cta-button pulse-effect" target="_blank"><i class="fas fa-map-marker-alt"> 台北市大安區信義路四段390號 <br><br> 02-2709-3446</i></a>
-            
+
             <h1>餐飲數位轉型 2.0 實戰</h1>
             <p>告別 Google 表單！用 Hugging Face + Supabase + Python</p>
             <p>打造「企業級」前後端分離訂位系統 (免月費、高效能)</p>
@@ -164,7 +164,7 @@
             </p>
             
             <p class="ambiance-text" style="text-align: justify;">
-                繼上一篇「Google Sheets + Apps Script」入門教學後，我們發現當訂位量變大，或是需要更精緻的 UI 互動（如即時檢查重複訂位、手機版滑動體驗）時，原本的方案會稍顯吃力。這次，我們將架構全面升級，使用 <b>Python (Gradio)</b> 結合 <b>Supabase 資料庫</b>，打造一套邏輯更嚴謹、前後端分離的專業系統。
+                繼上一篇「<a href="AppsScripts-Booking.html" target="_TOP" class="full-menu-link">Google Sheets + Apps Script</a>」入門教學後，我們發現當訂位量變大，或是需要更精緻的 UI 互動（如即時檢查重複訂位、手機版滑動體驗）時，原本的方案會稍顯吃力。這次，我們將架構全面升級，使用 <b>Python (Gradio)</b> 結合 <b>Supabase 資料庫</b>，打造一套邏輯更嚴謹、前後端分離的專業系統。
             </p>
 
             <div class="step-block" id="architecture">
@@ -178,6 +178,7 @@
                         <ul><li>負責查看清單、一鍵發送確認信 (含取消連結)。</li></ul>
                     </li>
                     <li><b>郵差 (Email)</b>：Google Apps Script (GAS) ➔ 負責繞過防火牆寄送確認信。</li>
+                        <ul><li>請使用欲用來發送店家官方信件的Gmail帳號 (適合無自己網域)。</li></ul>
                 </ul>
             </div>
 
@@ -258,7 +259,7 @@ function doPost(e) {
                 <li>複製得到的 <b>Web App URL</b> (稍後會用到)。</li>
             </ul>
 
-            <h3>步驟三：部署顧客前端 (HF Space A)</h3>
+            <h3>步驟三：部署顧客前端 (<a href="https://huggingface.co/spaces/DeepLearning101/CIECIETAIPEI/tree/main" target="_blank">👉 HF Space A 👈</a>)</h3>
             <p>這是客人看到的漂亮介面，負責第一線接待。</p>
             <ul>
                 <li>在 Hugging Face 建立新的 Space (SDK 選 Gradio)。</li>
@@ -268,7 +269,7 @@ function doPost(e) {
                 <li>取得 Space 的 <b>Direct URL</b> (結尾是 .hf.space 的網址)。</li>
             </ul>
 
-            <h3>步驟四：部署老闆後台 (HF Space B)</h3>
+            <h3>步驟四：部署老闆後台 (<a href="https://huggingface.co/spaces/DeepLearning101/ADMIN-CIECIETAIPEI/tree/main" target="_blank">👉 HF Space B 👈</a>)</h3>
             <p>這是您的中控台，擁有最高權限。</p>
             <ul>
                 <li>建立另一個 Space，這次設定為 <b>Public</b> (我們會用程式碼鎖密碼)。</li>
@@ -282,13 +283,13 @@ function doPost(e) {
             <p>最後，將兩個系統嵌入官網，實現無縫體驗。</p>
             
             <div class="step-block">
-                <h4>1. 顧客訂位頁 (booking.html)</h4>
+                <h4>1. 顧客訂位頁 (<a href="https://github.com/ciecietaipei/ciecietaipei.github.io/blob/main/booking.html" target="_blank">👉 booking.html 👈</a>)</h4>
                 <p>使用 <code>iframe</code> 嵌入 Space A。為了 iOS 滑動順暢，記得在 CSS 加入優化：</p>
                 <pre>.booking-section { -webkit-overflow-scrolling: touch; overflow-y: auto; }</pre>
             </div>
 
             <div class="step-block">
-                <h4>2. 後台管理頁 (admin.html)</h4>
+                <h4>2. 後台管理頁 (<a href="https://github.com/ciecietaipei/ciecietaipei.github.io/blob/main/admin.html" target="_blank">👉 admin.html 👈</a>)</h4>
                 <p>使用 <code>iframe</code> 嵌入 Space B。雖然網址公開，但系統會強制彈出帳號密碼視窗，只有您能登入。</p>
             </div>
 
