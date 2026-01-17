@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cié Cié Taipei | 後台管理系統</title>
-    
+    <title>後台管理 | Cié Cié Taipei</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
+        /* 沿用與 booking.html 相同的深色背景與 Header 樣式，保持一致性 */
         body {
             margin: 0; padding: 0; font-family: 'Noto Sans TC', sans-serif;
-            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.95)), url('assets/hero_background.jpg'); 
-            background-size: cover; background-attachment: fixed; background-position: center;
-            background-color: #0F0F0F; min-height: 100vh; display: flex; flex-direction: column;
+            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.95)), url('assets/hero_background.jpg'); 
+            background-size: cover; background-attachment: fixed; background-color: #0F0F0F; min-height: 100vh; display: flex; flex-direction: column;
         }
         .slim-header {
             background: rgba(0, 0, 0, 0.95); padding: 10px 20px; border-bottom: 1px solid #d4af37;
@@ -22,50 +21,48 @@
         }
         .header-content { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         @media (min-width: 768px) { .header-content { flex-direction: row; justify-content: space-between; } }
-        
         .brand-area { display: flex; align-items: center; gap: 15px; text-decoration: none; }
         .mini-logo { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #d4af37; }
         .brand-title { color: #d4af37; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1.1rem; letter-spacing: 2px; margin: 0; }
-        .brand-badge { background: #d4af37; color: #000; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 10px; }
-
-        .nav-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
         .nav-item { color: #888; text-decoration: none; font-size: 0.8rem; padding: 5px 12px; border: 1px solid #333; border-radius: 20px; transition: all 0.3s ease; }
         .nav-item:hover { color: #fff; border-color: #666; }
-
+        
         .admin-section {
             width: 100%; max-width: 1300px; margin: 30px auto 40px auto;
             background: rgba(20, 20, 20, 0.9); border-radius: 12px; padding: 5px;
             box-shadow: 0 0 40px rgba(0,0,0,0.9); border: 1px solid #333; flex: 1;
             -webkit-overflow-scrolling: touch; overflow-y: auto;
         }
-
-        /* Loading 動畫 */
-        .iframe-wrapper { position: relative; width: 100%; min-height: 950px; background-color: #1a1a1a; border-radius: 8px; }
+        /* Loading CSS (同 booking.html) */
+        .iframe-wrapper { position: relative; width: 100%; min-height: 800px; background-color: #1a1a1a; border-radius: 8px; }
         .loading-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             z-index: 10; background: rgba(20, 20, 20, 0.95); border-radius: 8px; transition: opacity 0.5s ease;
         }
-        .spinner { width: 50px; height: 50px; border: 3px solid rgba(212, 175, 55, 0.3); border-radius: 50%; border-top-color: #d4af37; animation: spin 1s infinite; margin-bottom: 15px; }
+        .spinner {
+            width: 50px; height: 50px; border: 3px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50%; border-top-color: #d4af37; animation: spin 1s infinite; margin-bottom: 15px;
+        }
         .loading-text { color: #d4af37; font-size: 0.9rem; letter-spacing: 2px; animation: pulse 1.5s infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
         iframe { width: 1px; min-width: 100%; height: 1000px; border: none; display: block; opacity: 0; transition: opacity 0.8s ease; }
         
         footer { background-color: #000; text-align: center; padding: 20px; color: #444; font-size: 0.75rem; border-top: 1px solid #222; }
     </style>
 </head>
 <body>
-
     <header class="slim-header">
         <div class="header-content">
             <a href="./admin.html" class="brand-area">
                 <img src="assets/ciecie_logo_circle.png" alt="Logo" class="mini-logo">
-                <h1 class="brand-title">ADMIN <span class="brand-badge">DASHBOARD</span></h1>
+                <h1 class="brand-title">ADMIN DASHBOARD</h1>
             </a>
-            <nav class="nav-pills">
-                <a href="./index.html" target="_blank" class="nav-item"><i class="fas fa-external-link-alt"></i> 前台首頁</a>
+            <nav style="display: flex; gap: 10px;">
+                <a href="./index.html" target="_blank" class="nav-item">前台首頁</a>
                 <a href="./booking.html" target="_blank" class="nav-item">訂位頁面</a>
-                <a href="https://huggingface.co/spaces" target="_blank" class="nav-item">HF Spaces</a>
-                <a href="https://supabase.com/dashboard" target="_blank" class="nav-item">Supabase DB</a>
+                <a href="https://supabase.com/dashboard" target="_blank" class="nav-item">資料庫</a>
             </nav>
         </div>
     </header>
@@ -87,10 +84,6 @@
         </div>
     </main>
 
-    <footer>
-        <p>© 2026 CIE CIE TAIPEI Internal System. All Rights Reserved.</p>
-        <p>僅供內部人員使用，請妥善保管管理員帳號密碼。</p>
-    </footer>
-
+    <footer><p>僅供內部人員使用。</p></footer>
 </body>
 </html>

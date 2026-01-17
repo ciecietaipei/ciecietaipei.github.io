@@ -22,27 +22,26 @@
             margin: 0;
             padding: 0;
             font-family: 'Noto Sans TC', sans-serif;
-            /* 使用深色漸層作為基底，如果 style.css 有背景圖，這裡會疊加 */
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)), url('assets/hero_background.jpg'); 
             background-size: cover;
-            background-attachment: fixed; /* 讓背景固定不動，更有質感 */
+            background-attachment: fixed;
             background-position: center;
-            background-color: #111; /* 圖片載入失敗時的備案 */
+            background-color: #111;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        /* --- 2. 緊湊型 Header (Slim Header) --- */
+        /* --- 2. Header (保留您原本的 Slim Header 設計) --- */
         .slim-header {
-            background: rgba(0, 0, 0, 0.9); /* 90% 不透明黑 */
+            background: rgba(0, 0, 0, 0.9);
             padding: 10px 20px;
             border-bottom: 1px solid #333;
             position: sticky;
             top: 0;
-            z-index: 1000; /* 確保在最上層 */
+            z-index: 1000;
             box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px); /* 磨砂玻璃效果 */
+            backdrop-filter: blur(10px);
         }
 
         .header-content {
@@ -62,126 +61,58 @@
             }
         }
 
-        /* Logo 區域 */
-        .brand-area {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            text-decoration: none;
-        }
+        .brand-area { display: flex; align-items: center; gap: 15px; text-decoration: none; }
+        .mini-logo { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #d4af37; }
+        .brand-title { color: #d4af37; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1.1rem; letter-spacing: 1px; margin: 0; }
 
-        .mini-logo {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: 2px solid #d4af37;
-        }
+        .nav-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+        .nav-item { color: #ccc; text-decoration: none; font-size: 0.8rem; padding: 5px 12px; border: 1px solid #444; border-radius: 20px; transition: all 0.3s ease; background: rgba(255,255,255,0.05); }
+        .nav-item:hover { background: #d4af37; color: #000; border-color: #d4af37; }
 
-        .brand-title {
-            color: #d4af37;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            font-size: 1.1rem;
-            letter-spacing: 1px;
-            margin: 0;
-        }
-
-        /* 導航連結 */
-        .nav-pills {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .nav-item {
-            color: #ccc;
-            text-decoration: none;
-            font-size: 0.8rem;
-            padding: 5px 12px;
-            border: 1px solid #444;
-            border-radius: 20px;
-            transition: all 0.3s ease;
-            background: rgba(255,255,255,0.05);
-        }
-
-        .nav-item:hover {
-            background: #d4af37;
-            color: #000;
-            border-color: #d4af37;
-        }
-
-        /* --- 3. 訂位區塊 (半透明容器) --- */
+        /* --- 3. 訂位區塊 (核心容器) --- */
         .booking-section {
             width: 100%;
             max-width: 950px;
             margin: 30px auto 40px auto;
-            /* 這是關鍵：半透明黑底，讓背景圖透一點出來，但又看得清楚文字 */
             background: rgba(15, 15, 15, 0.85); 
             border-radius: 12px;
-            padding: 5px; /* iframe 的邊距 */
+            padding: 5px;
             box-shadow: 0 0 30px rgba(0,0,0,0.8);
             border: 1px solid #333;
-            flex: 1; /* 讓內容區撐開，把 footer 往下推 */
+            flex: 1; 
+            -webkit-overflow-scrolling: touch; 
+            overflow-y: auto;
         }
 
-        /* Iframe 設定 */
-        #booking-frame {
-            width: 100%;
-            height: 880px;
-            border: none;
-            display: block;
-            border-radius: 8px;
+        /* --- 新增：Loading 動畫 (不影響原有排版) --- */
+        .iframe-wrapper { position: relative; width: 100%; min-height: 900px; background-color: #1a1a1a; border-radius: 8px; }
+        .loading-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 10; background: rgba(20, 20, 20, 0.95); border-radius: 8px;
+            transition: opacity 0.5s ease;
         }
-
-        @media (max-width: 768px) {
-            #booking-frame {
-                height: 1250px; /* 手機版拉長一點以免捲軸打架 */
-            }
-            .booking-section {
-                margin: 10px auto;
-                width: 95%;
-            }
+        .spinner {
+            width: 50px; height: 50px; border: 3px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50%; border-top-color: #d4af37;
+            animation: spin 1s ease-in-out infinite; margin-bottom: 15px;
         }
+        .loading-text { color: #d4af37; font-size: 0.9rem; letter-spacing: 2px; animation: pulse 1.5s infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+        
+        #booking-frame { width: 1px; min-width: 100%; height: 1000px; border: none; display: block; border-radius: 8px; opacity: 0; transition: opacity 0.8s ease; }
 
-        /* --- 4. 頁尾 (Footer) 找回警語 --- */
+        /* --- 4. Footer (保留) --- */
         footer {
             background-color: #000;
             text-align: center;
-            padding: 30px 20px 80px 20px; /* 下方留空間給手機置底選單 */
+            padding: 30px 20px 80px 20px;
             color: #666;
             font-size: 0.8rem;
             border-top: 1px solid #222;
             z-index: 10;
         }
-        
-        .footer-note {
-            margin-top: 10px;
-            color: #888;
-            line-height: 1.6;
-        }
-
-        /* Iframe 設定 */
-        #booking-frame {
-            width: 1px;
-            min-width: 100%;
-            /* 確保高度足夠，這裡建議寫死一個夠大的高度，或是透過 JS 動態調整，
-            但在跨域情況下 JS 很難抓到高度，所以寫死 1000px 是最穩的 */
-            height: 1000px;
-            border: none;
-            display: block;
-            border-radius: 8px;
-            /* 針對 iOS 的優化 */
-            overflow: hidden;
-        }
-
-        /* 針對 iOS 裝置的容器優化 */
-        .booking-section {
-            /* ... 原本的設定 ... */
-            -webkit-overflow-scrolling: touch; /* 讓滑動更順暢 */
-            overflow-y: auto;
-        }
-
     </style>
 </head>
 <body>
@@ -192,7 +123,6 @@
                 <img src="assets/ciecie_logo_circle.png" alt="Logo" class="mini-logo">
                 <h1 class="brand-title">BOOKING</h1>
             </a>
-
             <nav class="nav-pills">
                 <a href="./index.html" class="nav-item">首頁</a>
                 <a href="./drinks.html" class="nav-item">酒單</a>
@@ -209,16 +139,22 @@
 
     <main>
         <div class="booking-section">
-            <iframe 
-                id="booking-frame"
-                src="https://deeplearning101-ciecietaipei.hf.space?__theme=dark" 
-                allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-                sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-            ></iframe>
+            <div class="iframe-wrapper">
+                <div id="loader" class="loading-overlay">
+                    <div class="spinner"></div>
+                    <div class="loading-text">系統載入中...</div>
+                </div>
+                
+                <iframe 
+                    id="booking-frame"
+                    src="" 
+                    allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+                    sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+                    onload="onFrameLoad()"
+                ></iframe>
+            </div>
         </div>
     </main>
-
-
 
     <div class="mobile-sticky-bar">
         <a href="environment.html" target="_TOP" class="sticky-btn menu-btn">
@@ -237,6 +173,43 @@
             <i class="fas fa-question-circle"></i> FAQ
         </a>
     </div>
+
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script>
+        // ⚠️ 請填入您的 LIFF ID
+        const MY_LIFF_ID = "YOUR_LIFF_ID";
+        const HF_SPACE_URL = "https://deeplearning101-ciecietaipei.hf.space?__theme=dark";
+
+        function onFrameLoad() {
+            const frame = document.getElementById('booking-frame');
+            if (frame.src && frame.src !== window.location.href) {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loader').style.display = 'none';
+                    frame.style.opacity = '1';
+                }, 500);
+            }
+        }
+
+        async function initLiff() {
+            const frame = document.getElementById('booking-frame');
+            try {
+                await liff.init({ liffId: MY_LIFF_ID });
+                if (liff.isLoggedIn()) {
+                    const profile = await liff.getProfile();
+                    console.log("Got LINE ID:", profile.userId);
+                    frame.src = `${HF_SPACE_URL}&line_id=${profile.userId}`;
+                } else {
+                    console.log("Guest Mode");
+                    frame.src = HF_SPACE_URL;
+                }
+            } catch (err) {
+                console.error("LIFF Init Error:", err);
+                frame.src = HF_SPACE_URL; 
+            }
+        }
+        window.onload = initLiff;
+    </script>
 
 </body>
 </html>
