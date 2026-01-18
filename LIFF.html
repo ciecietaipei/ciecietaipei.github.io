@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>立即訂位 | CIE CIE TAIPEI</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* --- LIFF 專用微調設定 --- */
+        body {
+            margin: 0; padding: 0;
+            background-color: #111;
+            /* 讓背景延續深色質感，但不強制全螢幕隱藏卷軸，保留一點彈性 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 1. Header 設定 (沿用 booking.html 風格) */
+        .slim-header {
+            background: rgba(0, 0, 0, 0.95); /* 稍微不透明一點，增加閱讀性 */
+            padding: 10px 20px;
+            border-bottom: 1px solid #333;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+        }
+        .header-content {
+            max-width: 1200px; margin: 0 auto;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+        @media (min-width: 768px) {
+            .header-content { flex-direction: row; justify-content: space-between; }
+        }
+        .brand-area { display: flex; align-items: center; gap: 15px; text-decoration: none; }
+        .mini-logo { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #d4af37; }
+        .brand-title { color: #d4af37; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1.1rem; letter-spacing: 1px; margin: 0; }
+        
+        .nav-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+        .nav-item { color: #ccc; text-decoration: none; font-size: 0.8rem; padding: 5px 12px; border: 1px solid #444; border-radius: 20px; transition: all 0.3s ease; background: rgba(255,255,255,0.05); }
+        .nav-item:hover { background: #d4af37; color: #000; border-color: #d4af37; }
+
+        /* 2. 主內容區 (讓 iframe 填滿剩餘高度) */
+        main {
+            flex: 1; /* 自動填滿剩餘空間 */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            /* 修正 iframe 在手機上可能無法滑動的問題 */
+            overflow: hidden; 
+        }
+
+        /* 3. Loading 動畫 */
+        .iframe-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%; /* 填滿 main */
+            flex: 1;
+            background-color: #1a1a1a;
+        }
+        .loading-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 10; background: rgba(20, 20, 20, 0.95);
+            transition: opacity 0.5s ease;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 3px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50%; border-top-color: #d4af37;
+            animation: spin 1s ease-in-out infinite; margin-bottom: 15px;
+        }
+        .loading-text { color: #d4af37; font-size: 0.9rem; letter-spacing: 2px; animation: pulse 1.5s infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+        /* 4. Iframe 設定 */
+        #booking-frame {
+            width: 100%;
+            height: 100%; /* 確保填滿容器 */
+            min-height: 800px; /* 手機上給予足夠高度，避免太扁 */
+            border: none;
+            display: block;
+            opacity: 0; 
+            transition: opacity 0.8s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="slim-header">
+        <div class="header-content">
+            <a href="./index.html" class="brand-area">
+                <img src="assets/ciecie_logo_circle.png" alt="Logo" class="mini-logo">
+                <h1 class="brand-title">BOOKING</h1>
+            </a>
+            <nav class="nav-pills">
+                <a href="./index.html" class="nav-item">首頁</a>
+                <a href="./drinks.html" class="nav-item">酒單</a>
+                <a href="./foods.html" class="nav-item">餐點</a>
+                <a href="./environment.html" class="nav-item">環境</a>
+                <a href="./FAQ.html" class="nav-item">FAQ</a>
+                <div style="margin-left: 5px;">
+                    <a href="https://www.facebook.com/ciecietaipei/" target="_blank" style="color:#d4af37; margin:0 5px;"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/ciecietaipei" target="_blank" style="color:#d4af37; margin:0 5px;"><i class="fab fa-instagram"></i></a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="iframe-wrapper">
+            <div id="loader" class="loading-overlay">
+                <div class="spinner"></div>
+                <div class="loading-text">系統載入中...</div>
+            </div>
+            
+            <iframe 
+                id="booking-frame"
+                src="" 
+                allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+                sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+                onload="onFrameLoad()"
+            ></iframe>
+        </div>
+    </main>
+
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script>
+        // ⚠️ 請務必填入您的 LIFF ID
+        const MY_LIFF_ID = "YOUR_LIFF_ID"; 
+        
+        // Space A 網址
+        const HF_SPACE_URL = "https://deeplearning101-ciecietaipei.hf.space?__theme=dark";
+
+        function onFrameLoad() {
+            const frame = document.getElementById('booking-frame');
+            // 確保 src 有值才移除 loading，避免一開始的空白
+            if (frame.src && frame.src !== window.location.href) {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loader').style.display = 'none';
+                    frame.style.opacity = '1';
+                }, 500);
+            }
+        }
+
+        async function initLiff() {
+            const frame = document.getElementById('booking-frame');
+            try {
+                await liff.init({ liffId: MY_LIFF_ID });
+                
+                // 情境: 在 LINE App 內 (自動抓取 ID)
+                if (liff.isLoggedIn()) {
+                    const profile = await liff.getProfile();
+                    console.log("LIFF User:", profile.userId);
+                    // 傳送 ID 給 Python
+                    frame.src = `${HF_SPACE_URL}&line_id=${profile.userId}`;
+                } 
+                // 情境: 在瀏覽器 (當作訪客)
+                else {
+                    console.log("Guest Mode");
+                    frame.src = HF_SPACE_URL;
+                }
+            } catch (err) {
+                console.error("LIFF Init Error:", err);
+                frame.src = HF_SPACE_URL; // 保底載入
+            }
+        }
+        window.onload = initLiff;
+    </script>
+
+</body>
+</html>
