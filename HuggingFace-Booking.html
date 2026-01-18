@@ -11,8 +11,8 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>餐飲數位轉型 2.0 | Hugging Face + Supabase 自建企業級訂位系統 | CIE CIE TAIPEI</title>
-    <meta name="description" content="餐飲數位轉型進階版。擺脫 Google Sheets 限制，教你用 Python (Gradio) + Supabase + LINE Messaging API 打造企業級前後端分離訂位系統。">
+    <title>餐飲數位轉型 3.0 | LINE LIFF + Hugging Face 混合雲端訂位系統 | CIE CIE TAIPEI</title>
+    <meta name="description" content="餐飲數位轉型進階版 v3.0。教你用 LINE LIFF + Python (Gradio) + Supabase 打造能自動辨識熟客、混合發送 LINE/Email 通知的企業級訂位系統。">
     <meta property="og:type" content="website" />
     <meta property="og:title" content="CIE CIE TAIPEI | 台北 101 跨年餐廳首選 | 信義安和餐酒館" />
     <meta property="og:description" content="大安區酒吧，提供高質感調酒與義式餐點。立即線上訂位，享受微醺時光。" />
@@ -111,7 +111,6 @@
     <header class="hero" id="home">
         <div class="hero-overlay"></div>
         <div class="hero-content" style="justify-content: flex-start; padding-top: 80px; height: auto; min-height: 100vh;">
-            <!-- <p class="tagline">引領您遇見北歐的愜意與輕奢氛圍，一個值得時間慢下來陪伴您與世隔絕的夜晚及醉人的微醺祕境 </p> -->
             <a href="#" class="logo-trigger">
                 <img loading="lazy" src="assets/ciecie_logo_circle.png" alt="Cie Cie Taipei Logo" class="hero-logo">
             </a>
@@ -156,146 +155,140 @@
 
         <div class="article-content">
             <p style="text-align: center;">
-                <b><span style="font-size: x-large;">餐飲數位轉型 2.0：自建企業級訂位系統</span></b>
+                <b><span style="font-size: x-large;">「<a href="https://blog.twman.org/2025/11/booking.html" target="_blank">餐飲數位轉型 3.0：LINE LIFF + 混合雲端訂位</a>」</span></b>
             <p class="ambiance-text" style="text-align: justify;">
-                告別 Google 表單！用 Hugging Face + Supabase + Python；打造「企業級」前後端分離訂位系統 (免月費、高效能)。繼上一篇「<a href="AppsScripts-Booking.html" target="_TOP">Google Sheets + Apps Script</a>」入門教學後，我們發現當訂位量變大，或是需要更精緻的 UI 互動（如即時檢查重複訂位、手機版滑動體驗）時，原本的方案會稍顯吃力。這次，我們將架構全面升級，使用 <b>Python (Gradio)</b> 結合 <b>Supabase 資料庫</b>，打造一套邏輯更嚴謹、前後端分離的專業系統。
+                這是「<a href="AppsScripts-Booking.html" target="_TOP">Google Sheets 訂位系統</a>」的終極進化版。我們結合了 <b>LINE LIFF</b> 技術，讓從官方帳號點進來的熟客能<b>「免登入自動抓取 ID」</b>，並在訂位成功後收到 LINE 推播；而一般路人則走訪客模式收 Email。這套 <b>Hugging Face + Supabase + LINE</b> 的混合架構，能讓您在<b>零月費</b>的前提下，擁有媲美 Inline 的商業級功能。
             </p>
 
             <div class="step-block" id="architecture">
-                <h3>🏛️ 系統架構全貌 (Architecture)</h3>
+                <h3>🏛️ 系統架構 (System Architecture v3.0)</h3>
                 <ul>
-                    <li><b>核心大腦 (Database)</b>：Supabase (取代 Google Sheets，效能更強)。</li>
-                    <li><b>顧客入口 (Frontend)</b>：Hugging Face Space A (Python) ➔ 嵌入官網。
-                        <ul><li>負責接收訂單、防呆檢查、發送 LINE 通知。</li></ul>
-                    </li>
-                    <li><b>老闆後台 (Backend)</b>：Hugging Face Space B (Python) ➔ 嵌入官網 (需密碼)。
-                        <ul><li>負責查看清單、一鍵發送確認信 (含取消連結)。</li></ul>
-                    </li>
-                    <li><b>郵差 (Email)</b>：Google Apps Script (GAS) ➔ 負責繞過防火牆寄送確認信。</li>
-                        <ul><li>請使用欲用來發送店家官方信件的Gmail帳號 (適合無自己網域)。</li></ul>
+                    <li><b>核心大腦 (Database)</b>：Supabase (新增 <code>user_id</code> 欄位)。</li>
+                    <li><b>身份識別 (Identity)</b>：LINE Login Channel (LIFF) ➔ 自動抓取 User ID。</li>
+                    <li><b>顧客入口 (Space A)</b>：Python 前端 ➔ 接收訂單、防呆、即時寫入。</li>
+                    <li><b>老闆後台 (Space B)</b>：Python 後台 ➔ 混合發信 (有 ID 發 LINE，沒 ID 發 Email)。</li>
+                    <li><b>通知管道</b>：LINE Messaging API (熟客) + Google Apps Script (Email 保底)。</li>
                 </ul>
             </div>
 
             <div class="step-block">
                 <h3>🛠️ 準備工作 (Pre-requisites)</h3>
                 <ul>
-                    <li>一個 <b>Hugging Face</b> 帳號 (部署 Python 程式)。</li>
-                    <li>一個 <b>Supabase</b> 帳號 (免費版資料庫)。</li>
-                    <li>一個 <b>LINE Messaging API Channel</b> (發送通知)。</li>
-                    <li>一個 <b>Google 帳號</b> (用於 GAS 發信)。</li>
+                    <li><b>Hugging Face</b> 帳號 (部署程式)。</li>
+                    <li><b>Supabase</b> 帳號 (資料庫)。</li>
+                    <li><b>LINE Developers</b> 帳號 (需建立兩個 Channel)。</li>
+                    <li><b>Google</b> 帳號 (用於 GAS 發信)。</li>
                 </ul>
             </div>
 
             <h3>步驟一：建立資料庫 (Supabase)</h3>
-            <p>這是我們的新地基，比 Excel 更穩定。</p>
+            <p>建立儲存訂單的表格，記得包含 <code>user_id</code>。</p>
             <ul>
-                <li>註冊並登入 <a href="https://supabase.com/" target="_blank">Supabase</a>，建立一個新專案。</li>
-                <li>進入 <b>SQL Editor</b>，貼上以下指令建立表格：</li>
+                <li>登入 <a href="https://supabase.com/" target="_blank">Supabase</a>，進入 <b>SQL Editor</b>，執行：</li>
             </ul>
             <pre>
-        create table bookings (
-            id bigint generated by default as identity primary key,
-            created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-            name text not null,     -- 姓名
-            tel text not null,      -- 電話
-            email text,             -- Email
-            date text not null,     -- 日期
-            time text not null,     -- 時間
-            pax int not null,       -- 人數
-            remarks text,           -- 備註
-            status text default '待處理' -- 狀態
-            );</pre>
+create table bookings (
+    id bigint generated by default as identity primary key,
+    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+    name text not null,     -- 姓名
+    tel text not null,      -- 電話
+    email text,             -- Email
+    date text not null,     -- 日期
+    time text not null,     -- 時間
+    pax int not null,       -- 人數
+    remarks text,           -- 備註
+    status text default '待處理', -- 狀態
+    user_id text            -- [v3.0新增] 存放 LINE User ID
+);</pre>
             <ul>
-                <li>前往 <b>Project Settings > API</b>，記下 <code>Project URL</code> 與 <code>anon public key</code>。</li>
+                <li>記下 <code>Project URL</code> 與 <code>anon public key</code>。</li>
             </ul>
 
-            <h3>步驟二：設定發信中繼站 (GAS)</h3>
-            <p>為了突破免費伺服器的發信限制，我們用 Google 自己的腳本來寄信。</p>
-            <ul>
-                <li>前往 <a href="https://script.google.com/" target="_blank">Google Apps Script</a> 建立新專案。</li>
-                <li>貼上以下程式碼：</li>
-            </ul>
-            <pre>
-        function doPost(e) {
-        try {
-            // 1. 解析來自 HF Space 的資料
-            var param = JSON.parse(e.postData.contents);
-            var to = param.to;
-            var subject = param.subject;
-            var htmlBody = param.htmlBody;
-            var name = param.name || "Cié Cié Taipei"; // 預設寄件者名稱
-
-            // 2. 使用 Gmail 發信 (這是 Google 內部功能，不會被擋)
-            MailApp.sendEmail({
-            to: to,
-            subject: subject,
-            htmlBody: htmlBody,
-            name: name
-            });
-
-            // 3. 回傳成功訊息
-            return ContentService.createTextOutput(JSON.stringify({ "status": "success" }))
-            .setMimeType(ContentService.MimeType.JSON);
-
-        } catch (error) {
-            return ContentService.createTextOutput(JSON.stringify({ "status": "error", "message": error.toString() }))
-            .setMimeType(ContentService.MimeType.JSON);
-        }
-        }</pre>
-            <ul>
-                <li><b>關鍵部署設定：</b>
+            <h3>步驟二：設定 LINE 開發者帳號</h3>
+            <p>我們需要兩個 Channel 來分工：</p>
+            <ol>
+                <li><b>Messaging API Channel</b>：負責「發送通知」。
+                    <ul><li>取得 <code>Channel Access Token</code>。</li></ul>
+                </li>
+                <li><b>LINE Login Channel</b>：負責「LIFF 身份識別」。
                     <ul>
-                        <li>點擊「部署」>「新增部署」>「網頁應用程式」。</li>
-                        <li>執行身分：<b>我 (Me)</b>。</li>
-                        <li>誰可以存取：<b>所有人 (Anyone)</b> (⚠️這點最重要)。</li>
+                        <li>建立後至 <b>LIFF</b> 頁籤，點擊 <b>Add</b>。</li>
+                        <li><b>Endpoint URL</b> 填入您的官網訂位頁：<code>https://ciecietaipei.github.io/booking.html</code></li>
+                        <li><b>Scopes</b> 勾選 <code>openid</code>, <code>profile</code>。</li>
+                        <li>記下產生的 <b>LIFF ID</b>。</li>
                     </ul>
                 </li>
-                <li>複製得到的 <b>Web App URL</b> (稍後會用到)。</li>
-            </ul>
+            </ol>
 
-            <h3>步驟三：部署顧客前端 (<a href="https://huggingface.co/spaces/DeepLearning101/CIECIETAIPEI/tree/main" target="_blank">👉 HF Space A 👈</a>)</h3>
-            <p>這是客人看到的漂亮介面，負責第一線接待。</p>
+            <h3>步驟三：部署顧客前端 (Space A)</h3>
+            <p>負責顯示表單並接收 LIFF 傳來的 ID。</p>
             <ul>
-                <li>在 Hugging Face 建立新的 Space (SDK 選 Gradio)。</li>
-                <li>設定 <b>Secrets</b> (環境變數)：<code>SUPABASE_URL</code>, <code>SUPABASE_KEY</code>, <code>LINE_ACCESS_TOKEN</code>, <code>LINE_ADMIN_ID</code>。</li>
-                <li>建立 <code>requirements.txt</code>，加入：<code>gradio</code>, <code>supabase</code>, <code>requests</code>。</li>
-                <li>在 <code>app.py</code> 貼上完整的前端程式碼 (含防重複提交與 LINE 通知邏輯)。</li>
-                <li>取得 Space 的 <b>Direct URL</b> (結尾是 .hf.space 的網址)。</li>
+                <li>在 Hugging Face 建立 Space (Gradio)。</li>
+                <li>設定 <b>Secrets</b>：<code>SUPABASE_URL</code>, <code>SUPABASE_KEY</code>, <code>LINE_ACCESS_TOKEN</code>, <code>LINE_ADMIN_ID</code>。</li>
+                <li>在 <code>app.py</code> 中，加入抓取 URL 參數的邏輯：</li>
             </ul>
+            <pre>
+# 抓取 LIFF 傳來的 ID
+def get_line_id_from_url(request: gr.Request):
+    if request: return request.query_params.get("line_id", "")
+    return ""
 
-            <h3>步驟四：部署老闆後台 (<a href="https://huggingface.co/spaces/DeepLearning101/ADMIN-CIECIETAIPEI/tree/main" target="_blank">👉 HF Space B 👈</a>)</h3>
-            <p>這是您的中控台，擁有最高權限。</p>
+# 寫入資料庫
+def handle_booking(name, tel, ..., line_id):
+    data = { ..., "user_id": line_id }
+    supabase.table("bookings").insert(data).execute()
+            </pre>
+
+            <h3>步驟四：部署老闆後台 (Space B)</h3>
+            <p>負責審核訂單，並自動判斷發送管道。</p>
             <ul>
-                <li>建立另一個 Space，這次設定為 <b>Public</b> (我們會用程式碼鎖密碼)。</li>
-                <li>設定 <b>Secrets</b>：<code>SUPABASE_URL</code>, <code>SUPABASE_KEY</code>, <code>GAS_MAIL_URL</code> (步驟二的網址), <code>ADMIN_USER</code>, <code>ADMIN_PASSWORD</code>。</li>
-                <li>建立 <code>requirements.txt</code>，加入：<code>gradio</code>, <code>supabase</code>, <code>pandas</code>, <code>requests</code>。</li>
-                <li>在 <code>app.py</code> 貼上完整的後台程式碼 (含發信雙按鈕與 Auth 驗證)。</li>
-                <li><b>注意：</b>後台程式碼中的 <code>PUBLIC_SPACE_URL</code> 需填入步驟三的前端網址。</li>
+                <li>建立第二個 Space，設定 <b>Secrets</b> (含 <code>GAS_MAIL_URL</code>)。</li>
+                <li>在 <code>app.py</code> 中，實作混合發送邏輯：</li>
             </ul>
+            <pre>
+def send_confirmation_hybrid(booking_id):
+    # 1. 抓取訂單資料
+    booking = supabase.table("bookings").select("*").eq("id", booking_id).execute().data[0]
+    
+    # 2. 發送 Email (保底)
+    requests.post(GAS_MAIL_URL, json={...})
+    
+    # 3. 若有 user_id，加發 LINE 通知
+    if booking['user_id']:
+        requests.post("https://api.line.me/v2/bot/message/push", ...)
+            </pre>
 
-            <h3>步驟五：網站整合 (GitHub Pages)</h3>
-            <p>最後，將兩個系統嵌入官網，實現無縫體驗。</p>
-            
-            <div class="step-block">
-                <h4>1. 顧客訂位頁 (<a href="https://github.com/ciecietaipei/ciecietaipei.github.io/blob/main/booking.html" target="_blank">👉 booking.html 👈</a>)</h4>
-                <p>使用 <code>iframe</code> 嵌入 Space A。為了 iOS 滑動順暢，記得在 CSS 加入優化：</p>
-                <pre>.booking-section { -webkit-overflow-scrolling: touch; overflow-y: auto; }</pre>
-            </div>
+            <h3>步驟五：網站整合 (booking.html)</h3>
+            <p>最關鍵的一步：在網頁中植入 LIFF SDK，讓它自動運作。</p>
+            <pre>
+&lt;script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+    const MY_LIFF_ID = "您的_LIFF_ID"; 
+    const HF_SPACE_URL = "您的_Space_A_網址";
 
-            <div class="step-block">
-                <h4>2. 後台管理頁 (<a href="https://github.com/ciecietaipei/ciecietaipei.github.io/blob/main/admin.html" target="_blank">👉 admin.html 👈</a>)</h4>
-                <p>使用 <code>iframe</code> 嵌入 Space B。雖然網址公開，但系統會強制彈出帳號密碼視窗，只有您能登入。</p>
-            </div>
+    async function initLiff() {
+        await liff.init({ liffId: MY_LIFF_ID });
+        // 若在 LINE 內開啟，自動抓 ID 並轉址
+        if (liff.isLoggedIn()) {
+            const profile = await liff.getProfile();
+            document.getElementById('booking-frame').src = `${HF_SPACE_URL}&line_id=${profile.userId}`;
+        } else {
+            // 若在瀏覽器開啟，當作訪客
+            document.getElementById('booking-frame').src = HF_SPACE_URL;
+        }
+    }
+    window.onload = initLiff;
+&lt;/script&gt;</pre>
 
-            <h3>⚠️ 重要維運檢查表 (Checklist)</h3>
+            <h3>⚠️ 重要操作提醒</h3>
             <ul>
-                <li><b>防止休眠</b>：Supabase 免費版若 7 天無人使用會暫停。建議每週登入一次後台按「重新整理」，或使用 UptimeRobot 定時監控。</li>
-                <li><b>時區設定</b>：程式碼中已加入 <code>TAIPEI_TZ</code>，確保訂位日期不會因為伺服器在國外而跑掉。</li>
-                <li><b>垃圾信提醒</b>：因為是透過 GAS 代發，信件有時會掉入垃圾桶，網頁上已加入紅色警語提醒客人。</li>
+                <li><b>LINE 官方帳號設定</b>：請將圖文選單的「立即訂位」連結改為 LIFF 網址 (<code>https://liff.line.me/您的ID</code>)，這樣才能觸發自動登入。</li>
+                <li><b>Supabase 防休眠</b>：免費版若 7 天無活動會暫停，建議每週登入一次後台。</li>
+                <li><b>時區設定</b>：程式碼中已包含 <code>TAIPEI_TZ</code>，確保訂位時間準確。</li>
             </ul>
 
             <p class="ambiance-text" style="text-align: center;">
-                透過這套架構，您不僅擁有完全的數據掌控權，還實現了「訂位 -> 通知 -> 確認 -> 取消」的全自動閉環，而且依然 <b>免月費</b>！
+                完成以上設定，您就擁有了一套「進可攻 (LINE 行銷)、退可守 (Email 通知)」的全方位訂位系統！
             </p>
 
         </div>
