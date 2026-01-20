@@ -14,7 +14,7 @@
         body {
             margin: 0; padding: 0;
             background-color: #111;
-            /* 讓背景延續深色質感，但不強制全螢幕隱藏卷軸，保留一點彈性 */
+            /* 讓背景延續深色質感 */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -22,7 +22,7 @@
 
         /* 1. Header 設定 (沿用 booking.html 風格) */
         .slim-header {
-            background: rgba(0, 0, 0, 0.95); /* 稍微不透明一點，增加閱讀性 */
+            background: rgba(0, 0, 0, 0.95);
             padding: 10px 20px;
             border-bottom: 1px solid #333;
             position: sticky;
@@ -51,7 +51,6 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            /* 修正 iframe 在手機上可能無法滑動的問題 */
             overflow: hidden; 
         }
 
@@ -59,7 +58,7 @@
         .iframe-wrapper {
             position: relative;
             width: 100%;
-            height: 100%; /* 填滿 main */
+            height: 100%;
             flex: 1;
             background-color: #1a1a1a;
         }
@@ -75,14 +74,15 @@
             animation: spin 1s ease-in-out infinite; margin-bottom: 15px;
         }
         .loading-text { color: #d4af37; font-size: 0.9rem; letter-spacing: 2px; animation: pulse 1.5s infinite; }
+        
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 
         /* 4. Iframe 設定 */
         #booking-frame {
             width: 100%;
-            height: 100%; /* 確保填滿容器 */
-            min-height: 800px; /* 手機上給予足夠高度，避免太扁 */
+            height: 100%;
+            min-height: 800px;
             border: none;
             display: block;
             opacity: 0; 
@@ -102,12 +102,7 @@
                 <a href="./index.html" class="nav-item">首頁</a>
                 <a href="./drinks.html" class="nav-item">酒單</a>
                 <a href="./foods.html" class="nav-item">餐點</a>
-                <a href="./environment.html" class="nav-item">環境</a>
                 <a href="./FAQ.html" class="nav-item">FAQ</a>
-                <div style="margin-left: 5px;">
-                    <a href="https://www.facebook.com/ciecietaipei/" target="_blank" style="color:#d4af37; margin:0 5px;"><i class="fab fa-facebook-f"></i></a>
-                    <a href="https://www.instagram.com/ciecietaipei" target="_blank" style="color:#d4af37; margin:0 5px;"><i class="fab fa-instagram"></i></a>
-                </div>
             </nav>
         </div>
     </header>
@@ -131,15 +126,15 @@
 
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
-        // ⚠️ 請務必填入您的 LIFF ID
+        // 您提供的正確 LIFF ID
         const MY_LIFF_ID = "2008934010-6z7iElYg"; 
         
         // Space A 網址
         const HF_SPACE_URL = "https://deeplearning101-ciecietaipei.hf.space?__theme=dark";
 
+        // 當 iframe 載入完成時，隱藏 loading
         function onFrameLoad() {
             const frame = document.getElementById('booking-frame');
-            // 確保 src 有值才移除 loading，避免一開始的空白
             if (frame.src && frame.src !== window.location.href) {
                 document.getElementById('loader').style.opacity = '0';
                 setTimeout(() => {
@@ -154,29 +149,6 @@
             try {
                 await liff.init({ liffId: MY_LIFF_ID });
                 
-                // 情境: 在 LINE App 內 (自動抓取 ID)
-                if (liff.isLoggedIn()) {
-                    const profile = await liff.getProfile();
-                    // 👇👇👇 加入這一行測試 👇👇
-                    alert("抓到的 ID 是: " + profile.userId); 
-                    // 👆👆👆 測試完記得刪掉 👆👆👆
-                    console.log("LIFF User:", profile.userId);
-                    // 傳送 ID 給 Python
-                    frame.src = `${HF_SPACE_URL}&line_id=${profile.userId}`;
-                } 
-                // 情境: 在瀏覽器 (當作訪客)
-                else {
-                    console.log("Guest Mode");
-                    frame.src = HF_SPACE_URL;
-                }
-            } catch (err) {   
-                console.error("LIFF Init Error:", err);
-                alert("LIFF 錯誤: " + err);
-                frame.src = HF_SPACE_URL; // 保底載入
-            }
-        }
-        window.onload = initLiff;
-    </script>
-
-</body>
-</html>
+                // 【關鍵修正】檢查是否已登入
+                if (!liff.isLoggedIn()) {
+                    // 如果沒登入，強制跳轉去 LINE 登入，
