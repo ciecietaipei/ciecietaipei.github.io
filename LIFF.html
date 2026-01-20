@@ -157,6 +157,9 @@
                 // 情境: 在 LINE App 內 (自動抓取 ID)
                 if (liff.isLoggedIn()) {
                     const profile = await liff.getProfile();
+                    // 👇👇👇 加入這一行測試 👇👇
+                    alert("抓到的 ID 是: " + profile.userId); 
+                    // 👆👆👆 測試完記得刪掉 👆👆👆
                     console.log("LIFF User:", profile.userId);
                     // 傳送 ID 給 Python
                     frame.src = `${HF_SPACE_URL}&line_id=${profile.userId}`;
@@ -166,8 +169,9 @@
                     console.log("Guest Mode");
                     frame.src = HF_SPACE_URL;
                 }
-            } catch (err) {
+            } catch (err) {   
                 console.error("LIFF Init Error:", err);
+                alert("LIFF 錯誤: " + err);
                 frame.src = HF_SPACE_URL; // 保底載入
             }
         }
