@@ -124,18 +124,17 @@
         </div>
     </main>
 
-    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
-        // 您提供的正確 LIFF ID
-        <!-- const MY_LIFF_ID = "2008934010-6z7iElYg"; -->
-        const MY_LIFF_ID = "2008912847-H6CWHiI7";
-
+        // 您的正確 LIFF ID
+        const MY_LIFF_ID = "2008912847-H6CWHiI7"; 
+        
         // Space A 網址
         const HF_SPACE_URL = "https://deeplearning101-ciecietaipei.hf.space?__theme=dark";
 
-        // 當 iframe 載入完成時，隱藏 loading
         function onFrameLoad() {
             const frame = document.getElementById('booking-frame');
+            // 確保不是空 src 才隱藏 loading
             if (frame.src && frame.src !== window.location.href) {
                 document.getElementById('loader').style.opacity = '0';
                 setTimeout(() => {
@@ -148,8 +147,36 @@
         async function initLiff() {
             const frame = document.getElementById('booking-frame');
             try {
+                // 1. 初始化 LIFF
                 await liff.init({ liffId: MY_LIFF_ID });
                 
-                // 【關鍵修正】檢查是否已登入
+                // 2. 關鍵修正：檢查是否已登入
                 if (!liff.isLoggedIn()) {
-                    // 如果沒登入，強制跳轉去 LINE 登入，
+                    // ⚠️ 如果沒登入，強制跳轉去 LINE 登入畫面！
+                    // 不要讓它變成訪客
+                    liff.login(); 
+                    return; // 暫停執行，等待登入跳轉回來
+                }
+
+                // 3. 程式執行到這，代表 100% 已登入成功
+                const profile = await liff.getProfile();
+                
+                // 🔥【除錯專用】手機會直接彈出這個視窗，證明抓到了！
+                // 確認功能正常後，您可以把這行 alert 刪除
+                alert("成功抓到 ID: " + profile.userId); 
+                
+                console.log("LIFF User:", profile.userId);
+                
+                // 4. 將 ID 拼接到網址後，載入 iframe
+                frame.src = `${HF_SPACE_URL}&line_id=${profile.userId}`;
+
+            } catch (err) {   
+                console.error("LIFF Init Error:", err);
+                // 只有真的發生系統錯誤 (如 LIFF ID 填錯) 才跳出警告
+                alert("LIFF 系統錯誤: " + err); 
+                frame.src = HF_SPACE_URL; 
+            }
+        }
+        
+        window.onload = initLiff;
+    </script>
