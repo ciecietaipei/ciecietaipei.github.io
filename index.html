@@ -407,5 +407,20 @@ description: CIE CIE TAIPEI，大安區信義安和餐酒館，近捷運信義�
         <i class="fas fa-question-circle"></i> FAQ
     </a>
 </div>
+<script>
+    window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+
+        if (status === 'confirmed') {
+            alert("🎉 訂位確認成功！\n\n我們期待您的光臨。");
+            // 清除網址參數，讓網址變乾淨
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } else if (status === 'canceled') {
+            alert("👌 訂位已取消。\n\n期待您下次有機會再來訪。");
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
+</script>
 </body>
 </html>

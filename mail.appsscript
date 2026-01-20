@@ -1,0 +1,14 @@
+function doPost(e) {
+  try {
+    var param = JSON.parse(e.postData.contents);
+    MailApp.sendEmail({
+      to: param.to,
+      subject: param.subject,
+      htmlBody: param.htmlBody,
+      name: param.name || "Cié Cié Taipei"
+    });
+    return ContentService.createTextOutput(JSON.stringify({ "status": "success" })).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ "status": "error", "msg": error.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}

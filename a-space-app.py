@@ -99,31 +99,52 @@ def handle_booking(name, tel, email, date_str, time, pax, remarks, line_id):
     try:
         supabase.table("bookings").insert(data).execute()
         
-        # D. 發送 LINE Notify 給老闆
+        # D. 發送 LINE Notify 給老闆 (⚠️ 這裡修改了格式)
         if LINE_ACCESS_TOKEN and LINE_ADMIN_ID:
             src = "🟢 LINE用戶" if line_id else "⚪ 訪客"
-            msg = f"🔥 新訂位 ({src})\n{name} / {tel}\n{date_str} {time} ({pax}人)"
+            # 處理備註：如果是空字串顯示 "無"
+            note = remarks if remarks else "無"
+            
+            # 👇 新的漂亮格式 👇
+            msg = (
+                f"🔥 新訂位 ({src})\n"
+                f"姓名：{name}\n"
+                f"電話：{tel}\n"
+                f"日期：{date_str}\n"
+                f"時間：{time}\n"
+                f"人數：{pax}人\n"
+                f"備註：{note}"
+            )
             requests.post("https://api.line.me/v2/bot/message/push", headers={"Authorization": f"Bearer {LINE_ACCESS_TOKEN}", "Content-Type": "application/json"}, json={"to": LINE_ADMIN_ID, "messages": [{"type": "text", "text": msg}]})
         
         return """<div style='text-align: center; color: #fff; padding: 20px; border: 1px solid #d4af37; border-radius: 8px; background: #222;'><h2 style='color: #d4af37; margin: 0;'>Request Received</h2><p style='margin: 10px 0;'>🥂 預約申請已提交</p><p style='font-size: 0.9em; color: #aaa;'>請留意 Email 確認信。</p></div>"""
     except Exception as e: return f"❌ 系統錯誤: {str(e)}"
 
-# --- 5. Webhook (確認/取消) ---
+# --- 5. Webhook (確認/取消邏輯 + 自動轉址到首頁) ---
 def check_confirmation(request: gr.Request):
     if not request: return ""
     action = request.query_params.get('action')
     bid = request.query_params.get('id')
     
+    # ✅ 修改這裡：目標改為官網首頁 (index.html)
+    OFFICIAL_SITE = "https://ciecietaipei.github.io/index.html"
+    
     if action == 'confirm' and bid:
         try:
             supabase.table("bookings").update({"status": "顧客已確認"}).eq("id", bid).execute()
-            return f"""<script>alert('✅ 訂位已確認 (編號 {bid})');</script><div style='padding:20px; background:#d4af37; color:black; text-align:center; border-radius:8px;'>🎉 感謝確認！</div>"""
-        except: return ""
+            # 成功後，跳轉回首頁並帶上 status=confirmed
+            return f"""<script>window.location.href = "{OFFICIAL_SITE}?status=confirmed";</script>"""
+        except: 
+            return "系統錯誤"
+            
     elif action == 'cancel' and bid:
         try:
             supabase.table("bookings").update({"status": "顧客已取消"}).eq("id", bid).execute()
-            return f"""<script>alert('已取消訂位 (編號 {bid})');</script><div style='padding:20px; background:#333; color:#ff5252; text-align:center; border:1px solid #ff5252; border-radius:8px;'>🚫 訂位已取消。</div>"""
-        except: return ""
+            # 取消後，跳轉回首頁並帶上 status=canceled
+            return f"""<script>window.location.href = "{OFFICIAL_SITE}?status=canceled";</script>"""
+        except: 
+            return "系統錯誤"
+            
     return ""
 
 # --- 6. 介面 ---

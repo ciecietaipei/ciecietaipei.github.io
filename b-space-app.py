@@ -5,7 +5,7 @@ import requests
 from supabase import create_client, Client
 from datetime import datetime, timedelta, timezone
 
-# ✅ 補回：設定台北時區
+# 設定台北時區
 TAIPEI_TZ = timezone(timedelta(hours=8))
 
 # --- 設定 ---
@@ -13,6 +13,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 GAS_MAIL_URL = os.getenv("GAS_MAIL_URL")
 LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN")
+# ⚠️ 請確認這是您 Space A 的正確網址 (結尾不要有斜線)
 PUBLIC_SPACE_URL = "https://deeplearning101-ciecietaipei.hf.space" 
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -36,39 +37,140 @@ def send_confirmation_hybrid(booking_id):
         email, user_id = booking.get('email'), booking.get('user_id')
         log_msg = ""
         
+        # 產生確認連結
         confirm_link = f"{PUBLIC_SPACE_URL}/?id={booking_id}&action=confirm"
         cancel_link = f"{PUBLIC_SPACE_URL}/?id={booking_id}&action=cancel"
 
-        # 1. Email 發送
+        # ---------------------------------------------------------
+        # 1. Email 發送 (改良版：使用 Table 排版，解決跑版問題)
+        # ---------------------------------------------------------
         if email and "@" in email:
-            html = f"""
-            <div style="padding:20px; background:#111; color:#d4af37; border-radius:10px; max-width:600px; margin:0 auto; font-family:sans-serif;">
-                <h2 style="border-bottom:1px solid #d4af37; padding-bottom:15px; text-align:center;">Cié Cié Taipei</h2>
-                <p>{booking['name']} 您好，已為您保留座位：</p>
-                <div style="background:#222; padding:15px; border-radius:8px;">
-                    <ul style="color:#eee; list-style:none; padding:0; margin:0; line-height:1.8;">
-                        <li>📅 {booking['date']} | ⏰ {booking['time']}</li>
-                        <li>👥 {booking['pax']} 位</li>
-                        <li>📝 {booking.get('remarks') or '無'}</li>
-                    </ul>
-                </div>
-                <div style="text-align:center; margin-top:25px;">
-                    <a href="{confirm_link}" style="background:#d4af37; color:#000; padding:12px 25px; text-decoration:none; border-radius:5px; margin:0 10px; font-weight:bold;">✅ 確認出席</a>
-                    <a href="{cancel_link}" style="border:1px solid #ff5252; color:#ff5252; padding:11px 24px; text-decoration:none; border-radius:5px; margin:0 10px; font-weight:bold;">🚫 取消</a>
-                </div>
-            </div>
-            """
-            requests.post(GAS_MAIL_URL, json={"to": email, "subject": f"[{booking['date']}] 訂位確認", "htmlBody": html, "name": "Cié Cié Taipei"})
-            log_msg += f"✅ Email ok "
-        
-        # 2. LINE 發送
-        if user_id and len(str(user_id)) > 10 and LINE_ACCESS_TOKEN:
             try:
-                line_msg = f"【訂位確認】{booking['name']} 您好\n已為您保留 {booking['date']} {booking['time']} ({booking['pax']}位)。\n\n如需取消請直接回覆，或點擊 Email 中的連結。期待您的光臨！"
-                requests.post("https://api.line.me/v2/bot/message/push", headers={"Authorization": f"Bearer {LINE_ACCESS_TOKEN}", "Content-Type": "application/json"}, json={"to": user_id, "messages": [{"type": "text", "text": line_msg}]})
-                log_msg += "| ✅ LINE ok"
-            except: log_msg += "| ❌ LINE fail"
-        else: log_msg += "| ℹ️ No LINE ID"
+                html = f"""
+                <div style="padding: 20px; background: #111; color: #d4af37; border-radius: 10px; max-width: 600px; margin: 0 auto; font-family: sans-serif;">
+                    <h2 style="border-bottom: 1px solid #d4af37; padding-bottom: 15px; text-align: center; letter-spacing: 2px;">Cié Cié Taipei</h2>
+                    <p style="font-size: 16px; margin-top: 20px; color: #eee;">{booking['name']} 您好，已為您保留座位：</p>
+                    
+                    <div style="background: #222; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #d4af37;">
+                        <ul style="color: #eee; list-style: none; padding: 0; margin: 0; line-height: 2;">
+                            <li>📅 日期：<strong style="color:#fff;">{booking['date']}</strong></li>
+                            <li>⏰ 時間：<strong style="color:#fff;">{booking['time']}</strong></li>
+                            <li>👥 人數：<strong style="color:#fff;">{booking['pax']} 位</strong></li>
+                            <li>📝 備註：{booking.get('remarks') or '無'}</li>
+                        </ul>
+                    </div>
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td align="center">
+                                <a href="{confirm_link}" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-right: 10px;">✅ 確認出席</a>
+                                <a href="{cancel_link}" style="display: inline-block; border: 1px solid #ff5252; color: #ff5252; padding: 11px 29px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-left: 10px;">🚫 取消</a>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <hr style="border: 0; border-top: 1px solid #333; margin-top: 30px;">
+                    <p style="color: #666; font-size: 12px; text-align: center;">如需更改，請直接回覆此信件。</p>
+                </div>
+                """
+                requests.post(GAS_MAIL_URL, json={"to": email, "subject": f"[{booking['date']}] 訂位確認 - Cié Cié Taipei", "htmlBody": html, "name": "Cié Cié Taipei"})
+                log_msg += f"✅ Email ok "
+            except Exception as e:
+                log_msg += f"⚠️ Email 失敗: {e} "
+        
+        # ---------------------------------------------------------
+        # 2. LINE 發送 (升級版：Flex Message 卡片按鈕)
+        # ---------------------------------------------------------
+        if not LINE_ACCESS_TOKEN:
+            log_msg += "| ⚠️ 未設定 LINE_ACCESS_TOKEN"
+        elif not user_id or len(str(user_id)) < 10:
+            log_msg += "| ℹ️ 無 LINE ID"
+        else:
+            try:
+                # 定義 Flex Message 內容
+                flex_payload = {
+                    "type": "flex",
+                    "altText": "您有一筆訂位確認通知",
+                    "contents": {
+                        "type": "bubble",
+                        "styles": { "header": {"backgroundColor": "#222222"}, "body": {"backgroundColor": "#2c2c2c"}, "footer": {"backgroundColor": "#2c2c2c"} },
+                        "header": {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {"type": "text", "text": "Cié Cié Taipei", "color": "#d4af37", "weight": "bold", "size": "xl", "align": "center"}
+                            ]
+                        },
+                        "body": {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {"type": "text", "text": "訂位確認", "weight": "bold", "size": "lg", "color": "#ffffff", "align": "center", "margin": "md"},
+                                {"type": "separator", "margin": "lg", "color": "#444444"},
+                                {"type": "box", "layout": "vertical", "margin": "lg", "spacing": "sm", "contents": [
+                                    {"type": "box", "layout": "baseline", "spacing": "sm", "contents": [
+                                        {"type": "text", "text": "姓名", "color": "#aaaaaa", "size": "sm", "flex": 2},
+                                        {"type": "text", "text": f"{booking['name']}", "wrap": True, "color": "#ffffff", "size": "sm", "flex": 4}
+                                    ]},
+                                    {"type": "box", "layout": "baseline", "spacing": "sm", "contents": [
+                                        {"type": "text", "text": "日期", "color": "#aaaaaa", "size": "sm", "flex": 2},
+                                        {"type": "text", "text": f"{booking['date']}", "wrap": True, "color": "#ffffff", "size": "sm", "flex": 4}
+                                    ]},
+                                    {"type": "box", "layout": "baseline", "spacing": "sm", "contents": [
+                                        {"type": "text", "text": "時間", "color": "#aaaaaa", "size": "sm", "flex": 2},
+                                        {"type": "text", "text": f"{booking['time']}", "wrap": True, "color": "#ffffff", "size": "sm", "flex": 4}
+                                    ]},
+                                    {"type": "box", "layout": "baseline", "spacing": "sm", "contents": [
+                                        {"type": "text", "text": "人數", "color": "#aaaaaa", "size": "sm", "flex": 2},
+                                        {"type": "text", "text": f"{booking['pax']} 位", "wrap": True, "color": "#ffffff", "size": "sm", "flex": 4}
+                                    ]}
+                                ]}
+                            ]
+                        },
+                        "footer": {
+                            "type": "box",
+                            "layout": "vertical",
+                            "spacing": "sm",
+                            "contents": [
+                                {
+                                    "type": "button",
+                                    "style": "primary",
+                                    "color": "#d4af37",
+                                    "height": "sm",
+                                    "action": {
+                                        "type": "uri",
+                                        "label": "✅ 確認出席",
+                                        "uri": confirm_link
+                                    }
+                                },
+                                {
+                                    "type": "button",
+                                    "style": "secondary",
+                                    "height": "sm",
+                                    "color": "#aaaaaa",
+                                    "action": {
+                                        "type": "uri",
+                                        "label": "🚫 取消訂位",
+                                        "uri": cancel_link
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+
+                # 發送請求
+                r = requests.post(
+                    "https://api.line.me/v2/bot/message/push", 
+                    headers={"Authorization": f"Bearer {LINE_ACCESS_TOKEN}", "Content-Type": "application/json"}, 
+                    json={"to": user_id, "messages": [flex_payload]}
+                )
+                
+                if r.status_code == 200:
+                    log_msg += "| ✅ LINE Flex ok"
+                else:
+                    log_msg += f"| ❌ LINE 錯誤: {r.text}"
+            except Exception as e: 
+                log_msg += f"| ❌ LINE 例外: {e}"
 
         supabase.table("bookings").update({"status": "已發確認信"}).eq("id", booking_id).execute()
         return log_msg
