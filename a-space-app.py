@@ -69,7 +69,7 @@ def get_line_id_from_url(request: gr.Request):
 
 def handle_booking(name, tel, email, date_str, time, pax, remarks, line_id):
     # 👇👇👇 加入這一行除錯 👇👇👇
-    print(f"🔥 DEBUG: 收到訂單，Name={name}, Line_ID={line_id}")
+    # print(f"🔥 DEBUG: 收到訂單，Name={name}, Line_ID={line_id}")
     if not name or not tel or not date_str or not time:
         return "⚠️ 請完整填寫必填欄位"
 
@@ -117,7 +117,7 @@ def handle_booking(name, tel, email, date_str, time, pax, remarks, line_id):
             )
             requests.post("https://api.line.me/v2/bot/message/push", headers={"Authorization": f"Bearer {LINE_ACCESS_TOKEN}", "Content-Type": "application/json"}, json={"to": LINE_ADMIN_ID, "messages": [{"type": "text", "text": msg}]})
         
-        return """<div style='text-align: center; color: #fff; padding: 20px; border: 1px solid #d4af37; border-radius: 8px; background: #222;'><h2 style='color: #d4af37; margin: 0;'>Request Received</h2><p style='margin: 10px 0;'>🥂 預約申請已提交</p><p style='font-size: 0.9em; color: #aaa;'>請留意 Email 確認信。</p></div>"""
+        return """<div style='text-align: center; color: #fff; padding: 20px; border: 1px solid #d4af37; border-radius: 8px; background: #222;'><h2 style='color: #d4af37; margin: 0;'>Request Received</h2><p style='margin: 10px 0;'>🥂 預約申請已提交</p><p style='font-size: 0.9em; color: #aaa;'>請留意 Email 確認信 或 Line 訊息。</p></div>"""
     except Exception as e: return f"❌ 系統錯誤: {str(e)}"
 
 # --- 5. Webhook (確認/取消邏輯 + 自動轉址到首頁) ---
@@ -149,12 +149,14 @@ def check_confirmation(request: gr.Request):
 
 # --- 6. 介面 ---
 theme = gr.themes.Soft(primary_hue="amber", neutral_hue="zinc").set(body_background_fill="#0F0F0F", block_background_fill="#1a1a1a", block_border_width="1px", block_border_color="#333", input_background_fill="#262626", input_border_color="#444", body_text_color="#E0E0E0", block_title_text_color="#d4af37", button_primary_background_fill="#d4af37", button_primary_text_color="#000000")
-custom_css = "footer {display: none !important;} .gradio-container, .block, .row, .column { overflow: visible !important; } .options, .wrap .options { background-color: #262626 !important; border: 1px solid #d4af37 !important; z-index: 10000 !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5); } .item:hover, .options .item:hover { background-color: #d4af37 !important; color: black !important; } .legal-footer { text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; color: #666; font-size: 0.75rem; }"
+
+# ✅ 修改 1：在 CSS 最後面加上 #hidden_box 的隱藏規則
+custom_css = "footer {display: none !important;} .gradio-container, .block, .row, .column { overflow: visible !important; } .options, .wrap .options { background-color: #262626 !important; border: 1px solid #d4af37 !important; z-index: 10000 !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5); } .item:hover, .options .item:hover { background-color: #d4af37 !important; color: black !important; } .legal-footer { text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; color: #666; font-size: 0.75rem; } #hidden_box { display: none !important; }"
+
 
 with gr.Blocks(theme=theme, css=custom_css, title="Booking") as demo:
-    # line_id_box = gr.Textbox(visible=False)
-    # 👇 把 False 改成 True，並加上標籤方便辨識
-    line_id_box = gr.Textbox(visible=True, label="【除錯用】接收到的 LINE ID")    
+    # ✅ 修改 2：保持 visible=True (確保資料流通)，但加上 elem_id 讓 CSS 把它藏起來
+    line_id_box = gr.Textbox(visible=True, elem_id="hidden_box", label="LINE ID")    
     confirm_msg_box = gr.HTML()
     demo.load(get_line_id_from_url, None, line_id_box)
     demo.load(check_confirmation, None, confirm_msg_box)
