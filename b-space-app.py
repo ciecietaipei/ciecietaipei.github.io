@@ -188,4 +188,4 @@ with gr.Blocks(title="Admin") as demo:
     action_btn.click(send_confirmation_hybrid, inputs=id_input, outputs=log_output)
 
 if __name__ == "__main__":
-    demo.launch(auth=(ADMIN_USER or "admin", ADMIN_PASSWORD or "123456"))
+    demo.launch(auth=(ADMIN_USER or "Deep Learning 101", ADMIN_PASSWORD or "2016-11-11"))

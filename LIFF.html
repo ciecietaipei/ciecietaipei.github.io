@@ -127,8 +127,8 @@
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
         // 您的正確 LIFF ID
-        const MY_LIFF_ID = "2008912847-H6CWHiI7"; 
-        
+        const MY_LIFF_ID = "2008912847-H6CWHiI7";
+
         // Space A 網址
         const HF_SPACE_URL = "https://deeplearning101-ciecietaipei.hf.space?__theme=dark";
 
@@ -171,11 +171,11 @@
                 // 4. 將 ID 拼接到網址後，載入 iframe
                 frame.src = `${HF_SPACE_URL}&line_id=${profile.userId}`;
 
-            } catch (err) {   
+            } catch (err) {
                 console.error("LIFF Init Error:", err);
                 // 只有真的發生系統錯誤 (如 LIFF ID 填錯) 才跳出警告
-                alert("LIFF 系統錯誤: " + err); 
-                frame.src = HF_SPACE_URL; 
+                alert("LIFF 系統錯誤: " + err);
+                frame.src = HF_SPACE_URL;
             }
         }
         

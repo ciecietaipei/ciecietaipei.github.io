@@ -5,7 +5,6 @@ from supabase import create_client, Client
 from datetime import datetime, timedelta, timezone
 
 # --- 1. 設定與初始化 ---
-# ✅ 補回：設定台北時區 (UTC+8)
 TAIPEI_TZ = timezone(timedelta(hours=8))
 
 LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN")
@@ -16,17 +15,16 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 if SUPABASE_URL and SUPABASE_KEY:
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# --- 2. 座位控管設定 (老闆可在此修改) ---
-DEFAULT_LIMIT = 30 
+# --- 2. 座位控管設定 ---
+DEFAULT_LIMIT = 30
 SPECIAL_DAYS = {
-    "2026-12-31": 10, # 跨年夜
-    "2026-02-14": 15  # 情人節
+    "2026-12-31": 10,
+    "2026-02-14": 15
 }
 
 # --- 3. 輔助函式 ---
 def get_date_options():
     options = []
-    # ✅ 修正：使用台北時間
     today = datetime.now(TAIPEI_TZ)
     weekdays = ["(一)", "(二)", "(三)", "(四)", "(五)", "(六)", "(日)"]
     for i in range(30): 
@@ -47,7 +45,6 @@ def update_time_slots(date_str):
              "21:00", "21:30", "22:00", "22:30", "23:00", "23:30", "00:00", "00:30", "01:00", "01:30"]
     if weekday == 4 or weekday == 5: slots.extend(["02:00", "02:30"])
     
-    # 檢查剩餘座位
     clean_date = date_str.split(" ")[0]
     daily_limit = SPECIAL_DAYS.get(clean_date, DEFAULT_LIMIT)
     
@@ -60,20 +57,16 @@ def update_time_slots(date_str):
 
     return gr.update(choices=slots, value=slots[0] if slots else None), status_msg
 
-# --- 4. 核心邏輯 ---
+# --- 4. 核心邏輯 (抓 ID 與 處理訂位) ---
 def get_line_id_from_url(request: gr.Request):
-    """從網址參數讀取 line_id"""
     if request:
         return request.query_params.get("line_id", "")
     return ""
 
 def handle_booking(name, tel, email, date_str, time, pax, remarks, line_id):
-    # 👇👇👇 加入這一行除錯 👇👇👇
-    # print(f"🔥 DEBUG: 收到訂單，Name={name}, Line_ID={line_id}")
     if not name or not tel or not date_str or not time:
         return "⚠️ 請完整填寫必填欄位"
 
-    # A. 檢查座位上限
     clean_date = date_str.split(" ")[0]
     daily_limit = SPECIAL_DAYS.get(clean_date, DEFAULT_LIMIT)
     try:
@@ -83,29 +76,23 @@ def handle_booking(name, tel, email, date_str, time, pax, remarks, line_id):
             return "⚠️ 抱歉，該時段剩餘座位不足，請調整人數或日期。"
     except: pass
 
-    # B. 防重複提交
     try:
         existing = supabase.table("bookings").select("id").eq("tel", tel).eq("date", date_str).eq("time", time).neq("status", "顧客已取消").execute()
         if existing.data: return "⚠️ 您已預約過此時段，請勿重複提交。"
     except: pass
 
-    # C. 寫入資料庫
     data = {
         "name": name, "tel": tel, "email": email, "date": date_str, "time": time, 
         "pax": pax, "remarks": remarks, "status": "待處理", 
-        "user_id": line_id # 存入 LINE ID
+        "user_id": line_id
     }
     
     try:
         supabase.table("bookings").insert(data).execute()
         
-        # D. 發送 LINE Notify 給老闆 (⚠️ 這裡修改了格式)
         if LINE_ACCESS_TOKEN and LINE_ADMIN_ID:
             src = "🟢 LINE用戶" if line_id else "⚪ 訪客"
-            # 處理備註：如果是空字串顯示 "無"
             note = remarks if remarks else "無"
-            
-            # 👇 新的漂亮格式 👇
             msg = (
                 f"🔥 新訂位 ({src})\n"
                 f"姓名：{name}\n"
@@ -120,46 +107,56 @@ def handle_booking(name, tel, email, date_str, time, pax, remarks, line_id):
         return """<div style='text-align: center; color: #fff; padding: 20px; border: 1px solid #d4af37; border-radius: 8px; background: #222;'><h2 style='color: #d4af37; margin: 0;'>Request Received</h2><p style='margin: 10px 0;'>🥂 預約申請已提交</p><p style='font-size: 0.9em; color: #aaa;'>請留意 Email 確認信 或 Line 訊息。</p></div>"""
     except Exception as e: return f"❌ 系統錯誤: {str(e)}"
 
-# --- 5. Webhook (確認/取消邏輯 + 自動轉址到首頁) ---
+# --- 5. Webhook (確認/取消 + 回傳轉址 URL) ---
+# ⚠️ 改動：這裡只回傳「純網址字串」，不回傳 script 標籤
 def check_confirmation(request: gr.Request):
     if not request: return ""
     action = request.query_params.get('action')
     bid = request.query_params.get('id')
     
-    # ✅ 修改這裡：目標改為官網首頁 (index.html)
+    # 目標官網首頁
     OFFICIAL_SITE = "https://ciecietaipei.github.io/index.html"
     
     if action == 'confirm' and bid:
         try:
             supabase.table("bookings").update({"status": "顧客已確認"}).eq("id", bid).execute()
-            # 成功後，跳轉回首頁並帶上 status=confirmed
-            return f"""<script>window.location.href = "{OFFICIAL_SITE}?status=confirmed";</script>"""
-        except: 
-            return "系統錯誤"
+            # 回傳目標網址
+            return f"{OFFICIAL_SITE}?status=confirmed"
+        except: pass
             
     elif action == 'cancel' and bid:
         try:
             supabase.table("bookings").update({"status": "顧客已取消"}).eq("id", bid).execute()
-            # 取消後，跳轉回首頁並帶上 status=canceled
-            return f"""<script>window.location.href = "{OFFICIAL_SITE}?status=canceled";</script>"""
-        except: 
-            return "系統錯誤"
+            # 回傳目標網址
+            return f"{OFFICIAL_SITE}?status=canceled"
+        except: pass
             
     return ""
 
 # --- 6. 介面 ---
 theme = gr.themes.Soft(primary_hue="amber", neutral_hue="zinc").set(body_background_fill="#0F0F0F", block_background_fill="#1a1a1a", block_border_width="1px", block_border_color="#333", input_background_fill="#262626", input_border_color="#444", body_text_color="#E0E0E0", block_title_text_color="#d4af37", button_primary_background_fill="#d4af37", button_primary_text_color="#000000")
 
-# ✅ 修改 1：在 CSS 最後面加上 #hidden_box 的隱藏規則
+# CSS 隱藏技巧 (保留 line_id_box 的隱藏設定)
 custom_css = "footer {display: none !important;} .gradio-container, .block, .row, .column { overflow: visible !important; } .options, .wrap .options { background-color: #262626 !important; border: 1px solid #d4af37 !important; z-index: 10000 !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5); } .item:hover, .options .item:hover { background-color: #d4af37 !important; color: black !important; } .legal-footer { text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; color: #666; font-size: 0.75rem; } #hidden_box { display: none !important; }"
 
-
 with gr.Blocks(theme=theme, css=custom_css, title="Booking") as demo:
-    # ✅ 修改 2：保持 visible=True (確保資料流通)，但加上 elem_id 讓 CSS 把它藏起來
-    line_id_box = gr.Textbox(visible=True, elem_id="hidden_box", label="LINE ID")    
-    confirm_msg_box = gr.HTML()
+    # 接收 LINE ID 的盒子 (CSS 隱藏)
+    line_id_box = gr.Textbox(visible=True, elem_id="hidden_box", label="LINE ID")
+    
+    # ⚠️ 新增：接收轉址 URL 的盒子 (隱藏)
+    redirect_url_box = gr.Textbox(visible=False)
+
+    # 載入時觸發
     demo.load(get_line_id_from_url, None, line_id_box)
-    demo.load(check_confirmation, None, confirm_msg_box)
+    demo.load(check_confirmation, None, redirect_url_box)
+
+    # ⚠️ 關鍵：當 redirect_url_box 有值時，執行 JS 轉址
+    redirect_url_box.change(
+        fn=None,
+        inputs=redirect_url_box,
+        outputs=None,
+        js="(url) => { if(url) window.location.href = url; }"
+    )
 
     with gr.Row():
         with gr.Column():
