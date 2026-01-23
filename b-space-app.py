@@ -133,8 +133,23 @@ def check_login(user, password):
             error_msg: "<span style='color: red'>❌ 帳號或密碼錯誤</span>"
         }
 
-# --- 介面開始 ---
-with gr.Blocks(title="Admin") as demo:
+# --- 🔥 新增 CSS：強制表格寬度與捲軸 ---
+# 這段 CSS 會讓表格內容不換行，並在手機上出現水平捲軸
+custom_css = """
+table { 
+    min-width: 1200px !important; 
+}
+td, th { 
+    white-space: nowrap !important; 
+    padding: 8px !important;
+}
+.table-wrap {
+    overflow-x: auto !important;
+}
+"""
+
+# --- 介面開始 (加入 css 參數) ---
+with gr.Blocks(title="Admin", css=custom_css) as demo:
     
     # 1. 登入介面
     with gr.Group(visible=True) as login_row:
@@ -143,13 +158,13 @@ with gr.Blocks(title="Admin") as demo:
             username_input = gr.Textbox(label="帳號 Username", placeholder="Enter username")
             password_input = gr.Textbox(label="密碼 Password", type="password", placeholder="Enter password")
         login_btn = gr.Button("登入 Login", variant="primary")
-        # ✅ 修正：移除 style 參數，避免報錯
         error_msg = gr.Markdown("")
         
     # 2. 後台介面
     with gr.Group(visible=False) as admin_row:
         gr.Markdown("# 🍷 訂位管理後台 (Dashboard)")
         refresh_btn = gr.Button("🔄 重新整理")
+        # 表格這裡會自動套用上面的 CSS
         booking_table = gr.Dataframe(interactive=False)
         with gr.Row():
             id_input = gr.Number(label="訂單 ID", precision=0)

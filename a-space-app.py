@@ -16,7 +16,7 @@ if SUPABASE_URL and SUPABASE_KEY:
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # --- 2. 座位控管設定 ---
-DEFAULT_LIMIT = 30
+DEFAULT_LIMIT = 30 
 SPECIAL_DAYS = {
     "2026-12-31": 10,
     "2026-02-14": 15
@@ -25,6 +25,7 @@ SPECIAL_DAYS = {
 # --- 3. 輔助函式 ---
 def get_date_options():
     options = []
+    # 這裡的 TAIPEI_TZ 會在函式被呼叫時重新取得當下時間
     today = datetime.now(TAIPEI_TZ)
     weekdays = ["(一)", "(二)", "(三)", "(四)", "(五)", "(六)", "(日)"]
     for i in range(30): 
@@ -35,16 +36,38 @@ def get_date_options():
 
 def update_time_slots(date_str):
     if not date_str: return gr.update(choices=[]), "請先選擇日期"
+    
     try:
         clean_date_str = date_str.split(" ")[0] 
         date_obj = datetime.strptime(clean_date_str, "%Y-%m-%d")
         weekday = date_obj.weekday() 
     except: return gr.update(choices=[]), "日期格式錯誤"
 
+    # 預設的所有時段
     slots = ["18:30", "19:00", "19:30", "20:00", "20:30", 
              "21:00", "21:30", "22:00", "22:30", "23:00", "23:30", "00:00", "00:30", "01:00", "01:30"]
     if weekday == 4 or weekday == 5: slots.extend(["02:00", "02:30"])
     
+    # 🔥🔥🔥 新增：時間過濾邏輯 🔥🔥🔥
+    now = datetime.now(TAIPEI_TZ)
+    # 只有當選擇的日期是「今天」時，才需要過濾過去的時間
+    if date_obj.date() == now.date():
+        current_time_str = now.strftime("%H:%M") # 取得現在時間字串 (例如 "22:15")
+        valid_slots = []
+        for s in slots:
+            h = int(s.split(":")[0]) # 取得時段的小時數
+            
+            # 判斷邏輯：
+            # 1. 凌晨時段 (00:00 - 05:00)：這屬於「跨日」，相對於今天的晚餐時段來說是未來，所以保留。
+            # 2. 晚間時段 (18:00+)：必須比「現在時間」晚，才保留。
+            if h < 5: 
+                valid_slots.append(s)
+            elif s > current_time_str:
+                valid_slots.append(s)
+        
+        slots = valid_slots # 更新清單
+
+    # 計算剩餘座位 (維持原樣)
     clean_date = date_str.split(" ")[0]
     daily_limit = SPECIAL_DAYS.get(clean_date, DEFAULT_LIMIT)
     
@@ -55,7 +78,26 @@ def update_time_slots(date_str):
         status_msg = f"✨ {date_str} (剩餘座位: {remaining} 位)"
     except: status_msg = f"✨ {date_str}"
 
+    # 如果所有時段都過期了 (slots 為空)，value 給 None
     return gr.update(choices=slots, value=slots[0] if slots else None), status_msg
+
+# --- [新增] 初始化 UI 的函式 (解決日期過期問題) ---
+def init_ui():
+    """
+    當網頁載入時執行：
+    1. 重新計算日期列表 (確保今天是真的今天)
+    2. 自動選擇第一天 (今天)
+    3. 根據今天，自動更新時段和剩餘座位 (此時會自動觸發上方的時間過濾)
+    """
+    fresh_dates = get_date_options()
+    default_date = fresh_dates[0]
+    time_update, status_msg = update_time_slots(default_date)
+    
+    return (
+        gr.update(choices=fresh_dates, value=default_date),
+        time_update,
+        status_msg
+    )
 
 # --- 4. 核心邏輯 (抓 ID 與 處理訂位) ---
 def get_line_id_from_url(request: gr.Request):
@@ -108,26 +150,22 @@ def handle_booking(name, tel, email, date_str, time, pax, remarks, line_id):
     except Exception as e: return f"❌ 系統錯誤: {str(e)}"
 
 # --- 5. Webhook (確認/取消 + 回傳轉址 URL) ---
-# ⚠️ 改動：這裡只回傳「純網址字串」，不回傳 script 標籤
 def check_confirmation(request: gr.Request):
     if not request: return ""
     action = request.query_params.get('action')
     bid = request.query_params.get('id')
     
-    # 目標官網首頁
     OFFICIAL_SITE = "https://ciecietaipei.github.io/index.html"
     
     if action == 'confirm' and bid:
         try:
             supabase.table("bookings").update({"status": "顧客已確認"}).eq("id", bid).execute()
-            # 回傳目標網址
             return f"{OFFICIAL_SITE}?status=confirmed"
         except: pass
             
     elif action == 'cancel' and bid:
         try:
             supabase.table("bookings").update({"status": "顧客已取消"}).eq("id", bid).execute()
-            # 回傳目標網址
             return f"{OFFICIAL_SITE}?status=canceled"
         except: pass
             
@@ -136,21 +174,15 @@ def check_confirmation(request: gr.Request):
 # --- 6. 介面 ---
 theme = gr.themes.Soft(primary_hue="amber", neutral_hue="zinc").set(body_background_fill="#0F0F0F", block_background_fill="#1a1a1a", block_border_width="1px", block_border_color="#333", input_background_fill="#262626", input_border_color="#444", body_text_color="#E0E0E0", block_title_text_color="#d4af37", button_primary_background_fill="#d4af37", button_primary_text_color="#000000")
 
-# CSS 隱藏技巧 (保留 line_id_box 的隱藏設定)
 custom_css = "footer {display: none !important;} .gradio-container, .block, .row, .column { overflow: visible !important; } .options, .wrap .options { background-color: #262626 !important; border: 1px solid #d4af37 !important; z-index: 10000 !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5); } .item:hover, .options .item:hover { background-color: #d4af37 !important; color: black !important; } .legal-footer { text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; color: #666; font-size: 0.75rem; } #hidden_box { display: none !important; }"
 
 with gr.Blocks(theme=theme, css=custom_css, title="Booking") as demo:
-    # 接收 LINE ID 的盒子 (CSS 隱藏)
     line_id_box = gr.Textbox(visible=True, elem_id="hidden_box", label="LINE ID")
-    
-    # ⚠️ 新增：接收轉址 URL 的盒子 (隱藏)
     redirect_url_box = gr.Textbox(visible=False)
 
-    # 載入時觸發
     demo.load(get_line_id_from_url, None, line_id_box)
     demo.load(check_confirmation, None, redirect_url_box)
 
-    # ⚠️ 關鍵：當 redirect_url_box 有值時，執行 JS 轉址
     redirect_url_box.change(
         fn=None,
         inputs=redirect_url_box,
@@ -161,13 +193,16 @@ with gr.Blocks(theme=theme, css=custom_css, title="Booking") as demo:
     with gr.Row():
         with gr.Column():
             gr.Markdown("### 📅 預約資訊 Booking Info")
-            booking_date = gr.Dropdown(choices=get_date_options(), label="選擇日期 Select Date", interactive=True)
+            booking_date = gr.Dropdown(label="選擇日期 Select Date", interactive=True)
             pax_count = gr.Slider(minimum=1, maximum=10, value=2, step=1, label="用餐人數 Guest Count")
         with gr.Column():
              gr.Markdown("### 🕰️ 選擇時段 Time Slot")
              status_box = gr.Markdown("請先選擇日期...", visible=True)
              time_slot = gr.Dropdown(choices=[], label="可用時段 Available Time", interactive=True)
     
+    # 載入時初始化 UI (包含日期與時間過濾)
+    demo.load(init_ui, None, [booking_date, time_slot, status_box])
+
     gr.HTML("<div style='height: 10px'></div>")
     gr.Markdown("### 👤 聯絡人資料 Contact，收到確認 E-Mail 並點擊 確認出席 才算訂位成功")
     with gr.Group():
