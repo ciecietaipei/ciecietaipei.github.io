@@ -13,10 +13,9 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 GAS_MAIL_URL = os.getenv("GAS_MAIL_URL")
 LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN")
-# ⚠️ 請確認這是您 Space A 的正確網址 (結尾不要有斜線)
 PUBLIC_SPACE_URL = "https://deeplearning101-ciecietaipei.hf.space" 
 
-# 取得帳密 (若沒設定則使用預設值)
+# 取得帳密
 REAL_ADMIN_USER = os.getenv("ADMIN_USER") or "Deep Learning 101"
 REAL_ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD") or "2016-11-11"
 
@@ -119,7 +118,7 @@ def send_confirmation_hybrid(booking_id):
         return log_msg
     except Exception as e: return f"❌ Error: {str(e)}"
 
-# --- 登入邏輯 (回傳 HTML 字串來控制顏色) ---
+# --- 登入邏輯 ---
 def check_login(user, password):
     if user == REAL_ADMIN_USER and password == REAL_ADMIN_PASSWORD:
         return {
@@ -128,24 +127,59 @@ def check_login(user, password):
             error_msg: ""
         }
     else:
-        # ✅ 使用 HTML span 標籤來顯示紅色，而不是在 gr.Markdown 用 style 參數
         return {
             error_msg: "<span style='color: red'>❌ 帳號或密碼錯誤</span>"
         }
 
-# --- 🔥 新增 CSS：強制表格寬度與捲軸 ---
-# 這段 CSS 會讓表格內容不換行，並在手機上出現水平捲軸
+# --- 🔥 [客製化 CSS]：針對每個欄位設定寬度 + 允許換行 ---
 custom_css = """
-table { 
-    min-width: 1200px !important; 
-}
-td, th { 
-    white-space: nowrap !important; 
-    padding: 8px !important;
-}
-.table-wrap {
+/* 1. 外層容器：允許左右滑動 */
+.table-wrap, .wrap, .svelte-12cmxck, div[id^="dataframe"] {
     overflow-x: auto !important;
+    display: block !important;
 }
+/* 2. 表格本體 */
+table { 
+    display: table !important;
+    table-layout: fixed !important; /* ⚠️ 關鍵：固定布局，強制生效我們設定的寬度 */
+    width: auto !important; 
+    border-collapse: collapse !important;
+    margin: 0 !important;
+}
+/* 3. 通用儲存格設定 */
+th, td { 
+    display: table-cell !important;
+    white-space: normal !important;  /* ✅ 允許換行 */
+    word-break: break-word !important; /* ✅ 長單字(如User ID)強制換行 */
+    vertical-align: top !important;    /* 對齊上方，換行後比較好看 */
+    
+    box-sizing: border-box !important;
+    padding: 8px 10px !important;
+    border: 1px solid #444 !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+}
+/* 4. 🔥【個別欄位寬度設定】(依照您的欄位順序 1~10) */
+/* #1 id: 短數字 */
+th:nth-child(1), td:nth-child(1) { min-width: 60px !important; width: 60px !important; }
+/* #2 date: 日期 (2026-01-23) */
+th:nth-child(2), td:nth-child(2) { min-width: 170px !important; width: 170px !important; }
+/* #3 time: 時間 (19:30) */
+th:nth-child(3), td:nth-child(3) { min-width: 80px !important; width: 80px !important; }
+/* #4 name: 姓名 */
+th:nth-child(4), td:nth-child(4) { min-width: 120px !important; width: 120px !important; }
+/* #5 tel: 電話 */
+th:nth-child(5), td:nth-child(5) { min-width: 120px !important; width: 120px !important; }
+/* #6 email: 電子信箱 (很長，給寬一點) */
+th:nth-child(6), td:nth-child(6) { min-width: 250px !important; width: 250px !important; }
+/* #7 pax: 人數 (短) */
+th:nth-child(7), td:nth-child(7) { min-width: 50px !important; width: 50px !important; }
+/* #8 remarks: 備註 (文字多，給寬一點) */
+th:nth-child(8), td:nth-child(8) { min-width: 180px !important; width: 180px !important; }
+/* #9 status: 狀態 */
+th:nth-child(9), td:nth-child(9) { min-width: 120px !important; width: 120px !important; }
+/* #10 user_id: 亂碼 (非常長，給寬一點，反正會換行) */
+th:nth-child(10), td:nth-child(10) { min-width: 280px !important; width: 320px !important; }
 """
 
 # --- 介面開始 (加入 css 參數) ---
