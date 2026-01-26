@@ -131,58 +131,118 @@ def check_login(user, password):
             error_msg: "<span style='color: red'>❌ 帳號或密碼錯誤</span>"
         }
 
-# --- 🔥 [客製化 CSS]：針對每個欄位設定寬度 + 允許換行 ---
-custom_css = """
-/* 1. 外層容器：允許左右滑動 */
-.table-wrap, .wrap, .svelte-12cmxck, div[id^="dataframe"] {
-    overflow-x: auto !important;
-    display: block !important;
+# --- 🟢 [JS 核心邏輯]：層層檢查，殺掉紅框，保留綠框 ---
+fix_scroll_js = """
+function() {
+    const applyFix = () => {
+        const root = document.querySelector('#booking_table');
+        if (!root) return;
+
+        // 1. 殺掉外層捲軸 (Red Scrollbar)
+        // 找到所有包在表格外面的 div，只要不是直接包著 table 的，通通 hidden
+        const allDivs = root.querySelectorAll('div');
+        allDivs.forEach(div => {
+            // 如果這個 div 裡面還有一個 table-wrap，或者它本身就是外層包裝
+            // 而且它不是 table 的直接父層
+            const hasInnerTable = div.querySelector('table');
+            if (hasInnerTable && window.getComputedStyle(div).overflowX === 'auto') {
+                div.style.overflowX = 'hidden'; 
+                div.style.maxWidth = '100%';
+            }
+        });
+        
+        // 確保最外層也是 hidden
+        root.style.overflowX = 'hidden';
+
+        // 2. 保留內層捲軸 (Green Scrollbar)
+        const table = root.querySelector('table');
+        if (table) {
+            // 強制設定表格寬度，確保內容撐開
+            table.style.width = '1500px'; 
+            table.style.minWidth = '1500px'; 
+            table.style.tableLayout = 'fixed';
+
+            // 找到直接父層 (Green Scrollbar 所在位置)
+            const parent = table.parentElement;
+            if (parent) {
+                parent.style.overflowX = 'auto'; // 開啟
+                parent.style.maxWidth = '100vw'; // 限制寬度
+                parent.style.display = 'block';
+            }
+        }
+    };
+
+    // 啟動時執行
+    applyFix();
+    // 循環執行以對抗 Gradio 的動態渲染
+    setInterval(applyFix, 500);
 }
-/* 2. 表格本體 */
-table { 
-    display: table !important;
-    table-layout: fixed !important; /* ⚠️ 關鍵：固定布局，強制生效我們設定的寬度 */
-    width: auto !important; 
-    border-collapse: collapse !important;
-    margin: 0 !important;
-}
-/* 3. 通用儲存格設定 */
-th, td { 
-    display: table-cell !important;
-    white-space: normal !important;  /* ✅ 允許換行 */
-    word-break: break-word !important; /* ✅ 長單字(如User ID)強制換行 */
-    vertical-align: top !important;    /* 對齊上方，換行後比較好看 */
-    
-    box-sizing: border-box !important;
-    padding: 8px 10px !important;
-    border: 1px solid #444 !important;
-    font-size: 14px !important;
-    line-height: 1.4 !important;
-}
-/* 4. 🔥【個別欄位寬度設定】(依照您的欄位順序 1~10) */
-/* #1 id: 短數字 */
-th:nth-child(1), td:nth-child(1) { min-width: 60px !important; width: 60px !important; }
-/* #2 date: 日期 (2026-01-23) */
-th:nth-child(2), td:nth-child(2) { min-width: 170px !important; width: 170px !important; }
-/* #3 time: 時間 (19:30) */
-th:nth-child(3), td:nth-child(3) { min-width: 80px !important; width: 80px !important; }
-/* #4 name: 姓名 */
-th:nth-child(4), td:nth-child(4) { min-width: 120px !important; width: 120px !important; }
-/* #5 tel: 電話 */
-th:nth-child(5), td:nth-child(5) { min-width: 120px !important; width: 120px !important; }
-/* #6 email: 電子信箱 (很長，給寬一點) */
-th:nth-child(6), td:nth-child(6) { min-width: 250px !important; width: 250px !important; }
-/* #7 pax: 人數 (短) */
-th:nth-child(7), td:nth-child(7) { min-width: 50px !important; width: 50px !important; }
-/* #8 remarks: 備註 (文字多，給寬一點) */
-th:nth-child(8), td:nth-child(8) { min-width: 180px !important; width: 180px !important; }
-/* #9 status: 狀態 */
-th:nth-child(9), td:nth-child(9) { min-width: 120px !important; width: 120px !important; }
-/* #10 user_id: 亂碼 (非常長，給寬一點，反正會換行) */
-th:nth-child(10), td:nth-child(10) { min-width: 280px !important; width: 320px !important; }
 """
 
-# --- 介面開始 (加入 css 參數) ---
+# --- 🔥 [CSS] 定寬 + 換行 + 隱藏全域捲軸 ---
+custom_css = """
+/* 1. 全域與元件外層：殺死紅框捲軸 */
+body, .gradio-container {
+    overflow-x: hidden !important; /* 殺死瀏覽器捲軸 */
+    max-width: 100vw !important;
+}
+
+#booking_table {
+    overflow: hidden !important; /* 殺死元件捲軸 */
+    max-width: 100% !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+/* 2. 中間層：確保沒有任何中間人偷偷加捲軸 */
+#booking_table .wrap, 
+#booking_table .svelte-12cmxck { 
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+}
+
+/* 3. 內層 (綠框位置)：唯一允許捲動的地方 */
+#booking_table .table-wrap, 
+#booking_table tbody {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    max-width: 100vw !important; /* 確保不超過螢幕 */
+    border: 1px solid #444 !important;
+}
+
+/* 4. 表格本體：撐開它！ */
+#booking_table table {
+    table-layout: fixed !important;
+    width: 1500px !important; /* 總寬度 */
+    min-width: 1500px !important;
+}
+
+/* 5. 欄位內容：自動換行 */
+#booking_table th, #booking_table td {
+    white-space: normal !important;
+    word-break: break-all !important;
+    overflow-wrap: break-word !important;
+    vertical-align: top !important;
+    padding: 8px 5px !important;
+    border: 1px solid #444 !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+}
+
+/* 6. 個別欄位寬度 */
+#booking_table th:nth-child(1), #booking_table td:nth-child(1) { width: 60px !important; }
+#booking_table th:nth-child(2), #booking_table td:nth-child(2) { width: 170px !important; }
+#booking_table th:nth-child(3), #booking_table td:nth-child(3) { width: 80px !important; }
+#booking_table th:nth-child(4), #booking_table td:nth-child(4) { width: 120px !important; }
+#booking_table th:nth-child(5), #booking_table td:nth-child(5) { width: 120px !important; }
+#booking_table th:nth-child(6), #booking_table td:nth-child(6) { width: 250px !important; }
+#booking_table th:nth-child(7), #booking_table td:nth-child(7) { width: 50px !important; }
+#booking_table th:nth-child(8), #booking_table td:nth-child(8) { width: 180px !important; }
+#booking_table th:nth-child(9), #booking_table td:nth-child(9) { width: 120px !important; }
+#booking_table th:nth-child(10), #booking_table td:nth-child(10) { width: 320px !important; }
+"""
+
+# --- 介面開始 ---
 with gr.Blocks(title="Admin", css=custom_css) as demo:
     
     # 1. 登入介面
@@ -198,8 +258,10 @@ with gr.Blocks(title="Admin", css=custom_css) as demo:
     with gr.Group(visible=False) as admin_row:
         gr.Markdown("# 🍷 訂位管理後台 (Dashboard)")
         refresh_btn = gr.Button("🔄 重新整理")
-        # 表格這裡會自動套用上面的 CSS
-        booking_table = gr.Dataframe(interactive=False)
+        
+        # ✅ elem_id 保持為 booking_table
+        booking_table = gr.Dataframe(interactive=False, elem_id="booking_table")
+        
         with gr.Row():
             id_input = gr.Number(label="訂單 ID", precision=0)
             action_btn = gr.Button("📧 發送確認信 (Hybrid)", variant="primary")
@@ -214,6 +276,9 @@ with gr.Blocks(title="Admin", css=custom_css) as demo:
         inputs=[username_input, password_input], 
         outputs=[login_row, admin_row, error_msg]
     )
+    
+    # 🔥🔥🔥 執行 JS 強制修正 🔥🔥🔥
+    demo.load(None, js=fix_scroll_js)
 
 if __name__ == "__main__":
     demo.launch()
