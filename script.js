@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ----------------------------------------------------
     // 影片彈出視窗 (Modal) 邏輯 - 優化版 (解決卡頓+延遲播放)
     // ----------------------------------------------------
-    const logoTrigger = document.querySelector('.logo-trigger');
+    // const logoTrigger = document.querySelector('.logo-trigger');
     const videoModal = document.getElementById('video-modal');
     const videoCloseBtn = videoModal ? videoModal.querySelector('.close-btn') : null;
     const videoPlayer = document.getElementById('popup-video');
@@ -28,31 +28,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    if (logoTrigger && videoModal && videoCloseBtn && videoPlayer) {
-        // 1. 點擊 Logo 主動開啟
-        logoTrigger.addEventListener('click', (e) => {
-            e.preventDefault();
-            openVideoModal();
-        });
+    // if (logoTrigger && videoModal && videoCloseBtn && videoPlayer) {
+    //     // 1. 點擊 Logo 主動開啟
+    //     logoTrigger.addEventListener('click', (e) => {
+    //         e.preventDefault();
+    //         openVideoModal();
+    //     });
 
-        // 2. 關閉按鈕與點擊背景關閉
-        videoCloseBtn.addEventListener('click', closeVideoModal);
-        videoModal.addEventListener('click', (e) => {
-            if (e.target === videoModal) closeVideoModal();
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && videoModal.classList.contains('open')) closeVideoModal();
-        });
+    //     // 2. 關閉按鈕與點擊背景關閉
+    //     videoCloseBtn.addEventListener('click', closeVideoModal);
+    //     videoModal.addEventListener('click', (e) => {
+    //         if (e.target === videoModal) closeVideoModal();
+    //     });
+    //     document.addEventListener('keydown', (e) => {
+    //         if (e.key === 'Escape' && videoModal.classList.contains('open')) closeVideoModal();
+    //     });
 
-        // 3. 【新功能】延遲 3 秒自動彈出 (解決 GA4 顯示的跳出問題)
-        // 使用 sessionStorage 確保使用者「每次開瀏覽器」只會跳出一次，不會煩人
-        if (!sessionStorage.getItem('videoShown')) {
-            setTimeout(() => {
-                openVideoModal();
-                sessionStorage.setItem('videoShown', 'true');
-            }, 30000); // 10000 毫秒 = 10 秒
-        }
-    }
+    //     // 3. 【新功能】延遲 3 秒自動彈出 (解決 GA4 顯示的跳出問題)
+    //     // 使用 sessionStorage 確保使用者「每次開瀏覽器」只會跳出一次，不會煩人
+    //     if (!sessionStorage.getItem('videoShown')) {
+    //         setTimeout(() => {
+    //             openVideoModal();
+    //             sessionStorage.setItem('videoShown', 'true');
+    //         }, 30000); // 10000 毫秒 = 10 秒
+    //     }
+    // }
 
     // ----------------------------------------------------
     // 隨機頁面開啟時彈出FB/IG貼文 (此區塊完全不變)
