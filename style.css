@@ -66,6 +66,36 @@ h2 {
     transform: scale(1.1);
 }
 
+.alcohol-warning-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 5vh; /* 確保佔據螢幕高度的 10%，符合法規 */
+    background-color: #000000; /* 高對比背景 */
+    color: #FFFFFF; /* 高對比文字 */
+    text-align: center;
+    font-size: 1.5rem; /* 大字體 */
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000; /* 確保蓋在最上層 */
+    letter-spacing: 2px;
+}
+
+/* 因為警語佔了底部 10%，為避免擋住原本的內容，將 body 底部加上 padding */
+body {
+    padding-bottom: 10vh; 
+}
+
+/* 手機版字體微調 */
+@media (max-width: 768px) {
+    .alcohol-warning-banner {
+        font-size: 1rem;
+    }
+}
+
 .hero {
     height: 100vh;
     background-size: cover;
