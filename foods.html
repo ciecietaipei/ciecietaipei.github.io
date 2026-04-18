@@ -525,25 +525,59 @@
     🍸
 </div>
 
-<div id="ai-chat-window" style="display: none; position: fixed; bottom: 160px; right: 30px; width: 400px; height: 600px; background-color: white; border-radius: 12px; box-shadow: 0 5px 30px rgba(0,0,0,0.5); z-index: 9998; overflow: hidden; border: 1px solid #D4AF37;">
 
-    <div style="background-color: #1A1A1A; color: #D4AF37; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; font-family: 'Montserrat', sans-serif; font-weight: bold; border-bottom: 2px solid #D4AF37;">
-        <span>CIE CIE 線上微醺客服</span>
-        <span onclick="toggleChat()" style="cursor: pointer; font-size: 20px;">✖</span>
+
+<style>
+    /* 桌機版預設尺寸 */
+    #ai-chat-btn {
+        position: fixed; bottom: 85px; right: 20px; width: 60px; height: 60px;
+        background-color: #1A1A1A; color: #D4AF37; border-radius: 50%;
+        display: flex; justify-content: center; align-items: center; cursor: pointer; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.6); z-index: 9999; font-size: 28px; 
+        transition: transform 0.2s; border: 2px solid #D4AF37;
+    }
+    #ai-chat-window {
+        display: none; position: fixed; bottom: 155px; right: 20px; 
+        width: 400px; height: 600px;
+        /* 🚀 關鍵修復：最大寬度與高度使用 calc 動態計算，絕對不超過螢幕 */
+        max-width: calc(100vw - 40px); 
+        max-height: calc(100vh - 180px); 
+        background-color: #ffffff; border-radius: 12px; box-shadow: 0 5px 30px rgba(0,0,0,0.5); 
+        z-index: 9998; overflow: hidden; border: 1px solid #D4AF37;
+    }
+
+    /* 🚀 手機版專屬微調 (螢幕小於 480px 時觸發) */
+    @media (max-width: 480px) {
+        #ai-chat-btn { 
+            bottom: 75px; right: 15px; width: 50px; height: 50px; font-size: 24px;
+        }
+        #ai-chat-window {
+            bottom: 135px; right: 15px;
+            width: calc(100vw - 30px); /* 左右各留 15px 邊距 */
+            max-height: calc(100vh - 150px);
+        }
+    }
+</style>
+
+<div id="ai-chat-btn" onclick="toggleChat()">🍸</div>
+
+<div id="ai-chat-window">
+    <div style="background-color: #1A1A1A; color: #D4AF37; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-family: 'Montserrat', sans-serif; font-weight: bold; border-bottom: 2px solid #D4AF37;">
+        <span style="font-size: 15px;">CIE CIE 線上微醺客服</span>
+        <span onclick="toggleChat()" style="cursor: pointer; font-size: 20px; padding: 0 5px;">✖</span>
     </div>
 
-    <iframe
+    <iframe 
         src="https://deeplearning101-ciecietaipei-chatbot.hf.space"
-        style="width: 100%; height: calc(100% - 48px); border: none; display: block;">
+        style="width: 100%; height: calc(100% - 44px); border: none; display: block; background-color: #ffffff;">
     </iframe>
-
 </div>
 
 <script>
     function toggleChat() {
         var chatWindow = document.getElementById("ai-chat-window");
         var chatBtn = document.getElementById("ai-chat-btn");
-        
+
         if (chatWindow.style.display === "none") {
             chatWindow.style.display = "block";
             chatBtn.innerHTML = "✖";
@@ -555,6 +589,7 @@
         }
     }
 </script>
+
 
 <!-- 圖片放大彈出視窗 -->
 <div id="image-modal" class="modal">
