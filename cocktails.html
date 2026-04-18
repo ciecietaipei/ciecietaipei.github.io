@@ -367,37 +367,6 @@
         });
     </script>
 
-    <div id="ai-chat-window" style="display: none; position: fixed; bottom: 160px; right: 30px; width: 400px; height: 600px; background-color: white; border-radius: 12px; box-shadow: 0 5px 30px rgba(0,0,0,0.5); z-index: 9998; overflow: hidden; border: 1px solid #D4AF37;">
-
-    <div style="background-color: #1A1A1A; color: #D4AF37; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; font-family: 'Montserrat', sans-serif; font-weight: bold; border-bottom: 2px solid #D4AF37;">
-        <span>CIE CIE 線上微醺客服</span>
-        <span onclick="toggleChat()" style="cursor: pointer; font-size: 20px;">✖</span>
-    </div>
-
-    <iframe
-        src="https://deeplearning101-ciecietaipei-chatbot.hf.space"
-        style="width: 100%; height: calc(100% - 48px); border: none; display: block;">
-    </iframe>
-
-</div>
-
-<script>
-    function toggleChat() {
-        var chatWindow = document.getElementById("ai-chat-window");
-        var chatBtn = document.getElementById("ai-chat-btn");
-        
-        if (chatWindow.style.display === "none") {
-            chatWindow.style.display = "block";
-            chatBtn.innerHTML = "✖";
-            chatBtn.style.transform = "scale(0.9)";
-        } else {
-            chatWindow.style.display = "none";
-            chatBtn.innerHTML = "🍸";
-            chatBtn.style.transform = "scale(1)";
-        }
-    }
-</script>
-
     <footer>
         <p>© 2026 CIE CIE TAIPEI. All Rights Reserved.</p>
         <p class="footer-note">📍 台北市大安區信義路四段390號 📍 02-2709-3446</p>
@@ -416,5 +385,37 @@
     <style> body { padding-bottom: 15vh; } </style>
 
     <script src="script.js"></script>
+
+<div id="ai-chat-window" style="display: none; position: fixed; bottom: 160px; right: 30px; width: 400px; height: 600px; background-color: white; border-radius: 12px; box-shadow: 0 5px 30px rgba(0,0,0,0.5); z-index: 9998; overflow: hidden; border: 1px solid #D4AF37;">
+
+    <div style="background-color: #1A1A1A; color: #D4AF37; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; font-family: 'Montserrat', sans-serif; font-weight: bold; border-bottom: 2px solid #D4AF37;">
+        <span>CIE CIE 線上微醺客服</span>
+        <span onclick="toggleChat()" style="cursor: pointer; font-size: 20px;">✖</span>
+    </div>
+
+    <iframe
+        src="https://deeplearning101-ciecietaipei-chatbot.hf.space"
+        style="width: 100%; height: calc(100% - 48px); border: none; display: block;">
+    </iframe>
+
+</div>
+
+<script>
+    function toggleChat() {
+        var chatWindow = document.getElementById("ai-chat-window");
+        var chatBtn = document.getElementById("ai-chat-btn");
+
+        if (chatWindow.style.display === "none") {
+            chatWindow.style.display = "block";
+            chatBtn.innerHTML = "✖";
+            chatBtn.style.transform = "scale(0.9)";
+        } else {
+            chatWindow.style.display = "none";
+            chatBtn.innerHTML = "🍸";
+            chatBtn.style.transform = "scale(1)";
+        }
+    }
+</script>
+
 </body>
 </html>
