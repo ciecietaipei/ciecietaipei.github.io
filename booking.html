@@ -359,5 +359,22 @@
         window.onload = initLiff;
     </script>
 
+    <script>
+    // 監聽來自 Hugging Face iframe 的訊息
+    window.addEventListener("message", function(event) {
+        // 如果收到的暗號是 'booking_success'
+        if (event.data === 'booking_success') {
+            console.log("收到訂位成功訊號，發送 GA4 事件！");
+            
+            // 觸發 GA4 的 generate_lead (產生潛在客戶) 事件
+            // 你之後可以在 GA4 把 generate_lead 設為「重要事件 (轉換)」
+            gtag('event', 'generate_lead', {
+                'event_category': 'Booking',
+                'event_label': 'Submit Form Success'
+            });
+        }
+    });
+</script>
+
 </body>
 </html>
