@@ -9,372 +9,663 @@
     gtag('config', 'G-REW7E7RH9B');
     </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>線上訂位 Booking | CIE CIE TAIPEI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>線上內用訂位預點餐 / 外帶點餐 | CIE CIE TAIPEI</title>
     
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <style>
-        /* --- 1. 全局背景設定 (找回微醺氛圍) --- */
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Noto Sans TC', sans-serif;
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)), url('assets/hero_background.jpg'); 
-            background-size: cover;
-            background-attachment: fixed;
-            background-position: center;
-            background-color: #111;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* --- 2. Header (保留您原本的 Slim Header 設計) --- */
-        .slim-header {
-            background: rgba(0, 0, 0, 0.9);
-            padding: 10px 20px;
-            border-bottom: 1px solid #333;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        @media (min-width: 768px) {
-            .header-content {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 🌟 加入 Supabase SDK 以連線資料庫 🌟 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Noto Sans TC', 'sans-serif'], mont: ['Montserrat', 'sans-serif'] },
+                    colors: {
+                        gold: { 400: '#e5c158', 500: '#d4af37', 600: '#c5a028' },
+                        dark: { 900: '#0F0F0F', 800: '#1a1a1a', 700: '#262626' }
+                    }
+                }
             }
         }
-
-        .brand-area { display: flex; align-items: center; gap: 15px; text-decoration: none; }
-        .mini-logo { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #d4af37; }
-        .brand-title { color: #d4af37; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1.1rem; letter-spacing: 1px; margin: 0; }
-
-        .nav-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
-        .nav-item { color: #ccc; text-decoration: none; font-size: 0.8rem; padding: 5px 12px; border: 1px solid #444; border-radius: 20px; transition: all 0.3s ease; background: rgba(255,255,255,0.05); }
-        .nav-item:hover { background: #d4af37; color: #000; border-color: #d4af37; }
-
-        /* --- 3. 訂位區塊 (核心容器) --- */
-        .booking-section {
-            width: 100%;
-            max-width: 950px;
-            margin: 30px auto 40px auto;
-            background: rgba(15, 15, 15, 0.85); 
-            border-radius: 12px;
-            padding: 5px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
-            border: 1px solid #333;
-            flex: 1; 
-            -webkit-overflow-scrolling: touch; 
-            overflow-y: auto;
+    </script>
+    <style>
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)), url('assets/hero_background.jpg'); 
+            background-size: cover; background-attachment: fixed; background-position: center; background-color: #111; color: #fff;
         }
-
-        /* --- 新增：Loading 動畫 (不影響原有排版) --- */
-        .iframe-wrapper { position: relative; width: 100%; min-height: 900px; background-color: #1a1a1a; border-radius: 8px; }
-        .loading-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 10; background: rgba(20, 20, 20, 0.95); border-radius: 8px;
-            transition: opacity 0.5s ease;
-        }
-        .spinner {
-            width: 50px; height: 50px; border: 3px solid rgba(212, 175, 55, 0.3);
-            border-radius: 50%; border-top-color: #d4af37;
-            animation: spin 1s ease-in-out infinite; margin-bottom: 15px;
-        }
-        .loading-text { color: #d4af37; font-size: 0.9rem; letter-spacing: 2px; animation: pulse 1.5s infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-        
-        #booking-frame { width: 1px; min-width: 100%; height: 1000px; border: none; display: block; border-radius: 8px; opacity: 0; transition: opacity 0.8s ease; }
-
-        /* --- 4. Footer (保留) --- */
-        footer {
-            background-color: #000;
-            text-align: center;
-            padding: 30px 20px 80px 20px;
-            color: #666;
-            font-size: 0.8rem;
-            border-top: 1px solid #222;
-            z-index: 10;
-        }
+        .slim-header { background: rgba(0, 0, 0, 0.9); border-bottom: 1px solid #333; backdrop-filter: blur(10px); }
+        .hidden-view { display: none !important; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": ["BarOrPub", "Restaurant", "LocalBusiness"],
-  "@id": "https://ciecietaipei.github.io/#ciecie-taipei",
-  "name": "CIE CIE TAIPEI",
-  "alternateName": "CIE CIE 台北",
-  "url": "https://ciecietaipei.github.io",
-  "image": [
-    "https://ciecietaipei.github.io/assets/ciecie-image_1f-1.jpg"
-  ],
-  "description": "CIE CIE TAIPEI 是一間位於台北市大安區、鄰近信義區與信義安和捷運站的質感酒吧與餐酒館。提供特色調酒、餐酒搭配與水煙（Shisha），適合情侶約會、朋友聚會、跨年活動、萬聖節與節慶派對。",
-  "priceRange": "$$",
-  "telephone": "+886-2-2709-3446",
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "信義路四段390號",
-    "addressLocality": "大安區",
-    "addressRegion": "台北市",
-    "postalCode": "106",
-    "addressCountry": "TW"
-  },
-  "geo": {
-    "@type": "GeoCoordinates",
-    "latitude": 25.0333,
-    "longitude": 121.553
-  },
-  "areaServed": [
-    {
-      "@type": "AdministrativeArea",
-      "name": "台北市"
-    },
-    {
-      "@type": "AdministrativeArea",
-      "name": "大安區"
-    },
-    {
-      "@type": "AdministrativeArea",
-      "name": "信義區"
-    }
-  ],
-  "openingHoursSpecification": [
-    {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
-      "opens": "18:30",
-      "closes": "02:00"
-    },
-    {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Friday", "Saturday"],
-      "opens": "18:30",
-      "closes": "03:00"
-    }
-  ],
-  "servesCuisine": [
-    "調酒",
-    "餐酒館",
-    "水煙",
-    "Shisha"
-  ],
-  "keywords": [
-    "台北酒吧",
-    "大安區酒吧",
-    "信義區酒吧",
-    "台北餐酒館",
-    "大安區餐酒館",
-    "信義安和酒吧",
-    "台北水煙",
-    "水煙酒吧",
-    "情侶約會酒吧",
-    "跨年酒吧",
-    "台北夜生活"
-  ],
-  "acceptsReservations": true,
-  "sameAs": [
-    "https://www.instagram.com/ciecietaipei/",
-    "https://www.facebook.com/ciecietaipei/"
-  ]
-}
-</script>
 </head>
-<body>
+<body class="flex flex-col min-h-screen">
 
-    <header class="slim-header">
-        <div class="header-content">
-            <a href="./index.html" class="brand-area">
-                <img src="assets/ciecie_logo_circle.png" alt="Logo" class="mini-logo">
-                <h1 class="brand-title">BOOKING</h1>
+    <!-- Header -->
+    <header class="slim-header sticky top-0 z-50 px-5 py-2">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
+            <a href="./index.html" class="flex items-center gap-3 decoration-0">
+                <img src="assets/ciecie_logo_circle.png" alt="Logo" class="w-10 h-10 rounded-full border-2 border-gold-500 bg-dark-800 object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="hidden w-10 h-10 rounded-full border-2 border-gold-500 bg-dark-800 items-center justify-center text-gold-500 font-bold text-xs">CIE</div>
+                <h1 class="text-gold-500 font-mont font-bold text-lg tracking-wider m-0">BOOKING</h1>
             </a>
-            <nav class="nav-pills">
-                <a href="./index.html" class="nav-item">首頁</a>
-                <a href="./drinks.html" class="nav-item">酒單</a>
-                <a href="./foods.html" class="nav-item">餐點</a>
-                <a href="./environment.html" class="nav-item">環境</a>
-                <a href="./FAQ.html" class="nav-item">FAQ</a>
-                如一直轉圈無法正常顯示請重新整理
-                <div style="margin-left: 5px;">
-                    <a href="https://www.facebook.com/ciecietaipei/" target="_blank" style="color:#d4af37; margin:0 5px;"><i class="fab fa-facebook-f"></i></a>
-                    <a href="https://www.instagram.com/ciecietaipei" target="_blank" style="color:#d4af37; margin:0 5px;"><i class="fab fa-instagram"></i></a>
-                </div>
-            </nav>
         </div>
     </header>
 
-    <main>
-        <div class="booking-section">
-            <div class="iframe-wrapper">
-                <div id="loader" class="loading-overlay">
-                    <div class="spinner"></div>
-                    <div class="loading-text">系統載入中...</div>
+    <!-- 核心應用區 -->
+    <main class="flex-1 w-full max-w-2xl mx-auto my-6 px-4 pb-32">
+        <div class="bg-dark-900/90 border border-dark-700 rounded-2xl shadow-2xl overflow-hidden min-h-[600px] relative">
+            
+            <div id="liffStatus" class="bg-dark-800 text-xs text-gray-500 text-center py-1 border-b border-dark-700">LINE 狀態檢測中...</div>
+
+            <!-- 導航返回列 -->
+            <div id="navBar" class="p-4 border-b border-dark-700 hidden-view flex items-center bg-dark-800">
+                <button onclick="goBack()" class="text-gold-500 flex items-center gap-1 hover:opacity-70 transition-opacity">
+                    <i data-lucide="chevron-left" class="w-5 h-5"></i> 返回
+                </button>
+                <span id="navTitle" class="mx-auto font-bold text-white pr-8">內用訂位</span>
+            </div>
+
+            <!-- 視圖 0: 攔截網址參數，顯示「信件點擊確認」畫面 -->
+            <div id="confirmationView" class="p-6 md:p-10 flex flex-col items-center justify-center fade-in hidden-view min-h-[500px] text-center">
+                <div id="confirmLoading">
+                    <i data-lucide="loader-2" class="w-16 h-16 animate-spin text-gold-500 mx-auto mb-4"></i>
+                    <h2 class="text-2xl font-bold text-white mb-2">處理中...</h2>
+                    <p class="text-gray-400">正在同步您的訂單狀態</p>
                 </div>
+                <div id="confirmSuccess" class="hidden-view">
+                    <i id="confirmIcon" data-lucide="check-circle" class="w-20 h-20 text-green-500 mx-auto mb-4"></i>
+                    <h2 id="confirmTitle" class="text-3xl font-bold text-gold-500 mb-2">已成功確認！</h2>
+                    <p id="confirmDesc" class="text-gray-400">感謝您的回覆，期待為您服務。</p>
+                    <button onclick="window.location.href='./index.html'" class="mt-8 px-8 py-3 bg-dark-800 border border-gold-500 text-gold-500 rounded-full hover:bg-gold-500 hover:text-black transition">返回首頁</button>
+                </div>
+            </div>
+
+            <!-- 視圖 1: 選擇服務 -->
+            <div id="view1" class="p-6 md:p-10 flex flex-col gap-6 fade-in h-full justify-center mt-8">
+                <div class="text-center mb-6">
+                    <h2 class="text-3xl font-mont font-bold text-gold-500 mb-2">CIE CIE TAIPEI</h2>
+                    <p class="text-gray-400 text-sm">請問您今天需要 線上內用訂位預點餐 / 外帶點餐 哪種服務？</p>
+                </div>
+                <button onclick="selectService('dine-in')" class="bg-dark-800 border border-dark-700 rounded-2xl p-6 flex flex-col items-center gap-4 hover:border-gold-500 transition-all active:scale-95 group">
+                    <div class="bg-dark-900 p-4 rounded-full group-hover:text-gold-500 transition-colors"><i data-lucide="utensils-crossed" class="w-10 h-10"></i></div>
+                    <div class="text-center"><h3 class="text-xl font-bold text-white mb-1">內用訂位</h3><p class="text-gray-500 text-xs">Reservation & Pre-order</p></div>
+                </button>
+                <button onclick="selectService('takeout')" class="bg-dark-800 border border-dark-700 rounded-2xl p-6 flex flex-col items-center gap-4 hover:border-gold-500 transition-all active:scale-95 group">
+                    <div class="bg-dark-900 p-4 rounded-full group-hover:text-gold-500 transition-colors"><i data-lucide="shopping-bag" class="w-10 h-10"></i></div>
+                    <div class="text-center"><h3 class="text-xl font-bold text-white mb-1">外帶點餐</h3><p class="text-gray-500 text-xs">Takeout Order (需全額結帳)</p></div>
+                </button>
+            </div>
+
+            <!-- 視圖 2: 填寫資料 (內用/外帶 共用) -->
+            <div id="view2" class="p-6 md:p-8 flex flex-col gap-5 fade-in hidden-view no-scrollbar overflow-y-auto max-h-[70vh]">
                 
-                <iframe 
-                    id="booking-frame"
-                    src="" 
-                    allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-                    sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-                    onload="onFrameLoad()"
-                ></iframe>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">📅 日期 Date</label>
+                        <select id="dateSelect" onchange="updateTimeSlots()" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500 appearance-none"></select>
+                    </div>
+                    <div>
+                        <label id="timeLabel" class="block text-sm text-gray-400 mb-2">⏰ 時間 Time</label>
+                        <select id="timeSelect" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500 appearance-none"></select>
+                    </div>
+                </div>
+
+                <!-- 僅內用顯示的人數區塊 -->
+                <div id="paxSection">
+                    <label class="block text-sm text-gray-400 mb-2">👥 人數 Guest Count</label>
+                    <div class="flex items-center justify-between bg-dark-800 border border-dark-700 rounded-lg p-2">
+                        <button onclick="adjustPax(-1)" class="w-10 h-10 bg-dark-700 rounded-md text-white hover:bg-dark-600 flex justify-center items-center"><i data-lucide="minus" class="w-5 h-5"></i></button>
+                        <span id="paxDisplay" class="text-xl font-bold text-gold-500 w-12 text-center">2</span>
+                        <button onclick="adjustPax(1)" class="w-10 h-10 bg-dark-700 rounded-md text-white hover:bg-dark-600 flex justify-center items-center"><i data-lucide="plus" class="w-5 h-5"></i></button>
+                    </div>
+                    <p id="paxWarning" class="text-xs text-rose-400 mt-2 hidden-view">⚠️ 5人(含)以上需酌收每人 $500 訂位金 (系統將查核過往出席紀錄)</p>
+                </div>
+
+                <!-- 聯絡人表單 -->
+                <div class="space-y-4 mt-2 border-t border-dark-700 pt-4">
+                    <div><label class="block text-sm text-gray-400 mb-1">聯絡姓名 Name *</label><input type="text" id="custName" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500" placeholder="ex. 王小明"></div>
+                    <div><label class="block text-sm text-gray-400 mb-1">手機號碼 Phone *</label><input type="tel" id="custTel" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500" placeholder="ex. 0912345678"></div>
+                    <div><label class="block text-sm text-gray-400 mb-1">電子信箱 E-mail (選填)</label><input type="email" id="custEmail" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500" placeholder="example@gmail.com"></div>
+                    <div><label class="block text-sm text-gray-400 mb-1">備註 Remarks</label><textarea id="custRemarks" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500" rows="2" placeholder="過敏/特殊需求"></textarea></div>
+                </div>
+
+                <!-- 僅內用顯示的預先點餐開關 -->
+                <div id="preorderSection" class="bg-dark-800 border border-gold-500/50 rounded-xl p-4 mt-4">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="preorderToggle" onchange="togglePreorder()" class="mt-1 w-5 h-5 accent-gold-500 cursor-pointer">
+                        <label for="preorderToggle" class="cursor-pointer">
+                            <span class="block text-white font-medium mb-1">我要預先點餐 (省去現場等候)</span>
+                            <span class="block text-gray-400 text-xs leading-relaxed">部份限量招牌餐點僅供線上預點。系統將依據您選擇的時間自動過濾可點選的餐點。</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 視圖 3: 菜單與點餐 -->
+            <div id="view3" class="p-6 md:p-8 flex flex-col gap-4 fade-in hidden-view no-scrollbar overflow-y-auto max-h-[70vh]">
+                <div class="mb-2">
+                    <h2 class="text-xl font-bold text-white border-l-4 border-gold-500 pl-2">精選菜單 Menu</h2>
+                    <p id="menuNotice" class="text-sm text-gray-400 mt-2">從伺服器讀取中...</p>
+                </div>
+                <div id="menuContainer" class="flex flex-col gap-4"></div>
             </div>
         </div>
     </main>
 
-
-<style>
-    /* 桌機版預設尺寸 */
-    #ai-chat-btn {
-        position: fixed; bottom: 85px; right: 20px; width: 60px; height: 60px;
-        background-color: #1A1A1A; color: #D4AF37; border-radius: 50%;
-        display: flex; justify-content: center; align-items: center; cursor: pointer; 
-        box-shadow: 0 4px 12px rgba(0,0,0,0.6); z-index: 9999; font-size: 28px; 
-        transition: transform 0.2s; border: 2px solid #D4AF37;
-    }
-    #ai-chat-window {
-        display: none; position: fixed; bottom: 155px; right: 20px; 
-        width: 400px; height: 600px;
-        /* 🚀 關鍵修復：最大寬度與高度使用 calc 動態計算，絕對不超過螢幕 */
-        max-width: calc(100vw - 40px); 
-        max-height: calc(100vh - 180px); 
-        background-color: #ffffff; border-radius: 12px; box-shadow: 0 5px 30px rgba(0,0,0,0.5); 
-        z-index: 9998; overflow: hidden; border: 1px solid #D4AF37;
-    }
-
-    /* 🚀 手機版專屬微調 (螢幕小於 480px 時觸發) */
-    @media (max-width: 480px) {
-        #ai-chat-btn { 
-            bottom: 75px; right: 15px; width: 50px; height: 50px; font-size: 24px;
-        }
-        #ai-chat-window {
-            bottom: 135px; right: 15px;
-            width: calc(100vw - 30px); /* 左右各留 15px 邊距 */
-            max-height: calc(100vh - 150px);
-        }
-    }
-</style>
-
-<div id="ai-chat-btn" onclick="toggleChat()">🍸</div>
-
-<div id="ai-chat-window">
-    <div style="background-color: #1A1A1A; color: #D4AF37; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-family: 'Montserrat', sans-serif; font-weight: bold; border-bottom: 2px solid #D4AF37;">
-        <span style="font-size: 15px;">CIECIE 微醺客服</span>
-        <span onclick="toggleChat()" style="cursor: pointer; font-size: 20px; padding: 0 5px;">✖</span>
+    <!-- 底部黏性結帳列 -->
+    <div id="bottomBar" class="fixed bottom-0 w-full bg-dark-800 border-t border-dark-700 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] hidden-view z-50">
+        <div class="max-w-2xl mx-auto flex justify-between items-end mb-3 px-2">
+            <div>
+                <div id="summaryTotal" class="text-gray-400 text-sm hidden-view">餐點總計: $0</div>
+                <div class="text-white font-medium mt-1">應付線上訂金</div>
+            </div>
+            <div class="text-right">
+                <div id="summaryDeposit" class="text-2xl font-bold text-gold-500">$0</div>
+                <div id="depositRuleDesc" class="text-xs text-gray-400 mt-1">免收訂金</div>
+            </div>
+        </div>
+        <div class="max-w-2xl mx-auto">
+            <button id="mainActionBtn" onclick="handleMainAction()" class="w-full bg-gold-500 hover:bg-gold-400 text-black font-bold text-lg rounded-xl py-3.5 transition-colors shadow-lg active:scale-[0.98]">
+                確認訂位
+            </button>
+        </div>
     </div>
 
-    <iframe 
-        src="https://deeplearning101-ciecietaipei-chatbot.hf.space"
-        style="width: 100%; height: calc(100% - 44px); border: none; display: block; background-color: #ffffff;">
-    </iframe>
-</div>
-
+<!-- 載入 LINE LIFF SDK -->
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
-    function toggleChat() {
-        var chatWindow = document.getElementById("ai-chat-window");
-        var chatBtn = document.getElementById("ai-chat-btn");
+    // 初始化圖示
+    lucide.createIcons();
+    
+    // ==========================================
+    // 1. 全域變數與金鑰設定
+    // ==========================================
+    const MY_LIFF_ID = "2008934010-6z7iElYg";
+    const API_BASE_URL = "https://deeplearning101-api-ciecietaipei.hf.space";
 
-        if (chatWindow.style.display === "none") {
-            chatWindow.style.display = "block";
-            chatBtn.innerHTML = "✖";
-            chatBtn.style.transform = "scale(0.9)";
-        } else {
-            chatWindow.style.display = "none";
-            chatBtn.innerHTML = "🍸";
-            chatBtn.style.transform = "scale(1)";
+    // 🌟 可以在此填入 Supabase URL，若不填或填錯，系統也不會當機 🌟
+    const SUPABASE_URL = "https://rqnjrunewfwkmluplkut.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxbmpydW5ld2Z3a21sdXBsa3V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NTM0MTksImV4cCI6MjA4NDAyOTQxOX0.tpEA3PHIQyk843eO3kYrOfUCsA0lAuGRSWU9R5LyZhU";
+    
+    let supabaseClient = null;
+    
+    // 🛡️ 終極防護：精確檢查網址開頭，如果不是 http 或 https，絕對不呼叫 createClient
+    const validUrlStr = String(SUPABASE_URL || "").trim();
+    if (validUrlStr.startsWith("http://") || validUrlStr.startsWith("https://")) {
+        try {
+            supabaseClient = window.supabase.createClient(validUrlStr, SUPABASE_ANON_KEY);
+        } catch (e) {
+            console.warn("⚠️ Supabase 網址格式錯誤，系統降級為本地測試模式。");
+        }
+    } else {
+        console.warn("⚠️ 未提供有效的 Supabase URL (需包含 http/https)，系統自動使用 MOCK_MENU。");
+    }
+
+    // 營業時間設定區
+    const BUSINESS_HOURS = {
+        'dine-in': { start: 18.5, end_weekday: 25.5, end_weekend: 26.5 }, 
+        'takeout': { start: 12.0, end_weekday: 25.5, end_weekend: 26.5 }  
+    };
+
+    let state = { view: 1, service: null, pax: 2, wantsPreorder: false, cart: {}, menuData: [], lineId: "" };
+    
+    // 備用假資料 (僅在資料庫連線失敗時使用)
+    const MOCK_MENU = [
+        { id: 'steak', name: '炭烤肋眼牛排 12oz', price: 1500, desc: '附烤大蒜與特製紅酒醬', require_prepay: true, category: 'main', image_url: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?q=80&w=300&auto=format&fit=crop', allow_takeout: false, available_times: ["晚餐 (18:30-21:30)"] },
+        { id: 'wine', name: '精選單杯紅酒', price: 250, desc: 'Cabernet Sauvignon', require_prepay: false, category: 'drink', image_url: null, allow_takeout: false, available_times: ["晚餐 (18:30-21:30)", "宵夜 (21:30後)"] },
+        { id: 'fries', name: '松露脆薯', price: 280, desc: '現刨帕瑪森起司', require_prepay: false, category: 'snack', image_url: null, allow_takeout: true, available_times: ["白天 (11:00-18:30)", "晚餐 (18:30-21:30)", "宵夜 (21:30後)"] }
+    ];
+
+    // ==========================================
+    // 2. 系統初始化啟動
+    // ==========================================
+    document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const action = urlParams.get('action');
+        const bid = urlParams.get('id');
+
+        if (action && bid) {
+            handleUrlWebhook(action, bid);
+            return; 
+        }
+
+        initLiff(); 
+        initDateSelect();
+        fetchMenuData(); // 網頁載入時立刻去 Supabase 抓菜單
+    });
+
+    // --- Webhook 處理 ---
+    async function handleUrlWebhook(action, bid) {
+        document.getElementById('view1').classList.add('hidden-view');
+        document.getElementById('confirmationView').classList.remove('hidden-view');
+        
+        setTimeout(() => {
+            document.getElementById('confirmLoading').classList.add('hidden-view');
+            const successView = document.getElementById('confirmSuccess');
+            successView.classList.remove('hidden-view');
+            
+            if (action === 'cancel') {
+                document.getElementById('confirmTitle').innerText = '訂位已取消';
+                document.getElementById('confirmTitle').classList.replace('text-gold-500', 'text-red-500');
+                document.getElementById('confirmDesc').innerText = '已為您取消本次預約，期待下次能為您服務。';
+                const icon = document.getElementById('confirmIcon');
+                icon.setAttribute('data-lucide', 'x-circle');
+                icon.classList.replace('text-green-500', 'text-red-500');
+            }
+            lucide.createIcons();
+        }, 1500);
+    }
+
+    // --- LIFF ---
+    async function initLiff() {
+        const statusDiv = document.getElementById('liffStatus');
+        try {
+            await liff.init({ liffId: MY_LIFF_ID });
+            if (liff.isLoggedIn()) {
+                const profile = await liff.getProfile();
+                state.lineId = profile.userId;
+                statusDiv.innerText = `✅ LINE 綁定成功`; statusDiv.classList.add('text-green-500');
+            } else { statusDiv.innerText = `ℹ️ 訪客模式 (未登入 LINE)`; }
+        } catch (err) { statusDiv.innerText = `⚠️ 訪客模式`; }
+    }
+
+    // --- 從 Supabase 抓取真實動態菜單 ---
+    async function fetchMenuData() { 
+        try {
+            if (!supabaseClient) throw new Error("無 Supabase 連線");
+            
+            const { data, error } = await supabaseClient
+                .from('menu_items')
+                .select('*')
+                .eq('is_active', true); 
+            
+            if (error) throw error;
+            
+            if (data && data.length > 0) {
+                state.menuData = data;
+                console.log("✅ 成功從資料庫讀取動態菜單", data);
+            } else {
+                state.menuData = MOCK_MENU;
+            }
+        } catch (err) {
+            console.error("❌ 讀取菜單失敗:", err.message);
+            state.menuData = MOCK_MENU; 
+        }
+    }
+
+    // ==========================================
+    // 3. 日期與時間邏輯
+    // ==========================================
+    function initDateSelect() {
+        const dateSelect = document.getElementById('dateSelect');
+        const today = new Date();
+        const weekdays = ["(日)", "(一)", "(二)", "(三)", "(四)", "(五)", "(六)"];
+        let html = '';
+        for(let i=0; i<30; i++) {
+            let d = new Date(today); 
+            d.setDate(today.getDate() + i);
+            
+            let y = d.getFullYear();
+            let m = String(d.getMonth() + 1).padStart(2, '0');
+            let day = String(d.getDate()).padStart(2, '0');
+            let dateStr = `${y}-${m}-${day}`;
+            
+            html += `<option value="${dateStr}">${dateStr} ${weekdays[d.getDay()]}</option>`;
+        }
+        dateSelect.innerHTML = html; updateTimeSlots(); 
+    }
+
+    function updateTimeSlots() {
+        const dateSelect = document.getElementById('dateSelect');
+        const timeSelect = document.getElementById('timeSelect');
+        if(!dateSelect.value) return;
+
+        const currentService = state.service || 'dine-in'; 
+        const config = BUSINESS_HOURS[currentService];
+
+        const selectedDate = new Date(dateSelect.value);
+        const now = new Date();
+        
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const todayStr = `${y}-${m}-${day}`;
+        const isToday = (dateSelect.value === todayStr);
+
+        const isWeekend = (selectedDate.getDay() === 5 || selectedDate.getDay() === 6);
+        const endHour = isWeekend ? config.end_weekend : config.end_weekday;
+
+        let slots = [];
+        
+        for(let v = config.start; v <= endHour; v += 0.5) {
+            let displayH = Math.floor(v) % 24; 
+            let displayM = (v % 1 !== 0) ? '30' : '00';
+            let displayStr = `${String(displayH).padStart(2, '0')}:${displayM}`;
+            slots.push({ display: displayStr, val: v });
+        }
+
+        let validSlots = slots;
+        
+        if (isToday) {
+            const currentVal = now.getHours() + (now.getMinutes() / 60);
+            if (now.getHours() >= 0 && now.getHours() < 5) { 
+                validSlots = slots.filter(s => s.val >= config.start); 
+            } else {
+                validSlots = slots.filter(s => s.val > (currentVal + 0.5));
+            }
+        }
+
+        if (validSlots.length === 0) { 
+            timeSelect.innerHTML = `<option value="">-- 該日已無可選時段 --</option>`; 
+            timeSelect.disabled = true; 
+        } else { 
+            timeSelect.innerHTML = validSlots.map(s => `<option value="${s.display}">${s.display}</option>`).join(''); 
+            timeSelect.disabled = false; 
+        }
+    }
+
+    // ==========================================
+    // 4. 流程切換與 UI 更新
+    // ==========================================
+    function selectService(type) {
+        state.service = type; state.cart = {}; state.view = 2; 
+        document.querySelectorAll('.qty-display').forEach(el => el.innerText = '0');
+        
+        const paxSec = document.getElementById('paxSection');
+        const preSec = document.getElementById('preorderSection');
+        const timeLabel = document.getElementById('timeLabel');
+        
+        if (type === 'takeout') { 
+            paxSec.classList.add('hidden-view');
+            preSec.classList.add('hidden-view');
+            timeLabel.innerText = '🛍️ 取餐時間 Pickup Time';
+            document.getElementById('menuNotice').innerText = "💡 外帶需全額線上結帳。 (已隱藏不開放外帶之品項)";
+            state.wantsPreorder = true; 
+        } else { 
+            paxSec.classList.remove('hidden-view');
+            preSec.classList.remove('hidden-view');
+            timeLabel.innerText = '⏰ 訂位時間 Time';
+            state.pax = 2; 
+            state.wantsPreorder = document.getElementById('preorderToggle').checked = false; 
+            updatePaxDisplay(); 
+        }
+        
+        updateTimeSlots();
+        updateView();
+    }
+
+    function togglePreorder() { state.wantsPreorder = document.getElementById('preorderToggle').checked; updateBottomBar(); }
+    
+    function goBack() {
+        if (state.view === 2) { state.view = 1; state.service = null; } 
+        else if (state.view === 3) { state.view = 2; }
+        updateView();
+    }
+
+    function updateView() {
+        document.getElementById('view1').classList.toggle('hidden-view', state.view !== 1);
+        document.getElementById('view2').classList.toggle('hidden-view', state.view !== 2);
+        document.getElementById('view3').classList.toggle('hidden-view', state.view !== 3);
+        
+        const navBar = document.getElementById('navBar');
+        if (state.view === 1) navBar.classList.add('hidden-view');
+        else { 
+            navBar.classList.remove('hidden-view'); 
+            document.getElementById('navTitle').innerText = state.service === 'dine-in' ? (state.view === 2 ? "填寫訂位資訊" : "預先點餐") : (state.view === 2 ? "填寫聯絡資料" : "外帶菜單"); 
+        }
+        updateBottomBar(); window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function adjustPax(delta) {
+        let newPax = state.pax + delta;
+        if (newPax >= 1 && newPax <= 10) { state.pax = newPax; updatePaxDisplay(); updateBottomBar(); }
+    }
+    function updatePaxDisplay() { document.getElementById('paxDisplay').innerText = state.pax; document.getElementById('paxWarning').classList.toggle('hidden-view', state.pax < 5); }
+
+    // ==========================================
+    // 5. 菜單渲染與過濾引擎
+    // ==========================================
+    function getMealPeriod(timeStr) {
+        if (!timeStr) return "晚餐 (18:30-21:30)"; 
+        let [h, m] = timeStr.split(':');
+        let hourVal = parseInt(h) + (parseInt(m) / 60);
+        if (hourVal >= 0 && hourVal <= 5) hourVal += 24; 
+        
+        if (hourVal >= 11 && hourVal < 18.5) return "白天 (11:00-18:30)";
+        if (hourVal >= 18.5 && hourVal < 21.5) return "晚餐 (18:30-21:30)";
+        return "宵夜 (21:30後)";
+    }
+
+    function renderMenu() {
+        const container = document.getElementById('menuContainer');
+        const timeSelect = document.getElementById('timeSelect');
+        const currentPeriod = getMealPeriod(timeSelect ? timeSelect.value : '');
+        
+        let html = '';
+        let renderCount = 0;
+
+        state.menuData.forEach(item => {
+            const allowTakeout = item.hasOwnProperty('allow_takeout') ? item.allow_takeout : true;
+            const availableTimes = item.available_times || ["白天 (11:00-18:30)", "晚餐 (18:30-21:30)", "宵夜 (21:30後)"];
+            const isPrepay = item.require_prepay ? true : false;
+
+            if (state.service === 'takeout' && !allowTakeout) return;
+            if (!availableTimes.includes(currentPeriod)) return;
+
+            renderCount++;
+
+            const imgHtml = item.image_url ? `<img src="${item.image_url}" class="w-full h-40 object-cover rounded-lg mb-3 border border-dark-700 shadow-md">` : '';
+            const tagClass = isPrepay ? 'border-rose-900 text-rose-400' : 'border-dark-600 text-gray-500';
+            const tagText = isPrepay ? '需全額預付' : '訂金 30%';
+
+            html += `
+            <div class="bg-dark-800 border border-dark-700 rounded-xl p-4 flex flex-col">
+                ${imgHtml}
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h3 class="text-white font-bold text-lg">${item.name}</h3>
+                        <p class="text-gray-400 text-xs mt-1 leading-relaxed">${item.description || item.desc || ''}</p>
+                    </div>
+                    <span class="text-gold-500 font-bold">$${item.price}</span>
+                </div>
+                <div class="flex justify-between items-center mt-2 border-t border-dark-700 pt-3">
+                    <span class="text-[10px] px-2 py-1 rounded bg-dark-900 border ${tagClass}">${tagText}</span>
+                    <div class="flex items-center gap-3">
+                        <button onclick="updateCart('${item.id}', -1)" class="w-8 h-8 rounded-full bg-dark-700 text-white flex justify-center items-center active:scale-90"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                        <span id="qty-${item.id}" class="qty-display font-bold w-4 text-center">${state.cart[item.id] || 0}</span>
+                        <button onclick="updateCart('${item.id}', 1)" class="w-8 h-8 rounded-full bg-gold-500 text-black flex justify-center items-center active:scale-90"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+            </div>`;
+        });
+
+        if (renderCount === 0) {
+            html = `<div class="text-center p-10 border border-dashed border-dark-700 rounded-xl text-gray-500">
+                        <i data-lucide="utensils-crossed" class="w-10 h-10 mx-auto mb-3 opacity-50"></i>
+                        您選擇的時段 (${currentPeriod})<br>目前無供應餐點，或未開放外帶。
+                    </div>`;
+        }
+
+        container.innerHTML = html; 
+        lucide.createIcons();
+    }
+
+    function updateCart(itemId, delta) {
+        if (!state.cart[itemId]) state.cart[itemId] = 0;
+        let newQty = state.cart[itemId] + delta;
+        if (newQty >= 0) { state.cart[itemId] = newQty; document.getElementById(`qty-${itemId}`).innerText = newQty; updateBottomBar(); }
+    }
+
+    // ==========================================
+    // 6. 結帳列邏輯與表單驗證
+    // ==========================================
+    function updateBottomBar() {
+        const bar = document.getElementById('bottomBar'); const btn = document.getElementById('mainActionBtn');
+        const summaryTotal = document.getElementById('summaryTotal'); const summaryDeposit = document.getElementById('summaryDeposit'); const desc = document.getElementById('depositRuleDesc');
+
+        if (state.view === 1) { bar.classList.add('hidden-view'); return; }
+        bar.classList.remove('hidden-view');
+
+        let totalFoodAmount = 0; let foodDeposit = 0; let cartItemCount = 0;
+        state.menuData.forEach(item => {
+            let qty = state.cart[item.id] || 0;
+            if (qty > 0) {
+                cartItemCount += qty; let cost = qty * item.price; totalFoodAmount += cost;
+                if (state.service === 'takeout') foodDeposit += cost; else foodDeposit += item.require_prepay ? cost : cost * 0.3;
+            }
+        });
+
+        let finalDeposit = 0; let ruleTexts = [];
+        
+        if (state.view === 2) {
+            summaryTotal.classList.add('hidden-view');
+            if (state.service === 'takeout') {
+                desc.innerText = "請先填寫聯絡資料";
+                btn.innerText = "下一步 (挑選外帶餐點)"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
+            } else if (state.service === 'dine-in') {
+                let paxDeposit = state.pax >= 5 ? state.pax * 500 : 0;
+                finalDeposit = paxDeposit;
+                if (paxDeposit > 0) ruleTexts.push(`${state.pax}人訂位金$${paxDeposit}`);
+                
+                if (state.wantsPreorder) {
+                    desc.innerText = ruleTexts.length > 0 ? ruleTexts.join(" + ") : "請先填寫資料再挑選餐點";
+                    btn.innerText = "下一步 (挑選預點餐點)"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
+                } else {
+                    desc.innerText = paxDeposit > 0 ? ruleTexts.join(" + ") : "人數 4 人內免收訂金 (系統將查核 No-Show)";
+                    btn.innerText = finalDeposit > 0 ? "確認並前往付款" : "確認訂位 (送出資料)"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
+                }
+            }
+        } 
+        else if (state.view === 3) {
+            summaryTotal.innerText = `餐點總計: $${totalFoodAmount}`; summaryTotal.classList.remove('hidden-view');
+            
+            if (state.service === 'takeout') {
+                finalDeposit = totalFoodAmount;
+                desc.innerText = "外帶需全額線上結帳";
+                if (cartItemCount === 0) { btn.innerText = "請選擇餐點"; btn.className = "w-full bg-dark-700 text-gray-500 font-bold text-lg rounded-xl py-3.5"; } 
+                else { btn.innerText = "確認並前往付款"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5 shadow-lg active:scale-[0.98]"; }
+            } else if (state.service === 'dine-in') {
+                let paxDeposit = state.pax >= 5 ? state.pax * 500 : 0;
+                finalDeposit = paxDeposit + foodDeposit;
+                if (foodDeposit > 0) ruleTexts.push(`餐點預付$${Math.round(foodDeposit)}`);
+                desc.innerText = ruleTexts.length > 0 ? ruleTexts.join(" + ") : "免收訂金 (系統將查核 No-Show)";
+                btn.innerText = finalDeposit > 0 ? "確認並前往付款" : "送出訂位與點餐"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
+            }
+        }
+        summaryDeposit.innerText = `$${Math.round(finalDeposit).toLocaleString()}`;
+    }
+
+    function validateForm() {
+        const name = document.getElementById('custName').value.trim();
+        const tel = document.getElementById('custTel').value.trim();
+        const timeSelect = document.getElementById('timeSelect');
+        const time = timeSelect ? timeSelect.value : '';
+        
+        if(!name || !tel || !time) {
+            alert("⚠️ 請完整填寫姓名與電話，並確保已選擇時段。");
+            return false;
+        }
+        if((tel.match(/\d/g) || []).length < 6) {
+            alert("⚠️ 電話號碼格式錯誤。");
+            return false;
+        }
+        return true;
+    }
+
+    async function handleMainAction() {
+        const btn = document.getElementById('mainActionBtn');
+        if (btn.innerText === "請選擇餐點") return;
+
+        if (state.view === 2) {
+            if (!validateForm()) return; 
+            
+            if (state.service === 'takeout' || (state.service === 'dine-in' && state.wantsPreorder)) {
+                // 🌟 切換到菜單前，執行一次過濾渲染 🌟
+                renderMenu();
+                state.view = 3; 
+                document.getElementById('menuNotice').innerText = state.service === 'takeout' ? "💡 外帶需全額線上結帳。 (已隱藏不開放外帶之品項)" : "💡 高價食材需全額預付，一般餐點收 30% 訂金。 (已根據時段自動過濾)"; 
+                updateView(); 
+                return;
+            }
+        }
+
+        const originalText = btn.innerText;
+        btn.innerHTML = `<i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-black"></i>`;
+        lucide.createIcons(); btn.disabled = true;
+
+        // 1. 重新計算應該付的訂金與總額 (對齊後端 FastAPI 需要的 OrderPayload)
+        let totalFoodAmount = 0; 
+        let foodDeposit = 0;
+        state.menuData.forEach(item => {
+            let qty = state.cart[item.id] || 0;
+            if (qty > 0) {
+                totalFoodAmount += qty * item.price;
+                foodDeposit += state.service === 'takeout' ? (qty * item.price) : (item.require_prepay ? (qty * item.price) : (qty * item.price) * 0.3);
+            }
+        });
+        let paxDeposit = state.pax >= 5 ? state.pax * 500 : 0;
+        let finalDeposit = state.service === 'takeout' ? totalFoodAmount : (paxDeposit + foodDeposit);
+
+        // 2. 整理要傳給 FastAPI 的包裹 (Payload)
+        const payload = {
+            service_type: state.service,
+            name: document.getElementById('custName').value,
+            tel: document.getElementById('custTel').value,
+            date: document.getElementById('dateSelect').value,
+            time: document.getElementById('timeSelect').value,
+            line_id: state.lineId,
+            pax: state.pax,
+            cart: state.cart,
+            total_amount: totalFoodAmount,
+            deposit_required: Math.round(finalDeposit)
+        };
+        
+        console.log("🚀 即將發送給 FastAPI:", payload);
+
+        // 3. 呼叫真實的 FastAPI 後端
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/submit_booking`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+
+            // 狀況 A：後端說要付錢 (可能原本就要付，或是因為 No-Show 被懲罰)
+            if (result.status === "require_payment") {
+                let msg = `💳 系統提示\n`;
+                if (result.is_noshow_penalty) {
+                    msg += `⚠️ 由於您過去有未出席(No-Show)紀錄，本次訂單需收取防護訂金 $${result.deposit_amount}。\n\n`;
+                } else if (result.deposit_amount > 0) {
+                    msg += `本次訂單需線上支付 $${result.deposit_amount}。\n\n`;
+                }
+                msg += `點擊確定後，將導向 LINE Pay 進行結帳。`;
+                alert(msg);
+                
+                // 跳轉至 LINE Pay 結帳連結
+                window.location.href = result.payment_url;
+                
+            // 狀況 B：後端說不用付錢，直接訂位成功
+            } else if (result.status === "success") {
+                alert(`✅ 訂位成功！\n期待您的光臨。`);
+                window.location.href = "./index.html"; // 成功後回首頁
+                
+            } else {
+                throw new Error(result.detail || "發生未知錯誤");
+            }
+        } catch (error) {
+            alert(`❌ 送出失敗: ${error.message}\n請確認 FastAPI 伺服器是否正常運作，且 API_BASE_URL 網址正確。`);
+            btn.innerHTML = originalText; btn.disabled = false;
+            lucide.createIcons();
         }
     }
 </script>
-
-
-    <div class="mobile-sticky-bar">
-        <a href="environment.html" target="_TOP" class="sticky-btn menu-btn">
-            <i class="fas fa-store"></i> 環境
-        </a>
-        <a href="foods.html" target="_TOP" class="sticky-btn menu-btn">
-            <i class="fas fa-utensils"></i> ✦餐✦
-        </a>
-        <a href="#" class="sticky-btn booking-btn" style="color: #ffc107;">
-            <i class="far fa-calendar-check"></i> 訂位
-        </a>
-        <a href="drinks.html" target="_TOP" class="sticky-btn menu-btn">
-            <i class="fas fa-wine-glass-alt"></i> ✦酒✦
-        </a>
-        <a href="FAQ.html" target="_TOP" class="sticky-btn menu-btn">
-            <i class="fas fa-question-circle"></i> FAQ
-        </a>
-    </div>
-
-    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <script>
-        // ⚠️ 請填入您的 LIFF ID
-        <!-- const MY_LIFF_ID = "2008912847-H6CWHiI7"; -->
-        const MY_LIFF_ID = "2008934010-6z7iElYg";
-        const HF_SPACE_URL = "https://deeplearning101-ciecietaipei.hf.space?__theme=dark";
-
-        function onFrameLoad() {
-            const frame = document.getElementById('booking-frame');
-            if (frame.src && frame.src !== window.location.href) {
-                document.getElementById('loader').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loader').style.display = 'none';
-                    frame.style.opacity = '1';
-                }, 500);
-            }
-        }
-
-        async function initLiff() {
-            const frame = document.getElementById('booking-frame');
-            try {
-                await liff.init({ liffId: MY_LIFF_ID });
-                if (liff.isLoggedIn()) {
-                    const profile = await liff.getProfile();
-                    console.log("Got LINE ID:", profile.userId);
-                    frame.src = `${HF_SPACE_URL}&line_id=${profile.userId}`;
-                } else {
-                    console.log("Guest Mode");
-                    frame.src = HF_SPACE_URL;
-                }
-            } catch (err) {
-                console.error("LIFF Init Error:", err);
-                frame.src = HF_SPACE_URL; 
-            }
-        }
-        window.onload = initLiff;
-    </script>
-
-    <script>
-    // 監聽來自 Hugging Face iframe 的訊息
-    window.addEventListener("message", function(event) {
-        // 如果收到的暗號是 'booking_success'
-        if (event.data === 'booking_success') {
-            console.log("收到訂位成功訊號，發送 GA4 事件！");
-            
-            // 觸發 GA4 的 generate_lead (產生潛在客戶) 事件
-            // 你之後可以在 GA4 把 generate_lead 設為「重要事件 (轉換)」
-            gtag('event', 'generate_lead', {
-                'event_category': 'Booking',
-                'event_label': 'Submit Form Success'
-            });
-        }
-    });
-</script>
-
 </body>
 </html>
