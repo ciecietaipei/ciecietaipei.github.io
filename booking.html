@@ -10,14 +10,13 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>線上內用訂位預點餐 / 外帶點餐 | CIE CIE TAIPEI</title>
+    <title>線上訂位 Booking | CIE CIE TAIPEI</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- 🌟 加入 Supabase SDK 以連線資料庫 🌟 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
@@ -64,7 +63,6 @@
             
             <div id="liffStatus" class="bg-dark-800 text-xs text-gray-500 text-center py-1 border-b border-dark-700">LINE 狀態檢測中...</div>
 
-            <!-- 導航返回列 -->
             <div id="navBar" class="p-4 border-b border-dark-700 hidden-view flex items-center bg-dark-800">
                 <button onclick="goBack()" class="text-gold-500 flex items-center gap-1 hover:opacity-70 transition-opacity">
                     <i data-lucide="chevron-left" class="w-5 h-5"></i> 返回
@@ -72,12 +70,12 @@
                 <span id="navTitle" class="mx-auto font-bold text-white pr-8">內用訂位</span>
             </div>
 
-            <!-- 視圖 0: 攔截網址參數，顯示「信件點擊確認」畫面 -->
+            <!-- 視圖 0: 攔截 Webhook (信件確認 或 金流回傳) -->
             <div id="confirmationView" class="p-6 md:p-10 flex flex-col items-center justify-center fade-in hidden-view min-h-[500px] text-center">
                 <div id="confirmLoading">
                     <i data-lucide="loader-2" class="w-16 h-16 animate-spin text-gold-500 mx-auto mb-4"></i>
                     <h2 class="text-2xl font-bold text-white mb-2">處理中...</h2>
-                    <p class="text-gray-400">正在同步您的訂單狀態</p>
+                    <p class="text-gray-400">正在與伺服器同步您的資料</p>
                 </div>
                 <div id="confirmSuccess" class="hidden-view">
                     <i id="confirmIcon" data-lucide="check-circle" class="w-20 h-20 text-green-500 mx-auto mb-4"></i>
@@ -90,8 +88,8 @@
             <!-- 視圖 1: 選擇服務 -->
             <div id="view1" class="p-6 md:p-10 flex flex-col gap-6 fade-in h-full justify-center mt-8">
                 <div class="text-center mb-6">
-                    <h2 class="text-3xl font-mont font-bold text-gold-500 mb-2">CIE CIE TAIPEI</h2>
-                    <p class="text-gray-400 text-sm">請問您今天需要 線上內用訂位預點餐 / 外帶點餐 哪種服務？</p>
+                    <h2 class="text-3xl font-mont font-bold text-gold-500 mb-2">Cié Cié Taipei</h2>
+                    <p class="text-gray-400 text-sm">請問您今天需要哪種服務？</p>
                 </div>
                 <button onclick="selectService('dine-in')" class="bg-dark-800 border border-dark-700 rounded-2xl p-6 flex flex-col items-center gap-4 hover:border-gold-500 transition-all active:scale-95 group">
                     <div class="bg-dark-900 p-4 rounded-full group-hover:text-gold-500 transition-colors"><i data-lucide="utensils-crossed" class="w-10 h-10"></i></div>
@@ -103,21 +101,12 @@
                 </button>
             </div>
 
-            <!-- 視圖 2: 填寫資料 (內用/外帶 共用) -->
+            <!-- 視圖 2: 填寫資料 -->
             <div id="view2" class="p-6 md:p-8 flex flex-col gap-5 fade-in hidden-view no-scrollbar overflow-y-auto max-h-[70vh]">
-                
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-2">📅 日期 Date</label>
-                        <select id="dateSelect" onchange="updateTimeSlots()" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500 appearance-none"></select>
-                    </div>
-                    <div>
-                        <label id="timeLabel" class="block text-sm text-gray-400 mb-2">⏰ 時間 Time</label>
-                        <select id="timeSelect" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500 appearance-none"></select>
-                    </div>
+                    <div><label class="block text-sm text-gray-400 mb-2">📅 日期 Date</label><select id="dateSelect" onchange="updateTimeSlots()" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500 appearance-none"></select></div>
+                    <div><label id="timeLabel" class="block text-sm text-gray-400 mb-2">⏰ 時間 Time</label><select id="timeSelect" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500 appearance-none"></select></div>
                 </div>
-
-                <!-- 僅內用顯示的人數區塊 -->
                 <div id="paxSection">
                     <label class="block text-sm text-gray-400 mb-2">👥 人數 Guest Count</label>
                     <div class="flex items-center justify-between bg-dark-800 border border-dark-700 rounded-lg p-2">
@@ -125,24 +114,20 @@
                         <span id="paxDisplay" class="text-xl font-bold text-gold-500 w-12 text-center">2</span>
                         <button onclick="adjustPax(1)" class="w-10 h-10 bg-dark-700 rounded-md text-white hover:bg-dark-600 flex justify-center items-center"><i data-lucide="plus" class="w-5 h-5"></i></button>
                     </div>
-                    <p id="paxWarning" class="text-xs text-rose-400 mt-2 hidden-view">⚠️ 5人(含)以上需酌收每人 $500 訂位金 (系統將查核過往出席紀錄)</p>
+                    <p id="paxWarning" class="text-xs text-rose-400 mt-2 hidden-view">⚠️ 5人(含)以上需酌收每人 $500 訂位金</p>
                 </div>
-
-                <!-- 聯絡人表單 -->
                 <div class="space-y-4 mt-2 border-t border-dark-700 pt-4">
                     <div><label class="block text-sm text-gray-400 mb-1">聯絡姓名 Name *</label><input type="text" id="custName" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500" placeholder="ex. 王小明"></div>
                     <div><label class="block text-sm text-gray-400 mb-1">手機號碼 Phone *</label><input type="tel" id="custTel" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500" placeholder="ex. 0912345678"></div>
                     <div><label class="block text-sm text-gray-400 mb-1">電子信箱 E-mail (選填)</label><input type="email" id="custEmail" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500" placeholder="example@gmail.com"></div>
                     <div><label class="block text-sm text-gray-400 mb-1">備註 Remarks</label><textarea id="custRemarks" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500" rows="2" placeholder="過敏/特殊需求"></textarea></div>
                 </div>
-
-                <!-- 僅內用顯示的預先點餐開關 -->
                 <div id="preorderSection" class="bg-dark-800 border border-gold-500/50 rounded-xl p-4 mt-4">
                     <div class="flex items-start gap-3">
                         <input type="checkbox" id="preorderToggle" onchange="togglePreorder()" class="mt-1 w-5 h-5 accent-gold-500 cursor-pointer">
                         <label for="preorderToggle" class="cursor-pointer">
                             <span class="block text-white font-medium mb-1">我要預先點餐 (省去現場等候)</span>
-                            <span class="block text-gray-400 text-xs leading-relaxed">部份限量招牌餐點僅供線上預點。系統將依據您選擇的時間自動過濾可點選的餐點。</span>
+                            <span class="block text-gray-400 text-xs leading-relaxed">部份限量招牌餐點僅供線上預點。</span>
                         </label>
                     </div>
                 </div>
@@ -150,10 +135,7 @@
 
             <!-- 視圖 3: 菜單與點餐 -->
             <div id="view3" class="p-6 md:p-8 flex flex-col gap-4 fade-in hidden-view no-scrollbar overflow-y-auto max-h-[70vh]">
-                <div class="mb-2">
-                    <h2 class="text-xl font-bold text-white border-l-4 border-gold-500 pl-2">精選菜單 Menu</h2>
-                    <p id="menuNotice" class="text-sm text-gray-400 mt-2">從伺服器讀取中...</p>
-                </div>
+                <div class="mb-2"><h2 class="text-xl font-bold text-white border-l-4 border-gold-500 pl-2">精選菜單 Menu</h2><p id="menuNotice" class="text-sm text-gray-400 mt-2">從伺服器讀取中...</p></div>
                 <div id="menuContainer" class="flex flex-col gap-4"></div>
             </div>
         </div>
@@ -162,61 +144,37 @@
     <!-- 底部黏性結帳列 -->
     <div id="bottomBar" class="fixed bottom-0 w-full bg-dark-800 border-t border-dark-700 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] hidden-view z-50">
         <div class="max-w-2xl mx-auto flex justify-between items-end mb-3 px-2">
-            <div>
-                <div id="summaryTotal" class="text-gray-400 text-sm hidden-view">餐點總計: $0</div>
-                <div class="text-white font-medium mt-1">應付線上訂金</div>
-            </div>
-            <div class="text-right">
-                <div id="summaryDeposit" class="text-2xl font-bold text-gold-500">$0</div>
-                <div id="depositRuleDesc" class="text-xs text-gray-400 mt-1">免收訂金</div>
-            </div>
+            <div><div id="summaryTotal" class="text-gray-400 text-sm hidden-view">餐點總計: $0</div><div class="text-white font-medium mt-1">應付線上訂金</div></div>
+            <div class="text-right"><div id="summaryDeposit" class="text-2xl font-bold text-gold-500">$0</div><div id="depositRuleDesc" class="text-xs text-gray-400 mt-1">免收訂金</div></div>
         </div>
-        <div class="max-w-2xl mx-auto">
-            <button id="mainActionBtn" onclick="handleMainAction()" class="w-full bg-gold-500 hover:bg-gold-400 text-black font-bold text-lg rounded-xl py-3.5 transition-colors shadow-lg active:scale-[0.98]">
-                確認訂位
-            </button>
-        </div>
+        <div class="max-w-2xl mx-auto"><button id="mainActionBtn" onclick="handleMainAction()" class="w-full bg-gold-500 hover:bg-gold-400 text-black font-bold text-lg rounded-xl py-3.5 transition-colors shadow-lg active:scale-[0.98]">確認訂位</button></div>
     </div>
 
-<!-- 載入 LINE LIFF SDK -->
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
-    // 初始化圖示
     lucide.createIcons();
     
     // ==========================================
     // 1. 全域變數與金鑰設定
     // ==========================================
     const MY_LIFF_ID = "2008934010-6z7iElYg";
-    const API_BASE_URL = "https://deeplearning101-api-ciecietaipei.hf.space";
+    const API_BASE_URL = "https://deeplearning101-api-ciecietaipei.hf.space"; 
 
-    // 🌟 可以在此填入 Supabase URL，若不填或填錯，系統也不會當機 🌟
+    // 請在這裡填寫您的 Supabase 專案網址與公開金鑰
     const SUPABASE_URL = "https://rqnjrunewfwkmluplkut.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxbmpydW5ld2Z3a21sdXBsa3V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NTM0MTksImV4cCI6MjA4NDAyOTQxOX0.tpEA3PHIQyk843eO3kYrOfUCsA0lAuGRSWU9R5LyZhU";
     
     let supabaseClient = null;
-    
-    // 🛡️ 終極防護：精確檢查網址開頭，如果不是 http 或 https，絕對不呼叫 createClient
-    const validUrlStr = String(SUPABASE_URL || "").trim();
-    if (validUrlStr.startsWith("http://") || validUrlStr.startsWith("https://")) {
-        try {
-            supabaseClient = window.supabase.createClient(validUrlStr, SUPABASE_ANON_KEY);
-        } catch (e) {
-            console.warn("⚠️ Supabase 網址格式錯誤，系統降級為本地測試模式。");
+    try {
+        const testUrl = new URL(SUPABASE_URL); 
+        if (testUrl.protocol === "http:" || testUrl.protocol === "https:") {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
-    } else {
-        console.warn("⚠️ 未提供有效的 Supabase URL (需包含 http/https)，系統自動使用 MOCK_MENU。");
-    }
+    } catch (e) { console.warn("⚠️ Supabase 網址尚未設定"); }
 
-    // 營業時間設定區
-    const BUSINESS_HOURS = {
-        'dine-in': { start: 18.5, end_weekday: 25.5, end_weekend: 26.5 }, 
-        'takeout': { start: 12.0, end_weekday: 25.5, end_weekend: 26.5 }  
-    };
-
+    const BUSINESS_HOURS = { 'dine-in': { start: 18.5, end_weekday: 25.5, end_weekend: 26.5 }, 'takeout': { start: 12.0, end_weekday: 25.5, end_weekend: 26.5 } };
     let state = { view: 1, service: null, pax: 2, wantsPreorder: false, cart: {}, menuData: [], lineId: "" };
     
-    // 備用假資料 (僅在資料庫連線失敗時使用)
     const MOCK_MENU = [
         { id: 'steak', name: '炭烤肋眼牛排 12oz', price: 1500, desc: '附烤大蒜與特製紅酒醬', require_prepay: true, category: 'main', image_url: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?q=80&w=300&auto=format&fit=crop', allow_takeout: false, available_times: ["晚餐 (18:30-21:30)"] },
         { id: 'wine', name: '精選單杯紅酒', price: 250, desc: 'Cabernet Sauvignon', require_prepay: false, category: 'drink', image_url: null, allow_takeout: false, available_times: ["晚餐 (18:30-21:30)", "宵夜 (21:30後)"] },
@@ -224,46 +182,88 @@
     ];
 
     // ==========================================
-    // 2. 系統初始化啟動
+    // 2. 系統初始化啟動 (處理 URL Webhook 攔截)
     // ==========================================
     document.addEventListener("DOMContentLoaded", () => {
         const urlParams = new URLSearchParams(window.location.search);
         const action = urlParams.get('action');
-        const bid = urlParams.get('id');
 
-        if (action && bid) {
-            handleUrlWebhook(action, bid);
+        if (action) {
+            handleUrlWebhook(urlParams);
             return; 
         }
 
-        initLiff(); 
-        initDateSelect();
-        fetchMenuData(); // 網頁載入時立刻去 Supabase 抓菜單
+        initLiff(); initDateSelect(); fetchMenuData(); 
     });
 
-    // --- Webhook 處理 ---
-    async function handleUrlWebhook(action, bid) {
+    // 🌟 新增：處理 LINE Pay 付款回傳與信件回傳 🌟
+    async function handleUrlWebhook(urlParams) {
+        const action = urlParams.get('action');
+        
         document.getElementById('view1').classList.add('hidden-view');
         document.getElementById('confirmationView').classList.remove('hidden-view');
         
+        // 處理 LINE Pay 結帳完成回傳
+        if (action === 'payment_confirm') {
+            const transactionId = urlParams.get('transactionId');
+            const orderId = urlParams.get('orderId');
+            const amount = urlParams.get('amount');
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/linepay/confirm`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ transaction_id: transactionId, order_id: orderId, amount: parseInt(amount) })
+                });
+                const result = await res.json();
+                
+                if (res.ok) {
+                    document.getElementById('confirmLoading').classList.add('hidden-view');
+                    document.getElementById('confirmSuccess').classList.remove('hidden-view');
+                    document.getElementById('confirmTitle').innerText = '結帳與訂位成功！';
+                    document.getElementById('confirmDesc').innerText = '已收到您的款項，期待您的光臨。';
+                } else { throw new Error(result.detail); }
+            } catch(e) {
+                document.getElementById('confirmLoading').classList.add('hidden-view');
+                document.getElementById('confirmSuccess').classList.remove('hidden-view');
+                document.getElementById('confirmTitle').innerText = '結帳確認失敗';
+                document.getElementById('confirmTitle').classList.replace('text-gold-500', 'text-red-500');
+                document.getElementById('confirmDesc').innerText = '付款可能未完成或發生錯誤，請聯繫客服。';
+                document.getElementById('confirmIcon').setAttribute('data-lucide', 'alert-circle');
+                document.getElementById('confirmIcon').classList.replace('text-green-500', 'text-red-500');
+            }
+            lucide.createIcons();
+            return;
+        }
+
+        // 處理客人在 LINE Pay 放棄結帳 (取消)
+        if (action === 'payment_cancel') {
+            document.getElementById('confirmLoading').classList.add('hidden-view');
+            document.getElementById('confirmSuccess').classList.remove('hidden-view');
+            document.getElementById('confirmTitle').innerText = '已取消結帳';
+            document.getElementById('confirmTitle').classList.replace('text-gold-500', 'text-red-500');
+            document.getElementById('confirmDesc').innerText = '本次訂單並未成立。';
+            document.getElementById('confirmIcon').setAttribute('data-lucide', 'x-circle');
+            document.getElementById('confirmIcon').classList.replace('text-green-500', 'text-red-500');
+            lucide.createIcons();
+            return;
+        }
+
+        // 處理信件點擊確認/取消 (原始邏輯)
         setTimeout(() => {
             document.getElementById('confirmLoading').classList.add('hidden-view');
-            const successView = document.getElementById('confirmSuccess');
-            successView.classList.remove('hidden-view');
-            
+            document.getElementById('confirmSuccess').classList.remove('hidden-view');
             if (action === 'cancel') {
                 document.getElementById('confirmTitle').innerText = '訂位已取消';
                 document.getElementById('confirmTitle').classList.replace('text-gold-500', 'text-red-500');
                 document.getElementById('confirmDesc').innerText = '已為您取消本次預約，期待下次能為您服務。';
-                const icon = document.getElementById('confirmIcon');
-                icon.setAttribute('data-lucide', 'x-circle');
-                icon.classList.replace('text-green-500', 'text-red-500');
+                document.getElementById('confirmIcon').setAttribute('data-lucide', 'x-circle');
+                document.getElementById('confirmIcon').classList.replace('text-green-500', 'text-red-500');
             }
             lucide.createIcons();
         }, 1500);
     }
 
-    // --- LIFF ---
     async function initLiff() {
         const statusDiv = document.getElementById('liffStatus');
         try {
@@ -276,168 +276,93 @@
         } catch (err) { statusDiv.innerText = `⚠️ 訪客模式`; }
     }
 
-    // --- 從 Supabase 抓取真實動態菜單 ---
     async function fetchMenuData() { 
         try {
             if (!supabaseClient) throw new Error("無 Supabase 連線");
-            
-            const { data, error } = await supabaseClient
-                .from('menu_items')
-                .select('*')
-                .eq('is_active', true); 
-            
+            const { data, error } = await supabaseClient.from('menu_items').select('*').eq('is_active', true); 
             if (error) throw error;
-            
-            if (data && data.length > 0) {
-                state.menuData = data;
-                console.log("✅ 成功從資料庫讀取動態菜單", data);
-            } else {
-                state.menuData = MOCK_MENU;
-            }
-        } catch (err) {
-            console.error("❌ 讀取菜單失敗:", err.message);
-            state.menuData = MOCK_MENU; 
-        }
+            if (data && data.length > 0) state.menuData = data; else state.menuData = MOCK_MENU;
+        } catch (err) { state.menuData = MOCK_MENU; }
     }
 
-    // ==========================================
-    // 3. 日期與時間邏輯
-    // ==========================================
     function initDateSelect() {
         const dateSelect = document.getElementById('dateSelect');
         const today = new Date();
         const weekdays = ["(日)", "(一)", "(二)", "(三)", "(四)", "(五)", "(六)"];
         let html = '';
         for(let i=0; i<30; i++) {
-            let d = new Date(today); 
-            d.setDate(today.getDate() + i);
-            
-            let y = d.getFullYear();
-            let m = String(d.getMonth() + 1).padStart(2, '0');
-            let day = String(d.getDate()).padStart(2, '0');
+            let d = new Date(today); d.setDate(today.getDate() + i);
+            let y = d.getFullYear(); let m = String(d.getMonth() + 1).padStart(2, '0'); let day = String(d.getDate()).padStart(2, '0');
             let dateStr = `${y}-${m}-${day}`;
-            
             html += `<option value="${dateStr}">${dateStr} ${weekdays[d.getDay()]}</option>`;
         }
         dateSelect.innerHTML = html; updateTimeSlots(); 
     }
 
     function updateTimeSlots() {
-        const dateSelect = document.getElementById('dateSelect');
-        const timeSelect = document.getElementById('timeSelect');
+        const dateSelect = document.getElementById('dateSelect'); const timeSelect = document.getElementById('timeSelect');
         if(!dateSelect.value) return;
 
-        const currentService = state.service || 'dine-in'; 
-        const config = BUSINESS_HOURS[currentService];
-
-        const selectedDate = new Date(dateSelect.value);
-        const now = new Date();
-        
-        const y = now.getFullYear();
-        const m = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const todayStr = `${y}-${m}-${day}`;
-        const isToday = (dateSelect.value === todayStr);
-
+        const config = BUSINESS_HOURS[state.service || 'dine-in'];
+        const selectedDate = new Date(dateSelect.value); const now = new Date();
+        const isToday = (dateSelect.value === `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`);
         const isWeekend = (selectedDate.getDay() === 5 || selectedDate.getDay() === 6);
         const endHour = isWeekend ? config.end_weekend : config.end_weekday;
 
         let slots = [];
-        
         for(let v = config.start; v <= endHour; v += 0.5) {
-            let displayH = Math.floor(v) % 24; 
-            let displayM = (v % 1 !== 0) ? '30' : '00';
-            let displayStr = `${String(displayH).padStart(2, '0')}:${displayM}`;
+            let displayStr = `${String(Math.floor(v) % 24).padStart(2, '0')}:${(v % 1 !== 0) ? '30' : '00'}`;
             slots.push({ display: displayStr, val: v });
         }
 
         let validSlots = slots;
-        
         if (isToday) {
             const currentVal = now.getHours() + (now.getMinutes() / 60);
-            if (now.getHours() >= 0 && now.getHours() < 5) { 
-                validSlots = slots.filter(s => s.val >= config.start); 
-            } else {
-                validSlots = slots.filter(s => s.val > (currentVal + 0.5));
-            }
+            if (now.getHours() >= 0 && now.getHours() < 5) validSlots = slots.filter(s => s.val >= config.start); 
+            else validSlots = slots.filter(s => s.val > (currentVal + 0.5));
         }
 
-        if (validSlots.length === 0) { 
-            timeSelect.innerHTML = `<option value="">-- 該日已無可選時段 --</option>`; 
-            timeSelect.disabled = true; 
-        } else { 
-            timeSelect.innerHTML = validSlots.map(s => `<option value="${s.display}">${s.display}</option>`).join(''); 
-            timeSelect.disabled = false; 
-        }
+        if (validSlots.length === 0) { timeSelect.innerHTML = `<option value="">-- 該日已無可選時段 --</option>`; timeSelect.disabled = true; } 
+        else { timeSelect.innerHTML = validSlots.map(s => `<option value="${s.display}">${s.display}</option>`).join(''); timeSelect.disabled = false; }
     }
 
-    // ==========================================
-    // 4. 流程切換與 UI 更新
-    // ==========================================
     function selectService(type) {
         state.service = type; state.cart = {}; state.view = 2; 
         document.querySelectorAll('.qty-display').forEach(el => el.innerText = '0');
         
-        const paxSec = document.getElementById('paxSection');
-        const preSec = document.getElementById('preorderSection');
-        const timeLabel = document.getElementById('timeLabel');
-        
+        const paxSec = document.getElementById('paxSection'); const preSec = document.getElementById('preorderSection'); const timeLabel = document.getElementById('timeLabel');
         if (type === 'takeout') { 
-            paxSec.classList.add('hidden-view');
-            preSec.classList.add('hidden-view');
+            paxSec.classList.add('hidden-view'); preSec.classList.add('hidden-view');
             timeLabel.innerText = '🛍️ 取餐時間 Pickup Time';
             document.getElementById('menuNotice').innerText = "💡 外帶需全額線上結帳。 (已隱藏不開放外帶之品項)";
             state.wantsPreorder = true; 
         } else { 
-            paxSec.classList.remove('hidden-view');
-            preSec.classList.remove('hidden-view');
-            timeLabel.innerText = '⏰ 訂位時間 Time';
-            state.pax = 2; 
-            state.wantsPreorder = document.getElementById('preorderToggle').checked = false; 
+            paxSec.classList.remove('hidden-view'); preSec.classList.remove('hidden-view');
+            timeLabel.innerText = '⏰ 訂位時間 Time'; state.pax = 2; state.wantsPreorder = document.getElementById('preorderToggle').checked = false; 
             updatePaxDisplay(); 
         }
-        
-        updateTimeSlots();
-        updateView();
+        updateTimeSlots(); updateView();
     }
 
     function togglePreorder() { state.wantsPreorder = document.getElementById('preorderToggle').checked; updateBottomBar(); }
-    
-    function goBack() {
-        if (state.view === 2) { state.view = 1; state.service = null; } 
-        else if (state.view === 3) { state.view = 2; }
-        updateView();
-    }
-
+    function goBack() { if (state.view === 2) { state.view = 1; state.service = null; } else if (state.view === 3) { state.view = 2; } updateView(); }
     function updateView() {
         document.getElementById('view1').classList.toggle('hidden-view', state.view !== 1);
         document.getElementById('view2').classList.toggle('hidden-view', state.view !== 2);
         document.getElementById('view3').classList.toggle('hidden-view', state.view !== 3);
-        
         const navBar = document.getElementById('navBar');
         if (state.view === 1) navBar.classList.add('hidden-view');
-        else { 
-            navBar.classList.remove('hidden-view'); 
-            document.getElementById('navTitle').innerText = state.service === 'dine-in' ? (state.view === 2 ? "填寫訂位資訊" : "預先點餐") : (state.view === 2 ? "填寫聯絡資料" : "外帶菜單"); 
-        }
+        else { navBar.classList.remove('hidden-view'); document.getElementById('navTitle').innerText = state.service === 'dine-in' ? (state.view === 2 ? "填寫訂位資訊" : "預先點餐") : (state.view === 2 ? "填寫聯絡資料" : "外帶菜單"); }
         updateBottomBar(); window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function adjustPax(delta) {
-        let newPax = state.pax + delta;
-        if (newPax >= 1 && newPax <= 10) { state.pax = newPax; updatePaxDisplay(); updateBottomBar(); }
-    }
+    function adjustPax(delta) { let newPax = state.pax + delta; if (newPax >= 1 && newPax <= 10) { state.pax = newPax; updatePaxDisplay(); updateBottomBar(); } }
     function updatePaxDisplay() { document.getElementById('paxDisplay').innerText = state.pax; document.getElementById('paxWarning').classList.toggle('hidden-view', state.pax < 5); }
 
-    // ==========================================
-    // 5. 菜單渲染與過濾引擎
-    // ==========================================
     function getMealPeriod(timeStr) {
         if (!timeStr) return "晚餐 (18:30-21:30)"; 
-        let [h, m] = timeStr.split(':');
-        let hourVal = parseInt(h) + (parseInt(m) / 60);
+        let [h, m] = timeStr.split(':'); let hourVal = parseInt(h) + (parseInt(m) / 60);
         if (hourVal >= 0 && hourVal <= 5) hourVal += 24; 
-        
         if (hourVal >= 11 && hourVal < 18.5) return "白天 (11:00-18:30)";
         if (hourVal >= 18.5 && hourVal < 21.5) return "晚餐 (18:30-21:30)";
         return "宵夜 (21:30後)";
@@ -445,34 +370,25 @@
 
     function renderMenu() {
         const container = document.getElementById('menuContainer');
-        const timeSelect = document.getElementById('timeSelect');
-        const currentPeriod = getMealPeriod(timeSelect ? timeSelect.value : '');
-        
-        let html = '';
-        let renderCount = 0;
+        const currentPeriod = getMealPeriod(document.getElementById('timeSelect') ? document.getElementById('timeSelect').value : '');
+        let html = ''; let renderCount = 0;
 
         state.menuData.forEach(item => {
             const allowTakeout = item.hasOwnProperty('allow_takeout') ? item.allow_takeout : true;
             const availableTimes = item.available_times || ["白天 (11:00-18:30)", "晚餐 (18:30-21:30)", "宵夜 (21:30後)"];
-            const isPrepay = item.require_prepay ? true : false;
-
             if (state.service === 'takeout' && !allowTakeout) return;
             if (!availableTimes.includes(currentPeriod)) return;
-
             renderCount++;
 
             const imgHtml = item.image_url ? `<img src="${item.image_url}" class="w-full h-40 object-cover rounded-lg mb-3 border border-dark-700 shadow-md">` : '';
-            const tagClass = isPrepay ? 'border-rose-900 text-rose-400' : 'border-dark-600 text-gray-500';
-            const tagText = isPrepay ? '需全額預付' : '訂金 30%';
+            const tagClass = item.require_prepay ? 'border-rose-900 text-rose-400' : 'border-dark-600 text-gray-500';
+            const tagText = item.require_prepay ? '需全額預付' : '訂金 30%';
 
             html += `
             <div class="bg-dark-800 border border-dark-700 rounded-xl p-4 flex flex-col">
                 ${imgHtml}
                 <div class="flex justify-between items-start mb-3">
-                    <div>
-                        <h3 class="text-white font-bold text-lg">${item.name}</h3>
-                        <p class="text-gray-400 text-xs mt-1 leading-relaxed">${item.description || item.desc || ''}</p>
-                    </div>
+                    <div><h3 class="text-white font-bold text-lg">${item.name}</h3><p class="text-gray-400 text-xs mt-1 leading-relaxed">${item.description || item.desc || ''}</p></div>
                     <span class="text-gold-500 font-bold">$${item.price}</span>
                 </div>
                 <div class="flex justify-between items-center mt-2 border-t border-dark-700 pt-3">
@@ -486,15 +402,8 @@
             </div>`;
         });
 
-        if (renderCount === 0) {
-            html = `<div class="text-center p-10 border border-dashed border-dark-700 rounded-xl text-gray-500">
-                        <i data-lucide="utensils-crossed" class="w-10 h-10 mx-auto mb-3 opacity-50"></i>
-                        您選擇的時段 (${currentPeriod})<br>目前無供應餐點，或未開放外帶。
-                    </div>`;
-        }
-
-        container.innerHTML = html; 
-        lucide.createIcons();
+        if (renderCount === 0) html = `<div class="text-center p-10 border border-dashed border-dark-700 rounded-xl text-gray-500"><i data-lucide="utensils-crossed" class="w-10 h-10 mx-auto mb-3 opacity-50"></i>您選擇的時段 (${currentPeriod})<br>目前無供應餐點，或未開放外帶。</div>`;
+        container.innerHTML = html; lucide.createIcons();
     }
 
     function updateCart(itemId, delta) {
@@ -503,9 +412,6 @@
         if (newQty >= 0) { state.cart[itemId] = newQty; document.getElementById(`qty-${itemId}`).innerText = newQty; updateBottomBar(); }
     }
 
-    // ==========================================
-    // 6. 結帳列邏輯與表單驗證
-    // ==========================================
     function updateBottomBar() {
         const bar = document.getElementById('bottomBar'); const btn = document.getElementById('mainActionBtn');
         const summaryTotal = document.getElementById('summaryTotal'); const summaryDeposit = document.getElementById('summaryDeposit'); const desc = document.getElementById('depositRuleDesc');
@@ -527,55 +433,35 @@
         if (state.view === 2) {
             summaryTotal.classList.add('hidden-view');
             if (state.service === 'takeout') {
-                desc.innerText = "請先填寫聯絡資料";
-                btn.innerText = "下一步 (挑選外帶餐點)"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
+                desc.innerText = "請先填寫聯絡資料"; btn.innerText = "下一步 (挑選外帶餐點)"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
             } else if (state.service === 'dine-in') {
-                let paxDeposit = state.pax >= 5 ? state.pax * 500 : 0;
-                finalDeposit = paxDeposit;
+                let paxDeposit = state.pax >= 5 ? state.pax * 500 : 0; finalDeposit = paxDeposit;
                 if (paxDeposit > 0) ruleTexts.push(`${state.pax}人訂位金$${paxDeposit}`);
-                
                 if (state.wantsPreorder) {
-                    desc.innerText = ruleTexts.length > 0 ? ruleTexts.join(" + ") : "請先填寫資料再挑選餐點";
-                    btn.innerText = "下一步 (挑選預點餐點)"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
+                    desc.innerText = ruleTexts.length > 0 ? ruleTexts.join(" + ") : "請先填寫資料再挑選餐點"; btn.innerText = "下一步 (挑選預點餐點)"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
                 } else {
-                    desc.innerText = paxDeposit > 0 ? ruleTexts.join(" + ") : "人數 4 人內免收訂金 (系統將查核 No-Show)";
-                    btn.innerText = finalDeposit > 0 ? "確認並前往付款" : "確認訂位 (送出資料)"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
+                    desc.innerText = paxDeposit > 0 ? ruleTexts.join(" + ") : "人數 4 人內免收訂金 (系統將查核 No-Show)"; btn.innerText = finalDeposit > 0 ? "確認並前往付款" : "確認訂位 (送出資料)"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
                 }
             }
-        } 
-        else if (state.view === 3) {
+        } else if (state.view === 3) {
             summaryTotal.innerText = `餐點總計: $${totalFoodAmount}`; summaryTotal.classList.remove('hidden-view');
-            
             if (state.service === 'takeout') {
-                finalDeposit = totalFoodAmount;
-                desc.innerText = "外帶需全額線上結帳";
+                finalDeposit = totalFoodAmount; desc.innerText = "外帶需全額線上結帳";
                 if (cartItemCount === 0) { btn.innerText = "請選擇餐點"; btn.className = "w-full bg-dark-700 text-gray-500 font-bold text-lg rounded-xl py-3.5"; } 
                 else { btn.innerText = "確認並前往付款"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5 shadow-lg active:scale-[0.98]"; }
             } else if (state.service === 'dine-in') {
-                let paxDeposit = state.pax >= 5 ? state.pax * 500 : 0;
-                finalDeposit = paxDeposit + foodDeposit;
+                let paxDeposit = state.pax >= 5 ? state.pax * 500 : 0; finalDeposit = paxDeposit + foodDeposit;
                 if (foodDeposit > 0) ruleTexts.push(`餐點預付$${Math.round(foodDeposit)}`);
-                desc.innerText = ruleTexts.length > 0 ? ruleTexts.join(" + ") : "免收訂金 (系統將查核 No-Show)";
-                btn.innerText = finalDeposit > 0 ? "確認並前往付款" : "送出訂位與點餐"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
+                desc.innerText = ruleTexts.length > 0 ? ruleTexts.join(" + ") : "免收訂金 (系統將查核 No-Show)"; btn.innerText = finalDeposit > 0 ? "確認並前往付款" : "送出訂位與點餐"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
             }
         }
         summaryDeposit.innerText = `$${Math.round(finalDeposit).toLocaleString()}`;
     }
 
     function validateForm() {
-        const name = document.getElementById('custName').value.trim();
-        const tel = document.getElementById('custTel').value.trim();
-        const timeSelect = document.getElementById('timeSelect');
-        const time = timeSelect ? timeSelect.value : '';
-        
-        if(!name || !tel || !time) {
-            alert("⚠️ 請完整填寫姓名與電話，並確保已選擇時段。");
-            return false;
-        }
-        if((tel.match(/\d/g) || []).length < 6) {
-            alert("⚠️ 電話號碼格式錯誤。");
-            return false;
-        }
+        const name = document.getElementById('custName').value.trim(); const tel = document.getElementById('custTel').value.trim(); const time = document.getElementById('timeSelect') ? document.getElementById('timeSelect').value : '';
+        if(!name || !tel || !time) { alert("⚠️ 請完整填寫姓名與電話，並確保已選擇時段。"); return false; }
+        if((tel.match(/\d/g) || []).length < 6) { alert("⚠️ 電話號碼格式錯誤。"); return false; }
         return true;
     }
 
@@ -585,14 +471,10 @@
 
         if (state.view === 2) {
             if (!validateForm()) return; 
-            
             if (state.service === 'takeout' || (state.service === 'dine-in' && state.wantsPreorder)) {
-                // 🌟 切換到菜單前，執行一次過濾渲染 🌟
-                renderMenu();
-                state.view = 3; 
+                renderMenu(); state.view = 3; 
                 document.getElementById('menuNotice').innerText = state.service === 'takeout' ? "💡 外帶需全額線上結帳。 (已隱藏不開放外帶之品項)" : "💡 高價食材需全額預付，一般餐點收 30% 訂金。 (已根據時段自動過濾)"; 
-                updateView(); 
-                return;
+                updateView(); return;
             }
         }
 
@@ -600,9 +482,7 @@
         btn.innerHTML = `<i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-black"></i>`;
         lucide.createIcons(); btn.disabled = true;
 
-        // 1. 重新計算應該付的訂金與總額 (對齊後端 FastAPI 需要的 OrderPayload)
-        let totalFoodAmount = 0; 
-        let foodDeposit = 0;
+        let totalFoodAmount = 0; let foodDeposit = 0;
         state.menuData.forEach(item => {
             let qty = state.cart[item.id] || 0;
             if (qty > 0) {
@@ -613,57 +493,32 @@
         let paxDeposit = state.pax >= 5 ? state.pax * 500 : 0;
         let finalDeposit = state.service === 'takeout' ? totalFoodAmount : (paxDeposit + foodDeposit);
 
-        // 2. 整理要傳給 FastAPI 的包裹 (Payload)
         const payload = {
-            service_type: state.service,
-            name: document.getElementById('custName').value,
-            tel: document.getElementById('custTel').value,
-            date: document.getElementById('dateSelect').value,
-            time: document.getElementById('timeSelect').value,
-            line_id: state.lineId,
-            pax: state.pax,
-            cart: state.cart,
-            total_amount: totalFoodAmount,
-            deposit_required: Math.round(finalDeposit)
+            service_type: state.service, name: document.getElementById('custName').value, tel: document.getElementById('custTel').value,
+            date: document.getElementById('dateSelect').value, time: document.getElementById('timeSelect').value,
+            line_id: state.lineId, pax: state.pax, cart: state.cart, total_amount: totalFoodAmount, deposit_required: Math.round(finalDeposit)
         };
-        
-        console.log("🚀 即將發送給 FastAPI:", payload);
 
-        // 3. 呼叫真實的 FastAPI 後端
         try {
             const response = await fetch(`${API_BASE_URL}/api/submit_booking`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
             });
             const result = await response.json();
 
-            // 狀況 A：後端說要付錢 (可能原本就要付，或是因為 No-Show 被懲罰)
             if (result.status === "require_payment") {
                 let msg = `💳 系統提示\n`;
-                if (result.is_noshow_penalty) {
-                    msg += `⚠️ 由於您過去有未出席(No-Show)紀錄，本次訂單需收取防護訂金 $${result.deposit_amount}。\n\n`;
-                } else if (result.deposit_amount > 0) {
-                    msg += `本次訂單需線上支付 $${result.deposit_amount}。\n\n`;
-                }
+                if (result.is_noshow_penalty) msg += `⚠️ 由於您過去有未出席(No-Show)紀錄，本次訂單需收取防護訂金 $${result.deposit_amount}。\n\n`;
+                else if (result.deposit_amount > 0) msg += `本次訂單需線上支付 $${result.deposit_amount}。\n\n`;
                 msg += `點擊確定後，將導向 LINE Pay 進行結帳。`;
                 alert(msg);
-                
-                // 跳轉至 LINE Pay 結帳連結
                 window.location.href = result.payment_url;
-                
-            // 狀況 B：後端說不用付錢，直接訂位成功
             } else if (result.status === "success") {
                 alert(`✅ 訂位成功！\n期待您的光臨。`);
-                window.location.href = "./index.html"; // 成功後回首頁
-                
-            } else {
-                throw new Error(result.detail || "發生未知錯誤");
-            }
+                window.location.href = "./index.html"; 
+            } else { throw new Error(result.detail || "發生未知錯誤"); }
         } catch (error) {
             alert(`❌ 送出失敗: ${error.message}\n請確認 FastAPI 伺服器是否正常運作，且 API_BASE_URL 網址正確。`);
-            btn.innerHTML = originalText; btn.disabled = false;
-            lucide.createIcons();
+            btn.innerHTML = originalText; btn.disabled = false; lucide.createIcons();
         }
     }
 </script>
