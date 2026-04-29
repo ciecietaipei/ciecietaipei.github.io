@@ -203,6 +203,51 @@
         document.getElementById('view1').classList.add('hidden-view');
         document.getElementById('confirmationView').classList.remove('hidden-view');
         
+        // 🌟 新增：處理補付款 (Repay) 的攔截器 🌟
+        if (action === 'repay') {
+            const orderId = urlParams.get('order_id');
+            document.getElementById('confirmLoading').classList.add('hidden-view');
+            document.getElementById('confirmSuccess').classList.remove('hidden-view');
+            
+            document.getElementById('confirmTitle').innerText = '繼續完成付款';
+            document.getElementById('confirmDesc').innerText = `您的訂單 (${orderId})\n尚未完成結帳。請點擊下方按鈕前往 LINE Pay 付款，以保留您的訂位。`;
+            document.getElementById('confirmIcon').setAttribute('data-lucide', 'credit-card');
+            
+            const actionBtn = document.querySelector('#confirmSuccess button');
+            actionBtn.innerText = "前往 LINE Pay 結帳";
+            actionBtn.classList.replace('bg-dark-800', 'bg-gold-500');
+            actionBtn.classList.replace('text-gold-500', 'text-black');
+            
+            actionBtn.onclick = async () => {
+                const originalText = actionBtn.innerText;
+                actionBtn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-black"></i>`;
+                actionBtn.disabled = true;
+                lucide.createIcons();
+                
+                try {
+                    // 向 FastAPI 索取全新的 LINE Pay 網址
+                    const res = await fetch(`${API_BASE_URL}/api/linepay/repay`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ order_id: orderId })
+                    });
+                    const result = await res.json();
+                    
+                    if (res.ok && result.payment_url) {
+                        window.location.href = result.payment_url;
+                    } else {
+                        throw new Error(result.detail || "無法產生結帳連結");
+                    }
+                } catch(e) {
+                    alert(`❌ 發生錯誤: ${e.message}`);
+                    actionBtn.innerText = originalText;
+                    actionBtn.disabled = false;
+                }
+            };
+            lucide.createIcons();
+            return;
+        }
+
         // 處理 LINE Pay 結帳完成回傳
         if (action === 'payment_confirm') {
             const transactionId = urlParams.get('transactionId');
