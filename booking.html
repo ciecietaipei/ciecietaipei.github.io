@@ -95,10 +95,14 @@
                     <div class="bg-dark-900 p-4 rounded-full group-hover:text-gold-500 transition-colors"><i data-lucide="utensils-crossed" class="w-10 h-10"></i></div>
                     <div class="text-center"><h3 class="text-xl font-bold text-white mb-1">內用訂位</h3><p class="text-gray-500 text-xs">Reservation & Pre-order</p></div>
                 </button>
-                <!-- <button onclick="selectService('takeout')" class="bg-dark-800 border border-dark-700 rounded-2xl p-6 flex flex-col items-center gap-4 hover:border-gold-500 transition-all active:scale-95 group">
+                <button onclick="selectService('takeout')" class="bg-dark-800 border border-dark-700 rounded-2xl p-6 flex flex-col items-center gap-4 hover:border-gold-500 transition-all active:scale-95 group">
                     <div class="bg-dark-900 p-4 rounded-full group-hover:text-gold-500 transition-colors"><i data-lucide="shopping-bag" class="w-10 h-10"></i></div>
-                    <div class="text-center"><h3 class="text-xl font-bold text-white mb-1">外帶點餐</h3><p class="text-gray-500 text-xs">Takeout Order (需全額結帳)</p></div>
-                </button> -->
+                    <div class="text-center">
+                        <h3 class="text-xl font-bold text-white mb-1">外帶點餐</h3>
+                        <p class="text-gold-500 text-xs font-bold mb-1">午間限定 11:30 - 售完 (或14:00))</p>
+                        <p class="text-gray-500 text-[10px]">Takeout Order (需全額 Line Pay 線上結帳)</p>
+                    </div>
+                </button>
             </div>
 
             <!-- 視圖 2: 填寫資料 -->
@@ -148,8 +152,8 @@
     <!-- 底部黏性結帳列 -->
     <div id="bottomBar" class="fixed bottom-0 w-full bg-dark-800 border-t border-dark-700 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] hidden-view z-50">
         <div class="max-w-2xl mx-auto flex justify-between items-end mb-3 px-2">
-            <div><div id="summaryTotal" class="text-gray-400 text-sm hidden-view">餐點總計: $0</div><div class="text-white font-medium mt-1">應電話聯絡</div></div>
-            <div class="text-right"><div id="summaryDeposit" class="text-2xl font-bold text-gold-500">$0</div><div id="depositRuleDesc" class="text-xs text-gray-400 mt-1">應電話聯絡</div></div>
+            <div><div id="summaryTotal" class="text-gray-400 text-sm hidden-view">餐點總計: $0</div><div class="text-white font-medium mt-1">(封測) 線上外帶點餐 | CIE CIE TAIPEI</div></div>
+            <div class="text-right"><div id="summaryDeposit" class="text-2xl font-bold text-gold-500">$0</div><div id="depositRuleDesc" class="text-xs text-gray-400 mt-1">(封測) 線上外帶點餐 | CIE CIE TAIPEI</div></div>
         </div>
         <div class="max-w-2xl mx-auto"><button id="mainActionBtn" onclick="handleMainAction()" class="w-full bg-gold-500 hover:bg-gold-400 text-black font-bold text-lg rounded-xl py-3.5 transition-colors shadow-lg active:scale-[0.98]">確認訂位</button></div>
     </div>
@@ -176,7 +180,10 @@
         }
     } catch (e) { console.warn("⚠️ Supabase 網址尚未設定"); }
 
-    const BUSINESS_HOURS = { 'dine-in': { start: 18.5, end_weekday: 25.5, end_weekend: 26.5 }, 'takeout': { start: 12.0, end_weekday: 25.5, end_weekend: 26.5 } };
+    const BUSINESS_HOURS = {
+        'dine-in': { start: 18.5, end_weekday: 25.5, end_weekend: 26.5 }, 
+        'takeout': { start: 11.5, end_weekday: 14.0, end_weekend: 14.0 }
+    };
     let state = { view: 1, service: null, pax: 2, wantsPreorder: false, cart: {}, menuData: [], lineId: "" };
     
     const MOCK_MENU = [
@@ -345,34 +352,71 @@
             let dateStr = `${y}-${m}-${day}`;
             html += `<option value="${dateStr}">${dateStr} ${weekdays[d.getDay()]}</option>`;
         }
-        dateSelect.innerHTML = html; updateTimeSlots(); 
+        dateSelect.innerHTML = html; updateTimeSlots();
     }
 
     function updateTimeSlots() {
-        const dateSelect = document.getElementById('dateSelect'); const timeSelect = document.getElementById('timeSelect');
+        const dateSelect = document.getElementById('dateSelect');
+        const timeSelect = document.getElementById('timeSelect');
         if(!dateSelect.value) return;
 
-        const config = BUSINESS_HOURS[state.service || 'dine-in'];
-        const selectedDate = new Date(dateSelect.value); const now = new Date();
+        const selectedDate = new Date(dateSelect.value); 
+        const now = new Date();
         const isToday = (dateSelect.value === `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`);
-        const isWeekend = (selectedDate.getDay() === 5 || selectedDate.getDay() === 6);
-        const endHour = isWeekend ? config.end_weekend : config.end_weekday;
+        // getDay() 回傳 0(日) ~ 6(六)
+        const isWeekend = (selectedDate.getDay() === 0 || selectedDate.getDay() === 6); 
 
-        let slots = [];
-        for(let v = config.start; v <= endHour; v += 0.5) {
-            let displayStr = `${String(Math.floor(v) % 24).padStart(2, '0')}:${(v % 1 !== 0) ? '30' : '00'}`;
-            slots.push({ display: displayStr, val: v });
+        let config;
+        let isAvailable = true;
+
+        if (state.service === 'takeout') {
+            // 🌟 外帶專屬邏輯：平日 11:30 - 14:00
+            if (isWeekend) {
+                isAvailable = false; // 假日不開放外帶
+            } else {
+                config = { start: 11.5, end: 14.0 };
+            }
+        } else {
+            // 內用邏輯：讀取全域設定
+            const baseConfig = BUSINESS_HOURS['dine-in'];
+            config = { 
+                start: baseConfig.start, 
+                end: isWeekend ? baseConfig.end_weekend : baseConfig.end_weekday 
+            };
         }
 
-        let validSlots = slots;
-        if (isToday) {
-            const currentVal = now.getHours() + (now.getMinutes() / 60);
-            if (now.getHours() >= 0 && now.getHours() < 5) validSlots = slots.filter(s => s.val >= config.start); 
-            else validSlots = slots.filter(s => s.val > (currentVal + 0.5));
+        let validSlots = [];
+
+        // 如果該日有開放服務，才產生時間選項
+        if (isAvailable) {
+            let slots = [];
+            for(let v = config.start; v <= config.end; v += 0.5) {
+                let displayStr = `${String(Math.floor(v) % 24).padStart(2, '0')}:${(v % 1 !== 0) ? '30' : '00'}`;
+                slots.push({ display: displayStr, val: v });
+            }
+
+            validSlots = slots;
+
+            // 處理當日的時間推移 (過期的時間不能選)
+            if (isToday) {
+                const currentVal = now.getHours() + (now.getMinutes() / 60);
+                if (now.getHours() >= 0 && now.getHours() < 5) {
+                    validSlots = slots.filter(s => s.val >= config.start);
+                } else {
+                    validSlots = slots.filter(s => s.val > (currentVal + 0.5));
+                }
+            }
         }
 
-        if (validSlots.length === 0) { timeSelect.innerHTML = `<option value="">-- 該日已無可選時段 --</option>`; timeSelect.disabled = true; } 
-        else { timeSelect.innerHTML = validSlots.map(s => `<option value="${s.display}">${s.display}</option>`).join(''); timeSelect.disabled = false; }
+        // 渲染下拉選單
+        if (validSlots.length === 0) { 
+            let msg = state.service === 'takeout' && isWeekend ? "-- 假日未開放外帶 --" : "-- 該日已無可選時段 --";
+            timeSelect.innerHTML = `<option value="">${msg}</option>`; 
+            timeSelect.disabled = true; 
+        } else { 
+            timeSelect.innerHTML = validSlots.map(s => `<option value="${s.display}">${s.display}</option>`).join(''); 
+            timeSelect.disabled = false; 
+        }
     }
 
     function selectService(type) {
@@ -455,10 +499,47 @@
         container.innerHTML = html; lucide.createIcons();
     }
 
-    function updateCart(itemId, delta) {
+function updateCart(itemId, delta) {
+        // 先找出客人現在點的是哪一個餐點
+        const item = state.menuData.find(i => i.id === itemId);
         if (!state.cart[itemId]) state.cart[itemId] = 0;
+        
+        // 🌟 新增的防呆邏輯：只有在「增加 (delta > 0)」數量時才檢查
+        if (delta > 0) {
+            // 如果這個商品是 0 元 (代表是免費調味)
+            if (item && item.price === 0) {
+                
+                // 1. 計算購物車內目前有幾個「主餐」
+                let mainCount = 0;
+                state.menuData.forEach(m => {
+                    if (m.category === 'main' && state.cart[m.id]) {
+                        mainCount += state.cart[m.id];
+                    }
+                });
+                
+                // 2. 計算購物車內已經拿了幾個「0元商品」
+                let freeCount = 0;
+                state.menuData.forEach(m => {
+                    if (m.price === 0 && state.cart[m.id]) {
+                        freeCount += state.cart[m.id];
+                    }
+                });
+                
+                // 3. 核心規則：免費醬料總數 不能大於等於 主餐總數
+                if (freeCount >= mainCount) {
+                    alert("⚠️ 免費調味的數量，不能超過您點的主餐數量喔！\n請先增加主餐，或減少其他免費調味。");
+                    return; // 直接中斷，不讓他加進購物車！
+                }
+            }
+        }
+
+        // 原本的數量加減與畫面更新邏輯
         let newQty = state.cart[itemId] + delta;
-        if (newQty >= 0) { state.cart[itemId] = newQty; document.getElementById(`qty-${itemId}`).innerText = newQty; updateBottomBar(); }
+        if (newQty >= 0) { 
+            state.cart[itemId] = newQty; 
+            document.getElementById(`qty-${itemId}`).innerText = newQty;
+            updateBottomBar(); 
+        }
     }
 
     function updateBottomBar() {
@@ -482,14 +563,16 @@
         if (state.view === 2) {
             summaryTotal.classList.add('hidden-view');
             if (state.service === 'takeout') {
-                desc.innerText = "請先填寫聯絡資料"; btn.innerText = "下一步 (挑選外帶餐點)"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
+                desc.innerText = "請務必先填寫聯絡資料"; btn.innerText = "下一步 (挑選外帶餐點)"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
             } else if (state.service === 'dine-in') {
                 let paxDeposit = state.pax >= 5 ? state.pax * 500 : 0; finalDeposit = paxDeposit;
                 if (paxDeposit > 0) ruleTexts.push(`${state.pax}人訂位金$${paxDeposit}`);
                 if (state.wantsPreorder) {
                     desc.innerText = ruleTexts.length > 0 ? ruleTexts.join(" + ") : "請先填寫資料再挑選餐點"; btn.innerText = "下一步 (挑選預點餐點)"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
                 } else {
-                    <!-- desc.innerText = paxDeposit > 0 ? ruleTexts.join(" + ") : "人數 4 人內免收訂金 (系統將查核 No-Show)"; btn.innerText = finalDeposit > 0 ? "確認並前往付款" : "確認訂位 (送出資料)"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5"; -->
+                    desc.innerText = paxDeposit > 0 ? ruleTexts.join(" + ") : "免收訂金 (系統將查核 No-Show)";
+                    btn.innerText = finalDeposit > 0 ? "確認並前往付款" : "確認訂位 (送出資料)"; 
+                    btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5";
                 }
             }
         } else if (state.view === 3) {
