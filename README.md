@@ -150,6 +150,10 @@
 
     *   **解法**：在後台將防呆改為 `price is None`，解鎖 $0 元上架能力。並在前端購物車（`booking.html`）植入邏輯：`免費商品數量 必須小於 主餐數量`，完美引導客人點餐又不怕被佔便宜。
 
+<p align="center">
+  <img src="./assets/README/009.png" width="600" alt="Ciecie booking Admin screenshot">
+</p>
+
 *   **💣 幽靈掉單 (Drop-off) 的終極救援**：
 
     *   **問題**：客人付完款看到「授權成功」就急著關閉網頁，導致系統來不及執行「Confirm (請款)」，錢卡在半空中。
@@ -167,6 +171,10 @@
     *   **問題**：傳統庫存扣到 0 就沒了，無法應付「預約明天」的訂單。
 
     *   **解法**：我們不扣總庫存。而是讓前端透過 API 即時詢問大腦：「這一天，這道菜已經被買走幾份了？」，然後拿 `每日限量 - 當日銷量 = 剩餘份數`，實現了完美的日動態庫存。
+
+<p align="center">
+  <img src="./assets/README/008.png" width="600" alt="Ciecie booking Admin screenshot">
+</p>
 
 ---
 
@@ -189,6 +197,10 @@ LINE Pay 的串接邏輯是嚴格的「兩段式驗證」：
 *   `LINE_PAY_CHANNEL_SECRET`：換成正式版的密鑰。
 
 *   `LINE_PAY_BASE_URL`：將 `[https://sandbox-api-pay.line.me](https://sandbox-api-pay.line.me)` 改為正式版的網址 `[https://api-pay.line.me](https://api-pay.line.me)`。
+
+<p align="center">
+  <img src="./assets/README/010.png" width="600" alt="Ciecie booking Admin screenshot">
+</p>
 
 ---
 
