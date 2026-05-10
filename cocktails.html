@@ -372,31 +372,40 @@
 <style>
     /* 桌機版預設尺寸 */
     #ai-chat-btn {
-        position: fixed; bottom: 85px; right: 20px; width: 60px; height: 60px;
+        position: fixed;
+        bottom: 100px; /* 電腦版稍微往上提一點 */
+        right: 20px;
+        width: 60px; height: 60px;
         background-color: #1A1A1A; color: #D4AF37; border-radius: 50%;
-        display: flex; justify-content: center; align-items: center; cursor: pointer; 
-        box-shadow: 0 4px 12px rgba(0,0,0,0.6); z-index: 9999; font-size: 28px; 
+        display: flex; justify-content: center; align-items: center; cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.6); 
+        z-index: 10000; /* 🚀 關鍵 1：層級設為 10000，比黃色按鈕的 9999 更高 */
+        font-size: 28px; 
         transition: transform 0.2s; border: 2px solid #D4AF37;
     }
     #ai-chat-window {
-        display: none; position: fixed; bottom: 155px; right: 20px; 
+        display: none; position: fixed;
+        bottom: 170px; /* 聊天視窗跟著往上長 */
+        right: 20px; 
         width: 400px; height: 600px;
-        /* 🚀 關鍵修復：最大寬度與高度使用 calc 動態計算，絕對不超過螢幕 */
         max-width: calc(100vw - 40px); 
-        max-height: calc(100vh - 180px); 
+        max-height: calc(100vh - 200px); 
         background-color: #ffffff; border-radius: 12px; box-shadow: 0 5px 30px rgba(0,0,0,0.5); 
-        z-index: 9998; overflow: hidden; border: 1px solid #D4AF37;
+        z-index: 10001; /* 🚀 關鍵 2：視窗層級最高，絕對不會被蓋住 */
+        overflow: hidden; border: 1px solid #D4AF37;
     }
 
-    /* 🚀 手機版專屬微調 (螢幕小於 480px 時觸發) */
-    @media (max-width: 480px) {
-        #ai-chat-btn { 
-            bottom: 75px; right: 15px; width: 50px; height: 50px; font-size: 24px;
+    /* 🚀 手機版/平板版專屬微調 (螢幕小於 1023px 時，配合黃色按鈕閃躲) */
+    @media (max-width: 1023px) {
+        #ai-chat-btn {
+            bottom: 160px; /* 黃色按鈕在 90px，客服按鈕提昇到 160px，剛好完美坐在它上面 */
+            right: 15px; width: 50px; height: 50px; font-size: 24px;
         }
         #ai-chat-window {
-            bottom: 135px; right: 15px;
-            width: calc(100vw - 30px); /* 左右各留 15px 邊距 */
-            max-height: calc(100vh - 150px);
+            bottom: 220px; /* 手機版聊天視窗也跟著提高 */
+            right: 15px;
+            width: calc(100vw - 30px);
+            max-height: calc(100vh - 240px); /* 確保手機打字時視窗不會爆出螢幕 */
         }
     }
 </style>
@@ -409,7 +418,7 @@
         <span onclick="toggleChat()" style="cursor: pointer; font-size: 20px; padding: 0 5px;">✖</span>
     </div>
 
-    <iframe 
+    <iframe
         src="https://deeplearning101-ciecietaipei-chatbot.hf.space"
         style="width: 100%; height: calc(100% - 44px); border: none; display: block; background-color: #ffffff;">
     </iframe>
@@ -464,14 +473,15 @@
 
     <script src="script.js"></script>
 
-    <div style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 9999; width: 100%; max-width: 400px; text-align: center; padding: 0 15px;">
-        <a href="./booking.html"
-           class="btn btn-warning shadow pulse-effect"
-           onclick="gtag('event', 'click_floating_booking', {'event_category': 'Engagement', 'event_label': 'Floating Booking Button'});"
-           style="background-color: #ffc107; color: #000; padding: 15px 30px; border-radius: 50px; font-weight: 700; font-size: 1.2rem; text-decoration: none; box-shadow: 0 10px 25px rgba(0,0,0,0.8), 0 0 15px rgba(255,193,7,0.5); display: block; letter-spacing: 2px;">
-           📅 立即預訂CIE CIE TAIPEI專屬座位
-        </a>
-    </div>
+<div class="floating-booking-btn" style="position: fixed; left: 50%; transform: translateX(-50%); z-index: 9999; width: 100%; max-width: 380px; padding: 0 15px;">
+    <a href="./booking.html"
+       class="btn btn-warning shadow pulse-effect"
+       onclick="gtag('event', 'click_floating_booking', {'event_category': 'Engagement', 'event_label': 'Floating Booking Button'});"
+       style="background-color: #ffc107; color: #000; padding: 12px 20px; border-radius: 50px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 25px rgba(0,0,0,0.8), 0 0 15px rgba(255,193,7,0.5); display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;">
+       <span style="font-size: 1.2rem;">📅</span>
+       <span style="font-size: 1.05rem; letter-spacing: 1px;">立即預訂 CIE CIE TAIPEI</span>
+    </a>
+</div>
 
     <div style="height: 100px;"></div>
 

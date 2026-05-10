@@ -789,3 +789,20 @@ footer {
         display: none;
     }
 }
+
+/* 控制全站懸浮訂位按鈕的位置與大小 */
+
+/* 手機版：把按鈕往上推 90px，完美閃過底部的 mobile-sticky-bar 選單 */
+@media (max-width: 1023px) {
+    .floating-booking-btn {
+        bottom: 90px !important; 
+    }
+}
+
+/* 電腦版：沒有底部選單，所以貼齊底部 30px，並且稍微縮小到 90%，看起來更精緻、沒有壓迫感 */
+@media (min-width: 1024px) {
+    .floating-booking-btn {
+        bottom: 30px !important;
+        transform: translateX(-50%) scale(0.9) !important;
+    }
+}
