@@ -46,7 +46,6 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <!-- Header -->
     <header class="slim-header sticky top-0 z-50 px-5 py-2">
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
             <a href="./index.html" class="flex items-center gap-3 decoration-0">
@@ -57,7 +56,6 @@
         </div>
     </header>
 
-    <!-- 核心應用區 -->
     <main class="flex-1 w-full max-w-2xl mx-auto my-6 px-4 pb-32">
         <div class="bg-dark-900/90 border border-dark-700 rounded-2xl shadow-2xl overflow-hidden min-h-[600px] relative">
             
@@ -70,7 +68,6 @@
                 <span id="navTitle" class="mx-auto font-bold text-white pr-8">內用訂位</span>
             </div>
 
-            <!-- 視圖 0: 攔截 Webhook (信件確認 或 金流回傳) -->
             <div id="confirmationView" class="p-6 md:p-10 flex flex-col items-center justify-center fade-in hidden-view min-h-[500px] text-center">
                 <div id="confirmLoading">
                     <i data-lucide="loader-2" class="w-16 h-16 animate-spin text-gold-500 mx-auto mb-4"></i>
@@ -85,7 +82,6 @@
                 </div>
             </div>
 
-            <!-- 視圖 1: 選擇服務 -->
             <div id="view1" class="p-6 md:p-10 flex flex-col gap-6 fade-in h-full justify-center mt-8">
                 <div class="text-center mb-6">
                     <h2 class="text-3xl font-mont font-bold text-gold-500 mb-2">CIE CIE TAIPEI</h2>
@@ -105,10 +101,8 @@
                 </button>
             </div>
 
-            <!-- 視圖 2: 填寫資料 -->
             <div id="view2" class="p-6 md:p-8 flex flex-col gap-5 fade-in hidden-view no-scrollbar overflow-y-auto max-h-[70vh]">
                 <div class="grid grid-cols-2 gap-4">
-                    <!-- 修改：加入 updateInventory() -->
                     <div><label class="block text-sm text-gray-400 mb-2">📅 日期 Date</label><select id="dateSelect" onchange="updateTimeSlots(); updateInventory();" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500 appearance-none"></select></div>
                     <div><label id="timeLabel" class="block text-sm text-gray-400 mb-2">⏰ 時間 Time</label><select id="timeSelect" class="w-full bg-dark-800 border border-dark-700 text-white rounded-lg p-3 focus:outline-none focus:border-gold-500 appearance-none"></select></div>
                 </div>
@@ -132,7 +126,6 @@
                 </div>
             </div>
 
-            <!-- 視圖 3: 菜單與點餐 -->
             <div id="view3" class="p-6 md:p-8 flex flex-col gap-4 fade-in hidden-view no-scrollbar overflow-y-auto max-h-[70vh]">
                 <div class="mb-2"><h2 class="text-xl font-bold text-white border-l-4 border-gold-500 pl-2">精選菜單 Menu</h2><p id="menuNotice" class="text-sm text-gray-400 mt-2">從伺服器讀取中...</p></div>
                 <div id="menuContainer" class="flex flex-col gap-4"></div>
@@ -140,11 +133,10 @@
         </div>
     </main>
 
-    <!-- 底部黏性結帳列 -->
     <div id="bottomBar" class="fixed bottom-0 w-full bg-dark-800 border-t border-dark-700 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] hidden-view z-50">
         <div class="max-w-2xl mx-auto flex justify-between items-end mb-3 px-2">
             <div><div id="summaryTotal" class="text-gray-400 text-sm hidden-view">餐點總計: $0</div><div class="text-white font-medium mt-1">(封測) 線上訂位點餐 | CIE CIE TAIPEI</div></div>
-            <div class="text-right"><div id="summaryDeposit" class="text-2xl font-bold text-gold-500">$0</div><div id="depositRuleDesc" class="text-xs text-gray-400 mt-1">(封測) 線上訂位點餐 | CIE CIE TAIPEI</div></div>
+            <div class="text-right"><div id="summaryDeposit" class="text-2xl font-bold text-gold-500">$0</div><div id="depositRuleDesc" class="text-xs text-gray-400 mt-1">計算中...</div></div>
         </div>
         <div class="max-w-2xl mx-auto"><button id="mainActionBtn" onclick="handleMainAction()" class="w-full bg-gold-500 hover:bg-gold-400 text-black font-bold text-lg rounded-xl py-3.5 transition-colors shadow-lg active:scale-[0.98]">確認訂位</button></div>
     </div>
@@ -159,7 +151,6 @@
     const MY_LIFF_ID = "2008934010-6z7iElYg";
     const API_BASE_URL = "https://deeplearning101-api-ciecietaipei.hf.space";
 
-    // 請在這裡填寫您的 Supabase 專案網址與公開金鑰
     const SUPABASE_URL = "https://rqnjrunewfwkmluplkut.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxbmpydW5ld2Z3a21sdXBsa3V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NTM0MTksImV4cCI6MjA4NDAyOTQxOX0.tpEA3PHIQyk843eO3kYrOfUCsA0lAuGRSWU9R5LyZhU";
     
@@ -176,33 +167,21 @@
         'takeout': { start: 11.5, end_weekday: 14.0, end_weekend: 14.0 }
     };
     
-    // 修改：加入 soldToday 狀態
-    let state = { view: 1, service: null, pax: 2, wantsPreorder: false, cart: {}, menuData: [], lineId: "", soldToday: {} };
+    // 🌟 核心升級：cart 變成陣列，用來儲存精準的組合包紀錄
+    let state = { view: 1, service: null, pax: 2, wantsPreorder: false, cart: [], menuData: [], lineId: "", soldToday: {} };
     
-    const MOCK_MENU = [
-        { id: 'steak', name: '炭烤肋眼牛排 12oz', price: 1500, desc: '附烤大蒜與特製紅酒醬', require_prepay: true, category: 'main', image_url: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?q=80&w=300&auto=format&fit=crop', allow_takeout: false, available_times: ["晚餐 (18:30-21:30)"] },
-        { id: 'wine', name: '精選單杯紅酒', price: 250, desc: 'Cabernet Sauvignon', require_prepay: false, category: 'drink', image_url: null, allow_takeout: false, available_times: ["晚餐 (18:30-21:30)", "宵夜 (21:30後)"] },
-        { id: 'fries', name: '松露脆薯', price: 280, desc: '現刨帕瑪森起司', require_prepay: false, category: 'snack', image_url: null, allow_takeout: true, available_times: ["白天 (11:00-18:30)", "晚餐 (18:30-21:30)", "宵夜 (21:30後)"] }
-    ];
-
     // ==========================================
-    // 2. 系統初始化啟動 (處理 URL Webhook 攔截)
+    // 2. 系統初始化與 Webhook 攔截
     // ==========================================
     document.addEventListener("DOMContentLoaded", () => {
         const urlParams = new URLSearchParams(window.location.search);
         const action = urlParams.get('action');
-
-        if (action) {
-            handleUrlWebhook(urlParams);
-            return; 
-        }
-
+        if (action) { handleUrlWebhook(urlParams); return; }
         initLiff(); initDateSelect(); fetchMenuData(); 
     });
 
     async function handleUrlWebhook(urlParams) {
         const action = urlParams.get('action');
-        
         document.getElementById('view1').classList.add('hidden-view');
         document.getElementById('confirmationView').classList.remove('hidden-view');
         
@@ -210,7 +189,6 @@
             const orderId = urlParams.get('order_id');
             document.getElementById('confirmLoading').classList.add('hidden-view');
             document.getElementById('confirmSuccess').classList.remove('hidden-view');
-            
             document.getElementById('confirmTitle').innerText = '繼續完成付款';
             document.getElementById('confirmDesc').innerText = `您的訂單 (${orderId})\n尚未完成結帳。請點擊下方按鈕前往 LINE Pay 付款，以保留您的訂位。`;
             document.getElementById('confirmIcon').setAttribute('data-lucide', 'credit-card');
@@ -223,45 +201,28 @@
             actionBtn.onclick = async () => {
                 const originalText = actionBtn.innerText;
                 actionBtn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-black"></i>`;
-                actionBtn.disabled = true;
-                lucide.createIcons();
-                
+                actionBtn.disabled = true; lucide.createIcons();
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/linepay/repay`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ order_id: orderId })
                     });
                     const result = await res.json();
-                    
-                    if (res.ok && result.payment_url) {
-                        window.location.href = result.payment_url;
-                    } else {
-                        throw new Error(result.detail || "無法產生結帳連結");
-                    }
-                } catch(e) {
-                    alert(`❌ 發生錯誤: ${e.message}`);
-                    actionBtn.innerText = originalText;
-                    actionBtn.disabled = false;
-                }
+                    if (res.ok && result.payment_url) { window.location.href = result.payment_url; } 
+                    else { throw new Error(result.detail || "無法產生結帳連結"); }
+                } catch(e) { alert(`❌ 發生錯誤: ${e.message}`); actionBtn.innerText = originalText; actionBtn.disabled = false; }
             };
-            lucide.createIcons();
-            return;
+            lucide.createIcons(); return;
         }
 
         if (action === 'payment_confirm') {
-            const transactionId = urlParams.get('transactionId');
-            const orderId = urlParams.get('orderId');
-            const amount = urlParams.get('amount');
-
+            const transactionId = urlParams.get('transactionId'); const orderId = urlParams.get('orderId'); const amount = urlParams.get('amount');
             try {
                 const res = await fetch(`${API_BASE_URL}/api/linepay/confirm`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ transaction_id: transactionId, order_id: orderId, amount: parseInt(amount) })
                 });
                 const result = await res.json();
-                
                 if (res.ok) {
                     document.getElementById('confirmLoading').classList.add('hidden-view');
                     document.getElementById('confirmSuccess').classList.remove('hidden-view');
@@ -277,8 +238,7 @@
                 document.getElementById('confirmIcon').setAttribute('data-lucide', 'alert-circle');
                 document.getElementById('confirmIcon').classList.replace('text-green-500', 'text-red-500');
             }
-            lucide.createIcons();
-            return;
+            lucide.createIcons(); return;
         }
 
         if (action === 'payment_cancel') {
@@ -289,8 +249,7 @@
             document.getElementById('confirmDesc').innerText = '本次訂單並未成立。';
             document.getElementById('confirmIcon').setAttribute('data-lucide', 'x-circle');
             document.getElementById('confirmIcon').classList.replace('text-green-500', 'text-red-500');
-            lucide.createIcons();
-            return;
+            lucide.createIcons(); return;
         }
 
         setTimeout(() => {
@@ -324,92 +283,63 @@
             if (!supabaseClient) throw new Error("無 Supabase 連線");
             const { data, error } = await supabaseClient.from('menu_items').select('*').eq('is_active', true); 
             if (error) throw error;
-            if (data && data.length > 0) state.menuData = data; else state.menuData = MOCK_MENU;
-        } catch (err) { state.menuData = MOCK_MENU; }
+            if (data && data.length > 0) state.menuData = data;
+        } catch (err) { console.warn(err); }
     }
 
-    // 修改：新增 updateInventory 函式
     async function updateInventory() {
         const dateSelect = document.getElementById('dateSelect');
         if (!dateSelect || !dateSelect.value) return;
         try {
             const res = await fetch(`${API_BASE_URL}/api/inventory/${dateSelect.value}`);
-            if (res.ok) { state.soldToday = await res.json(); } 
-            else { state.soldToday = {}; }
+            if (res.ok) { state.soldToday = await res.json(); } else { state.soldToday = {}; }
             if (state.view === 3) renderMenu();
-        } catch(e) {
-            console.error("無法取得庫存", e); state.soldToday = {};
-        }
+        } catch(e) { state.soldToday = {}; }
     }
 
     function initDateSelect() {
         const dateSelect = document.getElementById('dateSelect');
-        const today = new Date();
-        const weekdays = ["(日)", "(一)", "(二)", "(三)", "(四)", "(五)", "(六)"];
+        const today = new Date(); const weekdays = ["(日)", "(一)", "(二)", "(三)", "(四)", "(五)", "(六)"];
         let html = '';
         for(let i=0; i<30; i++) {
             let d = new Date(today); d.setDate(today.getDate() + i);
             let y = d.getFullYear(); let m = String(d.getMonth() + 1).padStart(2, '0'); let day = String(d.getDate()).padStart(2, '0');
-            let dateStr = `${y}-${m}-${day}`;
-            html += `<option value="${dateStr}">${dateStr} ${weekdays[d.getDay()]}</option>`;
+            html += `<option value="${y}-${m}-${day}">${y}-${m}-${day} ${weekdays[d.getDay()]}</option>`;
         }
-        dateSelect.innerHTML = html; 
-        updateTimeSlots(); 
-        updateInventory(); // 初始化時呼叫
+        dateSelect.innerHTML = html; updateTimeSlots(); updateInventory();
     }
 
     function updateTimeSlots() {
-        const dateSelect = document.getElementById('dateSelect');
-        const timeSelect = document.getElementById('timeSelect');
+        const dateSelect = document.getElementById('dateSelect'); const timeSelect = document.getElementById('timeSelect');
         if(!dateSelect.value) return;
-
-        const selectedDate = new Date(dateSelect.value); 
-        const now = new Date();
+        const selectedDate = new Date(dateSelect.value); const now = new Date();
         const isToday = (dateSelect.value === `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`);
-        // getDay() 回傳 0(日) ~ 6(六)
         const isWeekend = (selectedDate.getDay() === 0 || selectedDate.getDay() === 6); 
 
-        let config;
-        let isAvailable = true;
-
+        let config; let isAvailable = true;
         if (state.service === 'takeout') {
-            if (isWeekend) {
-                isAvailable = false; 
-            } else {
-                config = { start: 11.5, end: 14.0 };
-            }
+            if (isWeekend) { isAvailable = false; } else { config = { start: 11.5, end: 14.0 }; }
         } else {
             const baseConfig = BUSINESS_HOURS['dine-in'];
-            config = { 
-                start: baseConfig.start, 
-                end: isWeekend ? baseConfig.end_weekend : baseConfig.end_weekday 
-            };
+            config = { start: baseConfig.start, end: isWeekend ? baseConfig.end_weekend : baseConfig.end_weekday };
         }
 
         let validSlots = [];
-
         if (isAvailable) {
             let slots = [];
             for(let v = config.start; v <= config.end; v += 0.5) {
-                let displayStr = `${String(Math.floor(v) % 24).padStart(2, '0')}:${(v % 1 !== 0) ? '30' : '00'}`;
-                slots.push({ display: displayStr, val: v });
+                slots.push({ display: `${String(Math.floor(v) % 24).padStart(2, '0')}:${(v % 1 !== 0) ? '30' : '00'}`, val: v });
             }
-
             validSlots = slots;
-
             if (isToday) {
                 const currentVal = now.getHours() + (now.getMinutes() / 60);
-                if (now.getHours() >= 0 && now.getHours() < 5) {
-                    validSlots = slots.filter(s => s.val >= config.start);
-                } else {
-                    validSlots = slots.filter(s => s.val > (currentVal + 0.5));
-                }
+                if (now.getHours() >= 0 && now.getHours() < 5) validSlots = slots.filter(s => s.val >= config.start);
+                else validSlots = slots.filter(s => s.val > (currentVal + 0.5));
             }
         }
 
         if (validSlots.length === 0) { 
-            let msg = state.service === 'takeout' && isWeekend ? "-- 假日未開放外帶 --" : "-- 該日已無可選時段 --";
-            timeSelect.innerHTML = `<option value="">${msg}</option>`; 
+            timeSelect.innerHTML = `<option value="">${state.service === 'takeout' && isWeekend ? "-- 假日未開放外帶 --" : "-- 該日已無可選時段 --"}</option>`; 
             timeSelect.disabled = true; 
         } else { 
             timeSelect.innerHTML = validSlots.map(s => `<option value="${s.display}">${s.display}</option>`).join(''); 
@@ -418,8 +348,7 @@
     }
 
     function selectService(type) {
-        state.service = type; state.cart = {}; state.view = 2; 
-        document.querySelectorAll('.qty-display').forEach(el => el.innerText = '0');
+        state.service = type; state.cart = []; state.view = 2; // 重置購物車陣列
         
         const paxSec = document.getElementById('paxSection'); const preSec = document.getElementById('preorderSection'); const timeLabel = document.getElementById('timeLabel');
         if (type === 'takeout') { 
@@ -459,109 +388,203 @@
         return "宵夜 (21:30後)";
     }
 
+    // 🌟 核心升級：動態選單渲染與互斥下拉選單 🌟
     function renderMenu() {
         const container = document.getElementById('menuContainer');
         const currentPeriod = getMealPeriod(document.getElementById('timeSelect') ? document.getElementById('timeSelect').value : '');
-        let html = ''; let renderCount = 0;
-
-        state.menuData.forEach(item => {
-            const allowTakeout = item.hasOwnProperty('allow_takeout') ? item.allow_takeout : true;
-            const availableTimes = item.available_times || ["白天 (11:00-18:30)", "晚餐 (18:30-21:30)", "宵夜 (21:30後)"];
-            if (state.service === 'takeout' && !allowTakeout) return;
-            if (!availableTimes.includes(currentPeriod)) return;
-            renderCount++;
-
-            // 修改：加入畫面渲染鎖死機制
-            const dailyLimit = (item.daily_limit !== undefined && item.daily_limit !== null) ? item.daily_limit : 999;
-            const sold = state.soldToday[item.id] || 0;
-            const remaining = dailyLimit - sold;
-            const isSoldOut = remaining <= 0;
-
-            let limitBadge = '';
-            let opacityClass = '';
-            let btnClass = isSoldOut ? 'bg-dark-600 cursor-not-allowed' : 'bg-gold-500 hover:bg-gold-400 active:scale-90';
-            
-            if (dailyLimit < 999) {
-                if (isSoldOut) {
-                    limitBadge = `<span class="bg-rose-900 text-rose-300 text-[10px] px-2 py-1 rounded ml-2 font-bold whitespace-nowrap">❌ 今日售完</span>`;
-                    opacityClass = `opacity-50 grayscale`;
-                } else {
-                    limitBadge = `<span class="bg-gold-600 text-black text-[10px] px-2 py-1 rounded ml-2 font-bold whitespace-nowrap">限量剩 ${remaining} 份</span>`;
-                }
-            }
-
-            const imgHtml = item.image_url ? `<img src="${item.image_url}" class="w-full h-40 object-cover rounded-lg mb-3 border border-dark-700 shadow-md">` : '';
-            const tagClass = item.require_prepay ? 'border-rose-900 text-rose-400' : 'border-dark-600 text-gray-500';
-            const tagText = item.require_prepay ? '需全額預付' : '訂金 30%';
-
-            html += `
-            <div class="bg-dark-800 border border-dark-700 rounded-xl p-4 flex flex-col ${opacityClass}">
-                ${imgHtml}
-                <div class="flex justify-between items-start mb-3 gap-2">
-                    <div class="flex-1">
-                        <h3 class="text-white font-bold text-lg inline-block">${item.name}</h3>${limitBadge}
-                        <p class="text-gray-400 text-xs mt-1 leading-relaxed">${item.description || item.desc || ''}</p>
-                    </div>
-                    <span class="text-gold-500 font-bold">$${item.price}</span>
-                </div>
-                <div class="flex justify-between items-center mt-2 border-t border-dark-700 pt-3">
-                    <span class="text-[10px] px-2 py-1 rounded bg-dark-900 border ${tagClass}">${tagText}</span>
-                    <div class="flex items-center gap-3">
-                        <button onclick="updateCart('${item.id}', -1)" class="w-8 h-8 rounded-full bg-dark-700 text-white flex justify-center items-center active:scale-90"><i data-lucide="minus" class="w-4 h-4"></i></button>
-                        <span id="qty-${item.id}" class="qty-display font-bold w-4 text-center">${state.cart[item.id] || 0}</span>
-                        <button onclick="updateCart('${item.id}', 1)" class="w-8 h-8 rounded-full text-black flex justify-center items-center transition-transform ${btnClass}" ${isSoldOut ? 'disabled' : ''}><i data-lucide="plus" class="w-4 h-4"></i></button>
-                    </div>
-                </div>
-            </div>`;
+        
+        // 將菜單資料進行分類
+        const freeSauces = state.menuData.filter(i => i.price === 0);
+        const paidSauces = state.menuData.filter(i => i.category === 'other' && i.price > 0);
+        
+        // 過濾要顯示在畫面上當作「主卡片」的商品（隱藏醬料）
+        const displayItems = state.menuData.filter(i => {
+            if (i.price === 0 || (i.category === 'other' && i.price > 0)) return false; 
+            if (state.service === 'takeout' && !i.allow_takeout) return false;
+            if (!(i.available_times || ["白天 (11:00-18:30)", "晚餐 (18:30-21:30)", "宵夜 (21:30後)"]).includes(currentPeriod)) return false;
+            return true;
         });
 
-        if (renderCount === 0) html = `<div class="text-center p-10 border border-dashed border-dark-700 rounded-xl text-gray-500"><i data-lucide="utensils-crossed" class="w-10 h-10 mx-auto mb-3 opacity-50"></i>您選擇的時段 (${currentPeriod})<br>目前無供應餐點，或未開放外帶。</div>`;
-        container.innerHTML = html; lucide.createIcons();
+        let html = '';
+        if (displayItems.length === 0) {
+            html = `<div class="text-center p-10 border border-dashed border-dark-700 rounded-xl text-gray-500"><i data-lucide="utensils-crossed" class="w-10 h-10 mx-auto mb-3 opacity-50"></i>您選擇的時段 (${currentPeriod})<br>目前無供應餐點，或未開放外帶。</div>`;
+        } else {
+            displayItems.forEach(item => {
+                // 庫存計算
+                const dailyLimit = (item.daily_limit !== undefined && item.daily_limit !== null) ? item.daily_limit : 999;
+                const sold = state.soldToday[item.id] || 0;
+                // 注意：扣掉目前購物車陣列已經點的數量
+                const inCart = state.cart.filter(c => c.mainId === item.id).length;
+                const remaining = dailyLimit - sold - inCart;
+                const isSoldOut = remaining <= 0;
+
+                let limitBadge = '';
+                let opacityClass = '';
+                let btnClass = isSoldOut ? 'bg-dark-600 text-gray-500 cursor-not-allowed' : 'bg-gold-500 text-black hover:bg-gold-400 active:scale-95';
+                
+                if (dailyLimit < 999) {
+                    if (isSoldOut) {
+                        limitBadge = `<span class="bg-rose-900 text-rose-300 text-[10px] px-2 py-1 rounded ml-2 font-bold whitespace-nowrap">❌ 今日售完</span>`;
+                        opacityClass = `opacity-50 grayscale`;
+                    } else {
+                        limitBadge = `<span class="bg-gold-600 text-black text-[10px] px-2 py-1 rounded ml-2 font-bold whitespace-nowrap">限量剩 ${remaining} 份</span>`;
+                    }
+                }
+
+                const imgHtml = item.image_url ? `<img src="${item.image_url}" class="w-full h-40 object-cover rounded-lg mb-3 border border-dark-700 shadow-md">` : '';
+                const tagClass = item.require_prepay ? 'border-rose-900 text-rose-400' : 'border-dark-600 text-gray-500';
+                const tagText = item.require_prepay ? '需全額預付' : '訂金 30%';
+
+                // 🌟 動態注入下拉選單：合併為一個「必選調味」選單 🌟
+                let modifiersHtml = '';
+                if (item.category === 'main') {
+                    let optionsHtml = '<option value="">-- 必選調味 (免費或升級擇一) --</option>';
+                    
+                    if (freeSauces.length > 0) {
+                        optionsHtml += `<optgroup label="✨ 免費調味">`;
+                        freeSauces.forEach(s => optionsHtml += `<option value="${s.id}">${s.name}</option>`);
+                        optionsHtml += `</optgroup>`;
+                    }
+                    if (paidSauces.length > 0) {
+                        optionsHtml += `<optgroup label="💎 升級加購醬料">`;
+                        paidSauces.forEach(s => optionsHtml += `<option value="${s.id}">${s.name} (+$${s.price})</option>`);
+                        optionsHtml += `</optgroup>`;
+                    }
+                        
+                    modifiersHtml = `<div class="mt-3 p-3 bg-dark-900/50 rounded-lg border border-dark-700">
+                                        <select id="modifier_${item.id}" class="w-full bg-dark-900 border border-dark-700 text-white text-sm p-2.5 rounded-lg focus:border-gold-500">
+                                            ${optionsHtml}
+                                        </select>
+                                     </div>`;
+                }
+
+                html += `
+                <div class="bg-dark-800 border border-dark-700 rounded-xl p-4 flex flex-col ${opacityClass}">
+                    ${imgHtml}
+                    <div class="flex justify-between items-start mb-1 gap-2">
+                        <div class="flex-1">
+                            <h3 class="text-white font-bold text-lg inline-block">${item.name}</h3>${limitBadge}
+                            <p class="text-gray-400 text-xs mt-1 leading-relaxed">${item.description || item.desc || ''}</p>
+                        </div>
+                        <span class="text-gold-500 font-bold text-lg">$${item.price}</span>
+                    </div>
+                    ${modifiersHtml}
+                    <div class="flex justify-between items-center mt-3 border-t border-dark-700 pt-3">
+                        <span class="text-[10px] px-2 py-1 rounded bg-dark-900 border ${tagClass}">${tagText}</span>
+                        <button onclick="addToCart('${item.id}')" class="px-5 py-2 rounded-full font-bold transition-transform text-sm ${btnClass}" ${isSoldOut ? 'disabled' : ''}>
+                            <i data-lucide="plus" class="w-4 h-4 inline-block mr-1"></i> 加入
+                        </button>
+                    </div>
+                </div>`;
+            });
+        }
+        
+        // 🌟 底部明細清單區塊 🌟
+        html += `<div id="cartSummaryBlock" class="mt-6 mb-4 bg-dark-900 border border-gold-500/30 rounded-xl p-4 shadow-lg">
+                    <h3 class="text-gold-500 font-bold mb-3 flex items-center gap-2"><i data-lucide="shopping-cart" class="w-5 h-5"></i> 購物車明細</h3>
+                    <div id="cartList" class="space-y-3 text-sm"></div>
+                 </div>`;
+
+        container.innerHTML = html; 
+        lucide.createIcons();
+        renderCartList(); // 呼叫渲染明細函式
     }
 
-    // 修改：購物車防呆與庫存檢查機制
-    function updateCart(itemId, delta) {
+    // 🌟 新的組合加車邏輯：判斷客人選的是免費還是付費 🌟
+    function addToCart(itemId) {
         const item = state.menuData.find(i => i.id === itemId);
         if (!item) return;
-        if (!state.cart[itemId]) state.cart[itemId] = 0;
-        
-        if (delta > 0) {
-            // 1. 檢查每日限量
-            const dailyLimit = (item.daily_limit !== undefined && item.daily_limit !== null) ? item.daily_limit : 999;
-            const sold = state.soldToday[itemId] || 0;
-            const remaining = dailyLimit - sold;
 
-            if ((state.cart[itemId] || 0) + delta > remaining) {
-                alert(`不好意思！這道餐點今天只剩下 ${remaining} 份囉！`);
+        let cartItem = { 
+            uid: Date.now().toString(), 
+            mainId: item.id, 
+            mainName: item.name, 
+            price: item.price,
+            freeId: null, freeName: '',
+            paidId: null, paidName: '', paidPrice: 0
+        };
+
+        if (item.category === 'main') {
+            const modSelect = document.getElementById(`modifier_${item.id}`);
+            
+            if (modSelect && !modSelect.value) { 
+                alert("⚠️ 請為您的主餐選擇一種調味！"); 
                 return; 
             }
-
-            // 2. 檢查免費醬料防貪機制
-            if (item.price === 0) {
-                let mainCount = 0;
-                let freeCount = 0;
-                state.menuData.forEach(m => {
-                    if (m.category === 'main' && state.cart[m.id]) {
-                        mainCount += state.cart[m.id];
-                    }
-                    if (m.price === 0 && state.cart[m.id]) {
-                        freeCount += state.cart[m.id];
-                    }
-                });
-                
-                if (freeCount >= mainCount) {
-                    alert("⚠️ 免費調味的數量，不能超過您點的主餐數量喔！\n請先增加主餐，或減少其他免費調味。");
-                    return; 
+            if (modSelect && modSelect.value) {
+                const modItem = state.menuData.find(i => i.id === modSelect.value);
+                if (modItem.price === 0) {
+                    cartItem.freeId = modItem.id;
+                    cartItem.freeName = modItem.name;
+                } else {
+                    cartItem.paidId = modItem.id;
+                    cartItem.paidName = modItem.name;
+                    cartItem.paidPrice = modItem.price;
                 }
             }
         }
 
-        let newQty = state.cart[itemId] + delta;
-        if (newQty >= 0) { 
-            state.cart[itemId] = newQty; 
-            document.getElementById(`qty-${itemId}`).innerText = newQty;
-            updateBottomBar(); 
+        // 二次檢查庫存
+        const dailyLimit = (item.daily_limit !== undefined && item.daily_limit !== null) ? item.daily_limit : 999;
+        const sold = state.soldToday[item.id] || 0;
+        const inCart = state.cart.filter(c => c.mainId === item.id).length;
+        if (sold + inCart >= dailyLimit) {
+            alert(`不好意思！這道餐點今天已經售完囉！`); 
+            return;
         }
+
+        // 加到陣列中
+        state.cart.push(cartItem);
+        
+        // 🌟 加完後重置該主餐的下拉選單 🌟
+        if (item.category === 'main') {
+            if(document.getElementById(`modifier_${item.id}`)) {
+                document.getElementById(`modifier_${item.id}`).value = "";
+            }
+        }
+
+        renderMenu(); // 重新渲染以更新庫存鎖死狀態
+        updateBottomBar();
+    }
+
+    // 🌟 渲染購物車明細清單 🌟
+    function renderCartList() {
+        const list = document.getElementById('cartList');
+        if (!list) return;
+        
+        if (state.cart.length === 0) { 
+            list.innerHTML = "<p class='text-gray-500 text-center py-4 border border-dashed border-dark-700 rounded-lg'>尚未選擇餐點</p>"; 
+            return; 
+        }
+        
+        let html = '';
+        state.cart.forEach(c => {
+            // 🌟 聰明的明細文字組合
+            let descParts = [];
+            if (c.freeId) descParts.push(`調味: ${c.freeName}`);
+            if (c.paidId) descParts.push(`升級: ${c.paidName}`);
+            let desc = descParts.length > 0 ? `(${descParts.join(', ')})` : '';
+            
+            let total = c.price + c.paidPrice;
+            html += `
+            <div class="flex justify-between items-start bg-dark-800 p-3 rounded-lg border border-dark-700">
+                <div class="flex-1 pr-2">
+                    <div class="text-white font-bold text-base">${c.mainName} <span class="text-gold-500 ml-2">$${total}</span></div>
+                    <div class="text-xs text-gray-400 mt-1.5">${desc}</div>
+                </div>
+                <button onclick="removeFromCart('${c.uid}')" class="text-dark-600 bg-dark-900 p-2 rounded-md hover:text-rose-400 hover:bg-rose-900/30 transition-colors">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </div>`;
+        });
+        list.innerHTML = html;
+        lucide.createIcons();
+    }
+
+    function removeFromCart(uid) {
+        state.cart = state.cart.filter(c => c.uid !== uid);
+        renderMenu(); // 更新庫存顯示
+        updateBottomBar();
     }
 
     function updateBottomBar() {
@@ -571,12 +594,16 @@
         if (state.view === 1) { bar.classList.add('hidden-view'); return; }
         bar.classList.remove('hidden-view');
 
-        let totalFoodAmount = 0; let foodDeposit = 0; let cartItemCount = 0;
-        state.menuData.forEach(item => {
-            let qty = state.cart[item.id] || 0;
-            if (qty > 0) {
-                cartItemCount += qty; let cost = qty * item.price; totalFoodAmount += cost;
-                if (state.service === 'takeout') foodDeposit += cost; else foodDeposit += item.require_prepay ? cost : cost * 0.3;
+        // 🌟 根據新陣列計算金額 🌟
+        let totalFoodAmount = 0; let foodDeposit = 0; let cartItemCount = state.cart.length;
+        state.cart.forEach(c => {
+            let cost = c.price + c.paidPrice; 
+            totalFoodAmount += cost;
+            const item = state.menuData.find(i => i.id === c.mainId);
+            if (state.service === 'takeout') {
+                foodDeposit += cost; 
+            } else { 
+                foodDeposit += (item && item.require_prepay) ? cost : cost * 0.3;
             }
         });
 
@@ -601,7 +628,7 @@
             summaryTotal.innerText = `餐點總計: $${totalFoodAmount}`; summaryTotal.classList.remove('hidden-view');
             if (state.service === 'takeout') {
                 finalDeposit = totalFoodAmount; desc.innerText = "外帶需全額線上結帳";
-                if (cartItemCount === 0) { btn.innerText = "請選擇餐點"; btn.className = "w-full bg-dark-700 text-gray-500 font-bold text-lg rounded-xl py-3.5"; }
+                if (cartItemCount === 0) { btn.innerText = "請選擇餐點"; btn.className = "w-full bg-dark-700 text-gray-500 font-bold text-lg rounded-xl py-3.5 cursor-not-allowed"; }
                 else { btn.innerText = "確認並前往付款"; btn.className = "w-full bg-gold-500 text-black font-bold text-lg rounded-xl py-3.5 shadow-lg active:scale-[0.98]"; }
             } else if (state.service === 'dine-in') {
                 let paxDeposit = state.pax >= 5 ? state.pax * 500 : 0; finalDeposit = paxDeposit + foodDeposit;
@@ -636,21 +663,43 @@
         btn.innerHTML = `<i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-black"></i>`;
         lucide.createIcons(); btn.disabled = true;
 
-        let totalFoodAmount = 0; let foodDeposit = 0;
-        state.menuData.forEach(item => {
-            let qty = state.cart[item.id] || 0;
-            if (qty > 0) {
-                totalFoodAmount += qty * item.price;
-                foodDeposit += state.service === 'takeout' ? (qty * item.price) : (item.require_prepay ? (qty * item.price) : (qty * item.price) * 0.3);
-            }
+        // 🌟 在送出前，將陣列轉換成後端大腦需要的「扁平字典 (flatCart)」與「廚房完美明細」
+        let flatCart = {};
+        let totalFoodAmount = 0; 
+        let foodDeposit = 0;
+        let kitchenDetails = "\n【📝 廚房客製化明細】\n";
+
+        state.cart.forEach((c, index) => {
+            // 給庫存 API 扣除的字典 (ID -> 數量)
+            flatCart[c.mainId] = (flatCart[c.mainId] || 0) + 1;
+            if (c.freeId) flatCart[c.freeId] = (flatCart[c.freeId] || 0) + 1;
+            if (c.paidId) flatCart[c.paidId] = (flatCart[c.paidId] || 0) + 1;
+
+            // 計算金額
+            let cost = c.price + c.paidPrice;
+            totalFoodAmount += cost;
+            const item = state.menuData.find(i => i.id === c.mainId);
+            foodDeposit += state.service === 'takeout' ? cost : ((item && item.require_prepay) ? cost : cost * 0.3);
+
+            // 🌟 聰明的廚房明細組合
+            let descParts = [];
+            if (c.freeId) descParts.push(`調味: ${c.freeName}`);
+            if (c.paidId) descParts.push(`升級: ${c.paidName}`);
+            let desc = descParts.length > 0 ? `(${descParts.join(', ')})` : '';
+            
+            kitchenDetails += `🔸 ${index + 1}. ${c.mainName} ${desc}\n`;
         });
+
         let paxDeposit = state.pax >= 5 ? state.pax * 500 : 0;
         let finalDeposit = state.service === 'takeout' ? totalFoodAmount : (paxDeposit + foodDeposit);
 
         const payload = {
             service_type: state.service, name: document.getElementById('custName').value, tel: document.getElementById('custTel').value,
             date: document.getElementById('dateSelect').value, time: document.getElementById('timeSelect').value,
-            line_id: state.lineId, pax: state.pax, cart: state.cart, total_amount: totalFoodAmount, deposit_required: Math.round(finalDeposit)
+            line_id: state.lineId, pax: state.pax, 
+            cart: flatCart, // 送出給後端算庫存的扁平格式
+            total_amount: totalFoodAmount, deposit_required: Math.round(finalDeposit),
+            kitchen_remarks: state.cart.length > 0 ? kitchenDetails : "" // 🌟 傳送完美明細字串！
         };
 
         try {
