@@ -85,20 +85,32 @@
             <div id="view1" class="p-6 md:p-10 flex flex-col gap-6 fade-in h-full justify-center mt-8">
                 <div class="text-center mb-6">
                     <h2 class="text-3xl font-mont font-bold text-gold-500 mb-2">CIE CIE TAIPEI</h2>
-                    <p class="text-gray-400 text-sm">(內部封測中) 請問您今天需要 線上訂位點餐 或 外帶點餐 哪種服務？</p>
+                    <p class="text-gray-400 text-sm"> 歡迎您 線上訂位</p>
                 </div>
                 <button onclick="selectService('dine-in')" class="bg-dark-800 border border-dark-700 rounded-2xl p-6 flex flex-col items-center gap-4 hover:border-gold-500 transition-all active:scale-95 group">
                     <div class="bg-dark-900 p-4 rounded-full group-hover:text-gold-500 transition-colors"><i data-lucide="utensils-crossed" class="w-10 h-10"></i></div>
                     <div class="text-center"><h3 class="text-xl font-bold text-white mb-1">內用訂位</h3><p class="text-gray-500 text-xs">Reservation & Pre-order</p></div>
                 </button>
-                <button onclick="selectService('takeout')" class="bg-dark-800 border border-dark-700 rounded-2xl p-6 flex flex-col items-center gap-4 hover:border-gold-500 transition-all active:scale-95 group">
+                <!-- <button onclick="selectService('takeout')" class="bg-dark-800 border border-dark-700 rounded-2xl p-6 flex flex-col items-center gap-4 hover:border-gold-500 transition-all active:scale-95 group">
                     <div class="bg-dark-900 p-4 rounded-full group-hover:text-gold-500 transition-colors"><i data-lucide="shopping-bag" class="w-10 h-10"></i></div>
                     <div class="text-center">
                         <h3 class="text-xl font-bold text-white mb-1">外帶點餐</h3>
                         <p class="text-gold-500 text-xs font-bold mb-1">午間限定 11:30 - 售完 (或14:00))</p>
                         <p class="text-gray-500 text-[10px]">Takeout Order (需全額 Line Pay 線上結帳)</p>
                     </div>
-                </button>
+                </button> -->
+                <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+                    <!-- <a href="./FAQ.html" target="_top" class="nav-pill"><i class="fas fa-question-circle"></i> FAQ</a> -->
+                    <a href="drinks.html" style="background-color: #ffc107; color: #000; padding: 10px 25px; border-radius: 50px; font-weight: bold; font-size: 1rem; text-decoration: none; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"> 微醺酒單</a>
+                    <a href="./foods.html" style="background-color: #ffc107; color: #000; padding: 10px 25px; border-radius: 50px; font-weight: bold; font-size: 1rem; text-decoration: none; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"> 精緻餐點</a>
+                    <a href="./environment.html" style="background-color: #ffc107; color: #000; padding: 10px 25px; border-radius: 50px; font-weight: bold; font-size: 1rem; text-decoration: none; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"> 環境介紹</a>
+                    <!-- <a href="https://drive.google.com/drive/folders/1z6CMGhriXizFs7NFf7QHYJ3_9K8njPaa" target="_blank" class="nav-pill"><i class="fas fa-file-pdf"></i> 完整菜單</a> -->
+                </div>
+                <div class="text-center">
+                    <a href="https://www.facebook.com/ciecietaipei/" target="_blank" onclick="gtag('event', 'click_social', {'event_category': 'Outbound', 'event_label': 'Facebook'});"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://lin.ee/2nxT8n1" target="_blank" onclick="gtag('event', 'click_social', {'event_category': 'Outbound', 'event_label': 'Line'});"><i class="fab fa-line"></i></a>
+                    <a href="https://www.instagram.com/ciecietaipei" target="_blank" onclick="gtag('event', 'click_social', {'event_category': 'Outbound', 'event_label': 'Instagram'});"><i class="fab fa-instagram"></i></a>
+                </div>
             </div>
 
             <div id="view2" class="p-6 md:p-8 flex flex-col gap-5 fade-in hidden-view no-scrollbar overflow-y-auto max-h-[70vh]">
