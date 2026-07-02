@@ -705,13 +705,21 @@
         let paxDeposit = state.pax >= 5 ? state.pax * 500 : 0;
         let finalDeposit = state.service === 'takeout' ? totalFoodAmount : (paxDeposit + foodDeposit);
 
+// 🚀 完整打包版：補上抓取 custEmail 與 custRemarks 的值
         const payload = {
-            service_type: state.service, name: document.getElementById('custName').value, tel: document.getElementById('custTel').value,
-            date: document.getElementById('dateSelect').value, time: document.getElementById('timeSelect').value,
-            line_id: state.lineId, pax: state.pax, 
-            cart: flatCart, // 送出給後端算庫存的扁平格式
-            total_amount: totalFoodAmount, deposit_required: Math.round(finalDeposit),
-            kitchen_remarks: state.cart.length > 0 ? kitchenDetails : "" // 🌟 傳送完美明細字串！
+            service_type: state.serviceType,
+            name: document.getElementById('custName').value, 
+            tel: document.getElementById('custTel').value,
+            email: document.getElementById('custEmail').value,       // 🔥 補上這行
+            remarks: document.getElementById('custRemarks').value,   // 🔥 補上這行
+            date: document.getElementById('dateSelect').value, 
+            time: document.getElementById('timeSelect').value,
+            line_id: state.lineId, 
+            pax: state.pax, 
+            cart: flatCart, 
+            total_amount: totalFoodAmount, 
+            deposit_required: Math.round(finalDeposit),
+            kitchen_remarks: state.cart.length > 0 ? kitchenDetails : "" 
         };
 
         try {
