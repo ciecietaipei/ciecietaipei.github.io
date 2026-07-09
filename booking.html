@@ -707,26 +707,43 @@
 
 // 🚀 完整打包版：補上抓取 custEmail 與 custRemarks 的值
         const payload = {
-            service_type: state.serviceType,
-            name: document.getElementById('custName').value, 
+            service_type: state.service,  // 🔥 修正：使用 state.service 而非不存在的 state.serviceType
+            name: document.getElementById('custName').value,
             tel: document.getElementById('custTel').value,
             email: document.getElementById('custEmail').value,       // 🔥 補上這行
             remarks: document.getElementById('custRemarks').value,   // 🔥 補上這行
-            date: document.getElementById('dateSelect').value, 
+            date: document.getElementById('dateSelect').value,
             time: document.getElementById('timeSelect').value,
-            line_id: state.lineId, 
-            pax: state.pax, 
-            cart: flatCart, 
-            total_amount: totalFoodAmount, 
+            line_id: state.lineId,
+            pax: state.pax,
+            cart: flatCart,
+            total_amount: totalFoodAmount,
             deposit_required: Math.round(finalDeposit),
-            kitchen_remarks: state.cart.length > 0 ? kitchenDetails : "" 
+            kitchen_remarks: state.cart.length > 0 ? kitchenDetails : ""
         };
 
         try {
+            console.log("📤 正在發送訂位資料:", payload);  // 🔍 除錯日誌
             const response = await fetch(`${API_BASE_URL}/api/submit_booking`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
             });
+
+            console.log("📥 伺服器回應狀態:", response.status);  // 🔍 除錯日誌
+
+            // 🔥 改進：先檢查 HTTP 狀態碼
+            if (!response.ok) {
+                let errorMsg = `HTTP ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    errorMsg = errorData.detail || errorMsg;
+                } catch (e) {
+                    errorMsg = await response.text() || errorMsg;
+                }
+                throw new Error(errorMsg);
+            }
+
             const result = await response.json();
+            console.log("📥 伺服器回應內容:", result);  // 🔍 除錯日誌
 
             if (result.status === "require_payment") {
                 let msg = `💳 系統提示\n`;
@@ -737,10 +754,11 @@
                 window.location.href = result.payment_url;
             } else if (result.status === "success") {
                 alert(`✅ 訂位成功！\n期待您的光臨。`);
-                window.location.href = "./index.html"; 
+                window.location.href = "./index.html";
             } else { throw new Error(result.detail || "發生未知錯誤"); }
         } catch (error) {
-            alert(`❌ 送出失敗: ${error.message}\n請確認 FastAPI 伺服器是否正常運作，且 API_BASE_URL 網址正確。`);
+            console.error("❌ 錯誤詳情:", error);  // 🔍 除錯日誌
+            alert(`❌ 送出失敗：${error.message}\n\n請檢查：\n1. FastAPI 伺服器是否正常運作\n2. API_BASE_URL 是否正確：${API_BASE_URL}\n3. 開啟瀏覽器開發者工具 (F12) 查看 Console 日誌`);
             btn.innerHTML = originalText; btn.disabled = false; lucide.createIcons();
         }
     }
