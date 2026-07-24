@@ -15,20 +15,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
 <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
     {
-      "@context": "https://schema.org",
-      "@type": "Restaurant",
+      "@type": ["BarOrPub", "Restaurant"],
+      "@id": "https://ciecietaipei.github.io/#ciecie-taipei",
       "name": "CIE CIE TAIPEI",
       "alternateName": "CIE CIE 台北",
       "url": "https://ciecietaipei.github.io",
       "image": "https://ciecietaipei.github.io/assets/ciecie-image_1f-1.jpg",
       "description": "CIE CIE TAIPEI 是一間位於台北市大安區、鄰近信義區與信義安和捷運站的質感酒吧與餐酒館。提供特色調酒、餐酒搭配。",
       "telephone": "+886-2-2709-3446",
+      "priceRange": "$$",
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "信義路四段390號",
         "addressLocality": "大安區",
-        "addressRegion": "台北市",
+        "addressRegion": "臺北市",
         "postalCode": "106",
         "addressCountry": "TW"
       },
@@ -37,10 +41,7 @@
         "latitude": 25.0333,
         "longitude": 121.553
       },
-      "servesCuisine": [
-        "調酒",
-        "餐酒館"
-      ],
+      "servesCuisine": ["調酒", "餐酒館"],
       "openingHoursSpecification": [
         {
           "@type": "OpeningHoursSpecification",
@@ -57,6 +58,7 @@
       ],
       "hasMenu": {
         "@type": "Menu",
+        "@id": "https://ciecietaipei.github.io/cocktails.html#menu",
         "name": "CIE CIE TAIPEI 12款原創特色調酒",
         "description": "揉合東方茶韻、鮮萃果香與深邃木質調的12款原創調酒。",
         "hasMenuItem": [
@@ -75,7 +77,9 @@
         ]
       }
     }
-    </script>
+  ]
+}
+</script>
 
     <style>
         .original-chapter { padding: 80px 20px; border-bottom: 1px solid rgba(212, 175, 55, 0.1); }

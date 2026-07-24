@@ -30,94 +30,78 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": ["BarOrPub", "Restaurant", "LocalBusiness"],
-  "@id": "https://ciecietaipei.github.io/#ciecie-taipei",
-  "name": "CIE CIE TAIPEI",
-  "alternateName": "CIE CIE 台北",
-  "url": "https://ciecietaipei.github.io",
-  "image": [
-    "https://ciecietaipei.github.io/assets/ciecie-image_1f-1.jpg"
-  ],
-  "description": "CIE CIE TAIPEI 是一間位於台北市大安區、鄰近信義區與信義安和捷運站的質感酒吧與餐酒館。提供特色調酒、餐酒搭配，適合情侶約會、朋友聚會、跨年活動、萬聖節與節慶派對。身為評價最高的信義安和餐酒館，Cie Cie Taipei 不只有高質感調酒，我們的義式料理更是一絕，是許多人尋找台北信義酒吧推薦時的深夜食堂首選。",
-  "priceRange": "$$",
-  "telephone": "+886-2-2709-3446",
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "信義路四段390號",
-    "addressLocality": "大安區",
-    "addressRegion": "台北市",
-    "postalCode": "106",
-    "addressCountry": "TW"
-  },
-  "geo": {
-    "@type": "GeoCoordinates",
-    "latitude": 25.0333,
-    "longitude": 121.553
-  },
-  "areaServed": [
+  "@graph": [
     {
-      "@type": "AdministrativeArea",
-      "name": "台北市"
-    },
-    {
-      "@type": "AdministrativeArea",
-      "name": "大安區"
-    },
-    {
-      "@type": "AdministrativeArea",
-      "name": "信義區"
-    }
-  ],
-  "openingHoursSpecification": [
-    {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
-      "opens": "18:30",
-      "closes": "02:00"
-    },
-    {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Friday", "Saturday"],
-      "opens": "18:30",
-      "closes": "03:00"
-    }
-  ],
-  "servesCuisine": [
-    "調酒",
-    "餐酒館"
+      "@type": ["BarOrPub", "Restaurant", "LocalBusiness"],
+      "@id": "https://ciecietaipei.github.io/#ciecie-taipei",
+      "name": "CIE CIE TAIPEI",
+      "alternateName": "CIE CIE 台北",
+      "url": "https://ciecietaipei.github.io",
+      "image": [
+        "https://ciecietaipei.github.io/assets/ciecie-image_1f-1.jpg"
       ],
-  "keywords": [
-    "台北酒吧",
-    "大安區酒吧",
-    "信義區酒吧",
-    "台北餐酒館",
-    "大安區餐酒館",
-    "信義安和酒吧",
-    "情侶約會酒吧",
-    "跨年酒吧",
-    "台北夜生活"
-  ],
-  "acceptsReservations": true,
-  "sameAs": [
-    "https://www.instagram.com/ciecietaipei/",
-    "https://www.facebook.com/ciecietaipei/"
-  ],
-"hasMenuSection": [
-    {
-      "@type": "MenuSection",
-      "name": "義式與特色餐飲",
-      "hasMenuItem": [
-        { "@type": "MenuItem", "name": "酪梨鮮蝦蘆筍普切塔", "description": "金黃酥脆麵包搭配綿密酪梨泥與鮮甜蝦仁", "offers": { "@type": "Offer", "price": "420", "priceCurrency": "TWD" } },
-        { "@type": "MenuItem", "name": "黑松露牛肝菌燉飯", "description": "頂級黑松露醬與牛肝菌菇燉煮", "offers": { "@type": "Offer", "price": "450", "priceCurrency": "TWD" } },
-        { "@type": "MenuItem", "name": "煙花女蝦醬海鮮義大利麵", "description": "煙花女醬汁搭配濃郁蝦醬與海鮮", "offers": { "@type": "Offer", "price": "420", "priceCurrency": "TWD" } }
-      ]
-    },
-    {
-      "@type": "MenuSection",
-      "name": "中式暖胃宵夜",
-      "hasMenuItem": [
-        { "@type": "MenuItem", "name": "金牌紅燒牛肉麵", "description": "牛骨蔬菜慢火熬製，軟嫩牛腱肉", "offers": { "@type": "Offer", "price": "380", "priceCurrency": "TWD" } },
-        { "@type": "MenuItem", "name": "手工高麗菜鮮肉水餃", "description": "每日手工包製，肉汁飽滿", "offers": { "@type": "Offer", "price": "220", "priceCurrency": "TWD" } }
+      "description": "CIE CIE TAIPEI 是一間位於台北市大安區、鄰近信義區與信義安和捷運站的質感酒吧與餐酒館。提供高質感義式料理、排餐與特色下酒菜，為深夜食堂首選。",
+      "priceRange": "$$",
+      "telephone": "+886-2-2709-3446",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "信義路四段390號",
+        "addressLocality": "大安區",
+        "addressRegion": "臺北市",
+        "postalCode": "106",
+        "addressCountry": "TW"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 25.0333,
+        "longitude": 121.553
+      },
+      "areaServed": [
+        { "@type": "AdministrativeArea", "name": "臺北市" },
+        { "@type": "AdministrativeArea", "name": "大安區" },
+        { "@type": "AdministrativeArea", "name": "信義區" }
+      ],
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+          "opens": "18:30",
+          "closes": "02:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Friday", "Saturday"],
+          "opens": "18:30",
+          "closes": "03:00"
+        }
+      ],
+      "servesCuisine": ["調酒", "餐酒館", "義式料理"],
+      "keywords": [
+        "台北酒吧", "大安區酒吧", "信義區酒吧", "台北餐酒館", "大安區餐酒館", "信義安和酒吧", "情侶約會酒吧", "跨年酒吧", "台北夜生活"
+      ],
+      "acceptsReservations": "True",
+      "sameAs": [
+        "https://www.instagram.com/ciecietaipei/",
+        "https://www.facebook.com/ciecietaipei/"
+      ],
+      "hasMenuSection": [
+        {
+          "@type": "MenuSection",
+          "name": "義式與特色餐飲",
+          "hasMenuItem": [
+            { "@type": "MenuItem", "name": "酪梨鮮蝦蘆筍普切塔", "description": "金黃酥脆麵包搭配綿密酪梨泥與鮮甜蝦仁", "offers": { "@type": "Offer", "price": "420", "priceCurrency": "TWD" } },
+            { "@type": "MenuItem", "name": "黑松露牛肝菌燉飯", "description": "頂級黑松露醬與牛肝菌菇燉煮", "offers": { "@type": "Offer", "price": "450", "priceCurrency": "TWD" } },
+            { "@type": "MenuItem", "name": "煙花女蝦醬海鮮義大利麵", "description": "煙花女醬汁搭配濃郁蝦醬與海鮮", "offers": { "@type": "Offer", "price": "420", "priceCurrency": "TWD" } }
+          ]
+        },
+        {
+          "@type": "MenuSection",
+          "name": "中式暖胃宵夜",
+          "hasMenuItem": [
+            { "@type": "MenuItem", "name": "金牌紅燒牛肉麵", "description": "牛骨蔬菜慢火熬製，軟嫩牛腱肉", "offers": { "@type": "Offer", "price": "380", "priceCurrency": "TWD" } },
+            { "@type": "MenuItem", "name": "手工高麗菜鮮肉水餃", "description": "每日手工包製，肉汁飽滿", "offers": { "@type": "Offer", "price": "220", "priceCurrency": "TWD" } }
+          ]
+        }
       ]
     }
   ]

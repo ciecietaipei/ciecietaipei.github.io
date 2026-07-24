@@ -42,6 +42,51 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["BarOrPub", "Restaurant"],
+      "@id": "https://ciecietaipei.github.io/#ciecie-taipei",
+      "name": "CIE CIE TAIPEI",
+      "url": "https://ciecietaipei.github.io",
+      "telephone": "+886-2-2709-3446",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "信義路四段390號",
+        "addressLocality": "大安區",
+        "addressRegion": "臺北市",
+        "postalCode": "106",
+        "addressCountry": "TW"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://ciecietaipei.github.io/booking.html",
+      "url": "https://ciecietaipei.github.io/booking.html",
+      "name": "線上訂位 | CIE CIE TAIPEI",
+      "description": "立即預約 CIE CIE TAIPEI 台北信義安和餐酒館。提供高質感調酒與義式餐飲，適合約會、聚餐與包場。",
+      "potentialAction": {
+        "@type": "ReserveAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://ciecietaipei.github.io/booking.html",
+          "inLanguage": "zh-TW",
+          "actionPlatform": [
+            "http://schema.org/DesktopWebPlatform",
+            "http://schema.org/MobileWebPlatform"
+          ]
+        },
+        "result": {
+          "@type": "FoodEstablishmentReservation",
+          "name": "CIE CIE TAIPEI 訂位"
+        }
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body class="flex flex-col min-h-screen">
 
