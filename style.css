@@ -519,12 +519,12 @@ footer {
         font-size: 2em;
     }
 
-    .gallery, .menu-highlights, .contact-info-grid {
+    .gallery, .contact-info-grid {
         flex-direction: column;
         gap: 30px;
     }
 
-    .gallery-item, .menu-card, .info-block {
+    .gallery-item, .info-block {
         flex: 1 1 100%;
     }
 }
