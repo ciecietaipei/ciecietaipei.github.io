@@ -82,38 +82,38 @@ document.addEventListener('DOMContentLoaded', () => {
     //         container.innerHTML = '';
     //     };
 
-        const showRandomPostModal = (type) => {
-            const filteredPosts = posts.filter(post => post.includes(type));
-            if (filteredPosts.length > 0) {
-                const randomIndex = Math.floor(Math.random() * filteredPosts.length);
-                container.innerHTML = filteredPosts[randomIndex];
-                postModal.classList.add('open');
-                if (type === 'instagram') {
-                    const script = document.createElement('script');
-                    script.src = '//www.instagram.com/embed.js';
-                    script.async = true;
-                    document.body.appendChild(script);
-                }
-            }
-        };
+    //     const showRandomPostModal = (type) => {
+    //         const filteredPosts = posts.filter(post => post.includes(type));
+    //         if (filteredPosts.length > 0) {
+    //             const randomIndex = Math.floor(Math.random() * filteredPosts.length);
+    //             container.innerHTML = filteredPosts[randomIndex];
+    //             postModal.classList.add('open');
+    //             if (type === 'instagram') {
+    //                 const script = document.createElement('script');
+    //                 script.src = '//www.instagram.com/embed.js';
+    //                 script.async = true;
+    //                 document.body.appendChild(script);
+    //             }
+    //         }
+    //     };
 
-        if (fbLink) {
-            fbLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                showRandomPostModal('facebook');
-            });
-        }
-        if (igLink) {
-            igLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                showRandomPostModal('instagram');
-            });
-        }
-        if(closeBtn) closeBtn.onclick = closePostModal;
-        postModal.onclick = (e) => {
-            if (e.target === postModal) closePostModal();
-        };
-    }
+    //     if (fbLink) {
+    //         fbLink.addEventListener('click', (e) => {
+    //             e.preventDefault();
+    //             showRandomPostModal('facebook');
+    //         });
+    //     }
+    //     if (igLink) {
+    //         igLink.addEventListener('click', (e) => {
+    //             e.preventDefault();
+    //             showRandomPostModal('instagram');
+    //         });
+    //     }
+    //     if(closeBtn) closeBtn.onclick = closePostModal;
+    //     postModal.onclick = (e) => {
+    //         if (e.target === postModal) closePostModal();
+    //     };
+    // }
 
     // ----------------------------------------------------
     // 【新增】雞尾酒影片彈出視窗邏輯
