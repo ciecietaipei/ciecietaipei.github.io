@@ -572,6 +572,14 @@
             const result = await response.json();
 
             if (result.status === 'success') {
+                // 預訂轉換追蹤：訂位送出成功時觸發 GA4 關鍵事件 click_booking
+                // （2026-10-01 補上：7/9 預訂流程重做時遺漏，導致轉換歸零）
+                if (typeof gtag === 'function') {
+                    gtag('event', 'click_booking', {
+                        'event_category': 'Booking',
+                        'event_label': 'booking_widget_submit'
+                    });
+                }
                 document.getElementById('view2').classList.add('hidden-view');
                 document.getElementById('navBar').classList.add('hidden-view');
                 document.getElementById('bottomBar').classList.add('hidden-view');
