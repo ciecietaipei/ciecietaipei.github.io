@@ -14,4 +14,4 @@ Allow: /
 # User-agent: Google-Extended
 # Disallow: /
 
-Sitemap: https://deep-learning-101.github.io/sitemap.xml
+Sitemap: https://ciecietaipei.github.io/sitemap.xml
