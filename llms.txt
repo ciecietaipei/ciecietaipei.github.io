@@ -1,0 +1,27 @@
+# CIE CIE TAIPEI
+
+> 台北市大安區信義安和餐酒館：特色調酒、義式餐點、線上訂位。
+
+## 基本資訊
+
+- 地址：台北市大安區信義路四段390號（捷運信義安和站 4 號出口，步行約三分鐘；近安和路口）
+- 電話：02-2709-3446
+- 營業時間：週日至週四 18:30–02:00；週五、週六 18:30–03:00
+- 低消：每位一份餐點或飲品（週五、週六 NT$800）；均酌收 10% 服務費
+- 前身為 Neo 19 三樓的双囍酒吧（雙囍／雙喜）
+
+## 服務
+
+- 特色調酒、經典調酒、單一麥芽威士忌；調酒師可依口味客製推薦
+- 義式餐點：培根蛋黃麵、黑松露燉飯、深夜牛肉麵、手工水餃
+- 約會聚餐、朋友聚會、慶生包場
+
+## 連結
+
+- 官網：https://ciecietaipei.github.io/
+- 線上訂位：https://ciecietaipei.github.io/booking.html
+- 酒單：https://ciecietaipei.github.io/drinks.html
+- 調酒：https://ciecietaipei.github.io/cocktails.html
+- 餐點：https://ciecietaipei.github.io/foods.html
+- 環境：https://ciecietaipei.github.io/environment.html
+- 常見問題：https://ciecietaipei.github.io/FAQ.html
