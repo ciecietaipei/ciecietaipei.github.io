@@ -232,6 +232,8 @@
         if (action) { handleUrlWebhook(urlParams); return; }
         initLiff();
         initDateSelect();
+        // 從首頁「立即預訂」懸浮鈕 / 底部導覽「訂位」進來（?book=1）：直接跳到填寫表單，跳過選擇服務頁
+        if (urlParams.get('book') === '1') { selectService('dine-in'); }
     });
 
     function handleUrlWebhook(urlParams) {
