@@ -581,6 +581,11 @@
                         'event_category': 'Booking',
                         'event_label': 'booking_widget_submit'
                     });
+                    // Google Ads 轉換直埋（2026-10-08）：訂位成功時與 click_booking 同步觸發
+                    gtag('event', 'conversion', {
+                        'send_to': 'AW-16814603179/nuO6CJnTwpUdEKv36dE-'
+                    });
+
                 }
                 document.getElementById('view2').classList.add('hidden-view');
                 document.getElementById('navBar').classList.add('hidden-view');
