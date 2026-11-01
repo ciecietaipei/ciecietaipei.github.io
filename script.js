@@ -327,3 +327,17 @@ document.addEventListener('DOMContentLoaded', () => {
         yearSpan.textContent = new Date().getFullYear();
     }
 });
+// ----------------------------------------------------
+// 全站來電追蹤（2026-11-01 新增）：點電話連結時送 GA4 事件 click_call
+// ----------------------------------------------------
+document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href^="tel:"]');
+    if (!a) return;
+    if (typeof gtag === 'function') {
+        gtag('event', 'click_call', {
+            event_category: 'Contact',
+            event_label: a.getAttribute('href'),
+            page_path: window.location.pathname
+        });
+    }
+});
