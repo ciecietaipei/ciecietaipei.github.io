@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-REW7E7RH9B"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-REW7E7RH9B');
+  gtag('config', 'AW-16814603179');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://ciecietaipei.github.io/assets/ciecie-image_1f-1.jpg" />
+<meta property="og:title" content="健康餐線上點餐 — CIE CIE TAIPEI｜信義安和元氣輕養餐外帶自取" />
+<meta property="og:description" content="CIE CIE 元氣輕養餐線上點餐：輕享鮭魚、日嚐舒雞、豬你健康、Fit 牛五花與雙拼系列 NT$175 起，附紫米飯與當季時蔬，六種調味任選。線上點、到店取，不用被平台抽成。" />
+<meta property="og:url" content="https://ciecietaipei.github.io/order.html" />
+<title>健康餐線上點餐 — CIE CIE TAIPEI｜元氣輕養餐外帶自取</title>
+<meta name="description" content="大安區信義安和健康餐線上點餐：CIE CIE 元氣輕養餐 NT$175 起，線上點餐、到店自取，附紫米飯、當季時蔬與半顆日式滷蛋，六種調味任選。">
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+  .order-card { position: relative; }
+  .order-card img { width: 100%; height: auto; border-radius: 8px; }
+  .price-row { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; gap: 10px; flex-wrap: wrap; }
+  .price-tag { color: #d4af37; font-weight: 700; font-size: 1.25rem; }
+  .flavor-select { width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; border: 1px solid rgba(212,175,55,.5); background: #1a1a1a; color: #eee; font-size: 1rem; min-height: 48px; }
+  .stepper { display: inline-flex; align-items: center; gap: 4px; }
+  .stepper button { width: 48px; height: 48px; border-radius: 50%; border: 1px solid #d4af37; background: transparent; color: #d4af37; font-size: 1.4rem; line-height: 1; cursor: pointer; }
+  .stepper button:active { background: #d4af37; color: #000; }
+  .stepper .qty { min-width: 36px; text-align: center; font-size: 1.2rem; font-weight: 700; color: #fff; }
+  .addon-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 6px; border-bottom: 1px solid rgba(255,255,255,.12); gap: 10px; }
+  .addon-row .addon-name { color: #eee; font-size: 1.05rem; }
+  .addon-row .addon-price { color: #d4af37; font-weight: 700; margin-left: 8px; white-space: nowrap; }
+  #cart-bar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 86px; z-index: 9998; width: calc(100% - 24px); max-width: 520px; background: #ffc107; color: #000; border-radius: 50px; padding: 14px 22px; display: none; align-items: center; justify-content: space-between; box-shadow: 0 10px 25px rgba(0,0,0,.8); cursor: pointer; font-weight: 700; font-size: 1.05rem; }
+  #cart-bar.show { display: flex; }
+  #checkout-sheet { position: fixed; inset: 0; z-index: 10002; background: rgba(0,0,0,.7); display: none; }
+  #checkout-sheet.open { display: block; }
+  .sheet-panel { position: absolute; left: 0; right: 0; bottom: 0; max-height: 88vh; overflow-y: auto; background: #141414; border-top: 2px solid #d4af37; border-radius: 18px 18px 0 0; padding: 20px 18px 34px; max-width: 640px; margin: 0 auto; }
+  .sheet-panel h3 { color: #d4af37; margin: 4px 0 12px; }
+  .line-item { display: flex; justify-content: space-between; color: #eee; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.15); font-size: .98rem; gap: 8px; }
+  .line-item .li-sub { color: #aaa; font-size: .85rem; display: block; }
+  .total-row { display: flex; justify-content: space-between; color: #fff; font-weight: 700; font-size: 1.15rem; padding: 12px 0 4px; }
+  .co-form label { display: block; color: #ccc; margin: 14px 0 6px; font-size: .95rem; }
+  .co-form input, .co-form select, .co-form textarea { width: 100%; box-sizing: border-box; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,.25); background: #1f1f1f; color: #fff; font-size: 1.05rem; min-height: 50px; }
+  #submit-btn { width: 100%; margin-top: 20px; background: #ffc107; color: #000; border: none; border-radius: 50px; padding: 16px; font-size: 1.15rem; font-weight: 700; cursor: pointer; }
+  #submit-btn:disabled { opacity: .55; }
+  .sheet-close { float: right; background: none; border: none; color: #ccc; font-size: 1.6rem; cursor: pointer; }
+  #success-view { text-align: center; color: #eee; padding: 12px 4px; }
+  #success-view .order-no { color: #d4af37; font-size: 1.7rem; font-weight: 700; letter-spacing: 1px; }
+  .demo-note { background: rgba(255,193,7,.14); border: 1px dashed #ffc107; color: #ffd968; border-radius: 8px; padding: 10px 12px; font-size: .9rem; margin-top: 12px; }
+  @media (max-width: 640px) { #cart-bar { bottom: 92px; } }
+</style>
+</head>
+<body>
+<header class="hero" id="home">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <a href="./index.html" class="logo-trigger">
+      <img loading="lazy" src="assets/ciecie_logo_circle.png" alt="Cie Cie Taipei Logo" class="hero-logo">
+    </a>
+    <div class="hero-social-links">
+      <a href="https://www.facebook.com/ciecietaipei/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://lin.ee/2nxT8n1" target="_blank"><i class="fab fa-line"></i></a>
+      <a href="https://www.instagram.com/ciecietaipei" target="_blank"><i class="fab fa-instagram"></i></a>
+    </div>
+    <h1><a href="index.html" target="_top">CIE CIE TAIPEI <small>信義安和・健康餐線上點餐</small></a></h1>
+    <p class="tagline">✦ 元氣輕養餐 ・ 外帶自取 ✦</p>
+    <p id="supply-hours" style="color:#e8e8e8;">供應時間：讀取中…</p>
+    <a href="tel:+886227093446" class="cta-button pulse-effect"><i class="fas fa-phone"></i> 02-2709-3446 來電訂購</a>
+  </div>
+</header>
+<main>
+<section class="section menu" id="menu">
+  <h2>✦ 元氣輕養餐 ✦</h2>
+  <p class="ambiance-text">每份餐盒都附紫米飯、日式滷蛋（半顆）、冰心地瓜、黑豆、玉米粒與時蔬。選好主餐和調味，送出訂單，到店直接取餐。主餐加購飲品，每杯現折 NT$20。取餐時現場付款，不用被平台抽成。</p>
+  <div class="menu-highlights" id="menu-grid"></div>
+  <h2 style="margin-top:38px;">✦ 飲品（加購現折 $20）✦</h2>
+  <p class="ambiance-text">超值套餐：訂主餐加購飲品，每杯現折 NT$20（折扣杯數以主餐份數為上限）。</p>
+  <div id="addon-list" style="max-width:640px;margin:0 auto;"></div>
+</section>
+<section class="section menu" id="how">
+  <h2>✦ 怎麼取餐 ✦</h2>
+  <p class="ambiance-text">送出訂單後，畫面會給你一組訂單編號。我們收到訂單就會開始做，到店報編號或電話後三碼取餐。趕時間也可以直接打電話來訂：02-2709-3446。</p>
+  <p style="text-align:center;">
+    <a href="https://maps.app.goo.gl/WSmBry9GLkLZT45o8" class="cta-button pulse-effect" target="_blank"><i class="fas fa-map-marker-alt"></i> 台北市大安區信義路四段390號</a>
+  </p>
+</section>
+</main>
+<footer>
+  <a href="https://blog.twman.org/p/ciecietaipei.html" target="_blank"><p>&copy; 2026 CIE CIE TAIPEI. All Rights Reserved.</p></a>
+  <p class="footer-note">未滿十八歲請勿飲酒。喝酒不開車，開車不喝酒。(以上圖片為概念示意，僅供參考)</p>
+  <p class="footer-note">📍店家地址：大安區信義路四段390號 📍訂位專線：02-2709-3446</p>
+</footer>
+
+<div id="cart-bar" role="button" aria-label="查看購物車">
+  <span id="cart-summary">0 項 ・ NT$0</span>
+  <span>查看明細・結帳 <i class="fas fa-chevron-up"></i></span>
+</div>
+
+<div id="checkout-sheet" aria-hidden="true">
+  <div class="sheet-panel">
+    <button class="sheet-close" id="sheet-close" aria-label="關閉">&times;</button>
+    <div id="checkout-view">
+      <h3>你的訂單</h3>
+      <div id="line-items"></div>
+      <div class="total-row"><span>總計</span><span id="co-total">NT$0</span></div>
+      <form class="co-form" id="co-form">
+        <label for="co-name">姓名（取餐時核對）</label>
+        <input id="co-name" type="text" autocomplete="name" required maxlength="30" placeholder="例如：王小明">
+        <label for="co-phone">手機（取餐通知與核對）</label>
+        <input id="co-phone" type="tel" autocomplete="tel" required maxlength="15" placeholder="例如：0912345678" pattern="[0-9+\- ]{8,15}">
+        <label for="co-time">希望取餐時間</label>
+        <select id="co-time"></select>
+        <label for="co-note">備註（可不填）</label>
+        <textarea id="co-note" rows="2" maxlength="200" placeholder="例如：不要香菜、少飯"></textarea>
+        <button id="submit-btn" type="submit">送出訂單</button>
+        <p style="color:#999;font-size:.88rem;text-align:center;margin-top:10px;">到店取餐時付款，不用先線上付。</p>
+      </form>
+    </div>
+    <div id="success-view" style="display:none;">
+      <p style="font-size:2rem;">✅</p>
+      <p>訂單成立，訂單編號</p>
+      <p class="order-no" id="success-no"></p>
+      <p id="success-detail" style="color:#ccc;"></p>
+      <div class="demo-note" id="demo-note" style="display:none;">這是預覽模式：收單程式尚未接上，這筆訂單沒有真的送到店裡。接上 Apps Script 後，這裡會換成真訂單編號。</div>
+      <button id="success-close" style="margin-top:18px;background:#ffc107;color:#000;border:none;border-radius:50px;padding:13px 34px;font-weight:700;font-size:1.05rem;cursor:pointer;">好，回菜單</button>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-sticky-bar">
+  <a href="environment.html" target="_TOP" class="sticky-btn menu-btn"><i class="fas fa-store"></i> 環境</a>
+  <a href="foods.html" target="_TOP" class="sticky-btn menu-btn"><i class="fas fa-utensils"></i> ✦餐✦</a>
+  <a href="https://ciecietaipei.github.io/booking.html" class="sticky-btn booking-btn"><i class="far fa-calendar-check"></i> 訂位</a>
+  <a href="drinks.html" target="_TOP" class="sticky-btn menu-btn"><i class="fas fa-wine-glass-alt"></i> ✦酒✦</a>
+  <a href="FAQ.html" target="_TOP" class="sticky-btn menu-btn"><i class="fas fa-question-circle"></i> FAQ</a>
+</div>
+<div style="height: 170px;"></div>
+
+<script>
+/* ================= 設定（上線時填這兩個） =================
+   SHEET_ID：公開菜單試算表的 ID（老闆改這張表，網頁菜單就跟著變）
+   APPS_SCRIPT_URL：收單程式部署後的網址（訂單寫進私人訂單表＋寄信通知）
+   兩個都留空 = 預覽模式，用下方內建菜單，送出只會產生假編號。 */
+var CONFIG = {
+  SHEET_ID: '1DGpluT7JoJ6ePyDw4lwT6Bj2miV7-R6idR832q3u6fU',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxJHTIKi4mPmA1G5Su5a_vE-naXIhdIF4zXg_ZoG-5n3hspxSHpTD3kPcCO5MC9XbTSXQ/exec'
+};
+
+/* 內建後備菜單（試算表讀不到時用；正式資料以試算表為準） */
+var FALLBACK = {
+  settings: { supplyHours: '平日 11:30–18:00（內用或外帶）', pickupSlots: ['盡快取餐', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'] },
+  items: [
+    { id: 'chicken', type: 'main', name: '日嚐舒雞', price: 140, img: 'foods/chicken.png', badge: '490 kcal・蛋白質 27.5g', desc: '減脂王牌。精選厚實雞胸肉，用舒肥工法慢溫熟成，打破雞胸肉乾柴的印象，肉質細嫩多汁。' },
+    { id: 'beef', type: 'main', name: 'Fit 牛五花', price: 140, img: 'foods/beef.png', badge: '625 kcal・蛋白質 24g', desc: '想吃牛肉也能輕盈無負擔。嚴選帶有迷人油脂香氣的牛五花，去油、鎖住肉香，口感軟嫩不肥膩。' },
+    { id: 'pork', type: 'main', name: '豬你健康', price: 140, img: 'foods/pig.png', badge: '565 kcal・蛋白質 24.5g', desc: '兼顧健康與口腹之慾的完美首選。嚴選優質鮮嫩豬肉，以少油鹽方式烹調，保留肉質的 Q 彈與香氣，絲毫不油膩。' },
+    { id: 'salmon', type: 'main', name: '輕享鮭魚', price: 180, img: 'foods/fish.png', badge: '675 kcal・蛋白質 38.5g', desc: '老饕激推。嚴選富含高優質 Omega-3 的肥美鮭魚，煎烤至表面微微金黃，鎖住鮮甜的魚油精華與細緻肉質。' },
+    { id: 'combo-chicken-pork', type: 'main', name: '雞豬雙拼', price: 230, img: 'foods-healthy/chicken-pork-combo.jpg', badge: '', desc: '舒肥雞胸配優質豬肉，雙主餐一次滿足，份量更飽足。價格為暫定，老闆可在試算表改為店內原價。' },
+    { id: 'combo-chicken-beef', type: 'main', name: '雞牛雙拼', price: 235, img: 'foods-healthy/chicken-beef-combo.jpg', badge: '', desc: '舒肥雞胸配牛五花，雞牛雙享。價格為暫定，老闆可在試算表改為店內原價。' },
+    { id: 'combo-pork-beef', type: 'main', name: '豬牛雙拼', price: 235, img: 'foods-healthy/pork-beef-combo.jpg', badge: '', desc: '豬肉配牛五花，雙主餐份量升級。價格為暫定，老闆可在試算表改為店內原價。' },
+    { id: 'coffee-americano', type: 'drink', group: '咖啡品項', name: '美式咖啡', price: 80 },
+    { id: 'coffee-latte', type: 'drink', group: '咖啡品項', name: '咖啡拿鐵', price: 100 },
+    { id: 'coffee-cappuccino', type: 'drink', group: '咖啡品項', name: '卡布奇諾', price: 100 },
+    { id: 'coffee-flavored-latte', type: 'drink', group: '咖啡品項', name: '風味拿鐵（香草/焦糖/榛果）', price: 120 },
+    { id: 'coffee-caramel-macchiato', type: 'drink', group: '咖啡品項', name: '焦糖瑪其朵', price: 120 },
+    { id: 'coffee-mocha', type: 'drink', group: '咖啡品項', name: '摩卡咖啡', price: 120 },
+    { id: 'tea-earl-grey', type: 'drink', group: '鮮泡茶品', name: '伯爵紅茶', price: 80 },
+    { id: 'tea-jasmine-oolong', type: 'drink', group: '鮮泡茶品', name: '茉莉烏龍', price: 80 },
+    { id: 'tea-four-seasons', type: 'drink', group: '鮮泡茶品', name: '四季青茶', price: 80 },
+    { id: 'tea-rose-orange-earl', type: 'drink', group: '鮮泡茶品', name: '玫瑰柳橙伯爵茶', price: 100 },
+    { id: 'tea-honey-osmanthus', type: 'drink', group: '鮮泡茶品', name: '蜂蜜桂花烏龍', price: 100 },
+    { id: 'tea-honey-lemon', type: 'drink', group: '鮮泡茶品', name: '蜂蜜檸檬青茶', price: 100 }
+  ],
+  flavors: ['玫瑰海鹽椒鹽', '香蒜椒鹽', '檸檬椒鹽', '七味紅椒鹽', '亞麻籽芝麻鹽'],
+  premiumFlavors: ['橄欖油蔥醬', '日式照燒醬', '非常泰式辣椒醬'],
+  premiumFlavorPrice: 10,
+  bundleDiscount: 20
+};
+</script>
+<script>
+/* ================= 點餐邏輯 ================= */
+var MENU = null;          // {settings, items, flavors}
+var cart = {};            // id -> {qty, flavor}（主餐有 flavor，加點無）
+var CART_KEY = 'ciecie_order_cart_v1';
+
+function $(id) { return document.getElementById(id); }
+function money(n) { return 'NT$' + n.toLocaleString('zh-TW'); }
+
+/* --- CSV 解析（給 Google 試算表 gviz 匯出用） --- */
+function parseCSV(text) {
+  var rows = [], row = [], cur = '', inQ = false;
+  for (var i = 0; i < text.length; i++) {
+    var ch = text[i];
+    if (inQ) {
+      if (ch === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else inQ = false; }
+      else cur += ch;
+    } else if (ch === '"') inQ = true;
+    else if (ch === ',') { row.push(cur); cur = ''; }
+    else if (ch === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+    else if (ch !== '\r') cur += ch;
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  return rows.filter(function (r) { return r.some(function (c) { return String(c).trim() !== ''; }); });
+}
+function rowsToObjects(rows) {
+  if (!rows.length) return [];
+  var head = rows[0].map(function (h) { return String(h).trim(); });
+  return rows.slice(1).map(function (r) {
+    var o = {}; head.forEach(function (h, j) { o[h] = (r[j] || '').trim(); }); return o;
+  });
+}
+function sheetCSV(sheetId, tab) {
+  return 'https://docs.google.com/spreadsheets/d/' + sheetId + '/gviz/tq?tqx=out:csv&headers=1&sheet=' +
+    encodeURIComponent(tab) + '&t=' + Date.now();
+}
+function loadFromSheet() {
+  return Promise.all([
+    fetch(sheetCSV(CONFIG.SHEET_ID, '菜單'), { cache: 'no-store' }).then(function (r) { return r.text(); }),
+    fetch(sheetCSV(CONFIG.SHEET_ID, '設定'), { cache: 'no-store' }).then(function (r) { return r.text(); })
+  ]).then(function (texts) {
+    var items = rowsToObjects(parseCSV(texts[0])).filter(function (o) {
+      return o.id && o.name && o.price && String(o.active).toUpperCase() !== 'FALSE';
+    }).map(function (o) {
+      return { id: o.id, type: o.type || 'main', name: o.name, price: parseInt(o.price, 10),
+               img: o.img || '', badge: o.badge || '', desc: o.desc || '' };
+    });
+    var kv = {};
+    rowsToObjects(parseCSV(texts[1])).forEach(function (o) { if (o.key) kv[o.key] = o.value; });
+    var flavors = (kv.flavors || '').split(/[、,]/).map(function (s) { return s.trim(); }).filter(Boolean);
+    var premium = (kv.premiumFlavors || '').split(/[、,]/).map(function (s) { return s.trim(); }).filter(Boolean);
+    return {
+      premiumFlavors: premium.length ? premium : FALLBACK.premiumFlavors,
+      premiumFlavorPrice: parseInt(kv.premiumFlavorPrice, 10) || FALLBACK.premiumFlavorPrice,
+      bundleDiscount: parseInt(kv.bundleDiscount, 10) || FALLBACK.bundleDiscount,
+      settings: {
+        supplyHours: kv.supplyHours || FALLBACK.settings.supplyHours,
+        pickupSlots: (kv.pickupSlots || '盡快取餐').split(/[、,]/).map(function (s) { return s.trim(); }).filter(Boolean)
+      },
+      items: items.length ? items : FALLBACK.items,
+      flavors: flavors.length ? flavors : FALLBACK.flavors
+    };
+  });
+}
+
+/* --- 畫面渲染 --- */
+function renderMenu() {
+  $('supply-hours').textContent = '供應時間：' + MENU.settings.supplyHours;
+  var grid = $('menu-grid'); grid.innerHTML = '';
+  MENU.items.filter(function (it) { return it.type === 'main'; }).forEach(function (it) {
+    var card = document.createElement('div');
+    card.className = 'menu-card order-card';
+    var flavorOpts = '<optgroup label="免費調味">' + MENU.flavors.map(function (f) { return '<option>' + f + '</option>'; }).join('') + '</optgroup>' +
+      '<optgroup label="升級醬料 +$' + MENU.premiumFlavorPrice + '">' + (MENU.premiumFlavors || []).map(function (f) { return '<option>' + f + '</option>'; }).join('') + '</optgroup>';
+    card.innerHTML =
+      '<h3>' + it.name + ' ' + money(it.price) + '</h3>' +
+      (it.badge ? '<span style="color:#d4af37;">' + it.badge + '</span><br>' : '') +
+      (it.img ? '<img loading="lazy" src="' + it.img + '" alt="大安區健康餐 - ' + it.name + '">' : '') +
+      '<p>' + it.desc + '</p>' +
+      '<label style="color:#ccc;font-size:.92rem;">調味（選一）</label>' +
+      '<select class="flavor-select" data-flavor="' + it.id + '">' + flavorOpts + '</select>' +
+      '<div class="price-row"><span class="price-tag">' + money(it.price) + '</span>' +
+      '<span class="stepper"><button type="button" data-dec="' + it.id + '" aria-label="減少">−</button>' +
+      '<span class="qty" id="qty-' + it.id + '">0</span>' +
+      '<button type="button" data-inc="' + it.id + '" aria-label="增加">＋</button></span></div>';
+    grid.appendChild(card);
+  });
+  var list = $('addon-list'); list.innerHTML = '';
+  var lastGroup = '';
+  MENU.items.filter(function (it) { return it.type === 'addon' || it.type === 'drink'; }).forEach(function (it) {
+    if (it.group && it.group !== lastGroup) {
+      lastGroup = it.group;
+      var gh = document.createElement('h3');
+      gh.style.cssText = 'color:#d4af37;margin:18px 0 4px;';
+      gh.textContent = it.group;
+      list.appendChild(gh);
+    }
+    var row = document.createElement('div');
+    row.className = 'addon-row';
+    row.innerHTML = '<span><span class="addon-name">' + it.name.replace(/^加點：/, '') + '</span>' +
+      '<span class="addon-price">+' + money(it.price) + '</span></span>' +
+      '<span class="stepper"><button type="button" data-dec="' + it.id + '" aria-label="減少">−</button>' +
+      '<span class="qty" id="qty-' + it.id + '">0</span>' +
+      '<button type="button" data-inc="' + it.id + '" aria-label="增加">＋</button></span>';
+    list.appendChild(row);
+  });
+  var sel = $('co-time'); sel.innerHTML = '';
+  MENU.settings.pickupSlots.forEach(function (s) {
+    var op = document.createElement('option'); op.textContent = s; op.value = s; sel.appendChild(op);
+  });
+  grid.addEventListener('click', onStepperClick);
+  list.addEventListener('click', onStepperClick);
+  document.querySelectorAll('[data-flavor]').forEach(function (el) {
+    el.addEventListener('change', function () {
+      var id = el.getAttribute('data-flavor');
+      if (cart[id]) {
+        cart[id].flavor = el.value;
+        cart[id].flavorPrice = (MENU.premiumFlavors || []).indexOf(el.value) >= 0 ? (MENU.premiumFlavorPrice || 10) : 0;
+        saveCart();
+      }
+    });
+  });
+  refreshQtyLabels(); refreshCartBar();
+}
+function onStepperClick(e) {
+  var inc = e.target.getAttribute('data-inc'), dec = e.target.getAttribute('data-dec');
+  if (inc) changeQty(inc, 1);
+  if (dec) changeQty(dec, -1);
+}
+function itemById(id) { return MENU.items.find(function (it) { return it.id === id; }); }
+function changeQty(id, delta) {
+  var it = itemById(id); if (!it) return;
+  if (!cart[id]) {
+    if (delta < 0) return;
+    var flavor = null, flavorPrice = 0;
+    if (it.type === 'main') {
+      var sel = document.querySelector('[data-flavor="' + id + '"]');
+      flavor = sel ? sel.value : MENU.flavors[0];
+      if ((MENU.premiumFlavors || []).indexOf(flavor) >= 0) flavorPrice = MENU.premiumFlavorPrice || 10;
+    }
+    cart[id] = { qty: 0, flavor: flavor, flavorPrice: flavorPrice };
+  }
+  cart[id].qty += delta;
+  if (cart[id].qty <= 0) delete cart[id];
+  saveCart(); refreshQtyLabels(); refreshCartBar();
+}
+function refreshQtyLabels() {
+  MENU.items.forEach(function (it) {
+    var el = $('qty-' + it.id);
+    if (el) el.textContent = cart[it.id] ? cart[it.id].qty : 0;
+  });
+}
+function cartLines() {
+  return Object.keys(cart).map(function (id) {
+    var it = itemById(id); if (!it) return null;
+    var unit = it.price + (cart[id].flavorPrice || 0);
+    return { id: id, name: it.name, price: it.price, type: it.type, qty: cart[id].qty,
+             flavor: cart[id].flavor || null, flavorPrice: cart[id].flavorPrice || 0,
+             subtotal: unit * cart[id].qty };
+  }).filter(Boolean);
+}
+function cartDiscount() {
+  var lines = cartLines();
+  var mains = lines.filter(function (l) { return l.type === 'main'; }).reduce(function (s, l) { return s + l.qty; }, 0);
+  var drinks = lines.filter(function (l) { return l.type === 'drink'; }).reduce(function (s, l) { return s + l.qty; }, 0);
+  return Math.min(mains, drinks) * (MENU.bundleDiscount || 20);
+}
+function cartTotal() { return Math.max(0, cartLines().reduce(function (s, l) { return s + l.subtotal; }, 0) - cartDiscount()); }
+function cartCount() { return cartLines().reduce(function (s, l) { return s + l.qty; }, 0); }
+function refreshCartBar() {
+  var n = cartCount();
+  $('cart-bar').classList.toggle('show', n > 0);
+  $('cart-summary').textContent = n + ' 項 ・ ' + money(cartTotal());
+}
+function saveCart() { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) {} }
+function loadCart() { try { cart = JSON.parse(localStorage.getItem(CART_KEY)) || {}; } catch (e) { cart = {}; } }
+
+/* --- 結帳 --- */
+function openSheet() {
+  var lines = cartLines();
+  if (!lines.length) return;
+  var disc = cartDiscount();
+  $('line-items').innerHTML = lines.map(function (l) {
+    return '<div class="line-item"><span>' + l.name + ' × ' + l.qty +
+      (l.flavor ? '<span class="li-sub">調味：' + l.flavor + (l.flavorPrice ? '（+$' + l.flavorPrice + '）' : '') + '</span>' : '') +
+      '</span><span>' + money(l.subtotal) + '</span></div>';
+  }).join('') + (disc > 0 ? '<div class="line-item"><span>超值套餐折扣（加購飲品）</span><span>−' + money(disc) + '</span></div>' : '');
+  $('co-total').textContent = money(cartTotal());
+  $('checkout-view').style.display = 'block';
+  $('success-view').style.display = 'none';
+  $('checkout-sheet').classList.add('open');
+}
+function closeSheet() { $('checkout-sheet').classList.remove('open'); }
+
+function submitOrder(e) {
+  e.preventDefault();
+  var btn = $('submit-btn');
+  var payload = {
+    name: $('co-name').value.trim(),
+    phone: $('co-phone').value.trim(),
+    pickupTime: $('co-time').value,
+    note: $('co-note').value.trim(),
+    lines: cartLines().map(function (l) {
+      return { id: l.id, qty: l.qty, flavor: l.flavor || '' };
+    }),
+    clientTotal: cartTotal()
+  };
+  if (!payload.name || !payload.phone || !payload.lines.length) return;
+  btn.disabled = true; btn.textContent = '送出中…';
+
+  function done(orderId, total, isDemo) {
+    if (typeof gtag === 'function') gtag('event', 'order_submit', { event_category: 'Order', event_label: orderId, value: total });
+    $('checkout-view').style.display = 'none';
+    $('success-view').style.display = 'block';
+    $('success-no').textContent = orderId;
+    $('success-detail').textContent = '取餐時間：' + payload.pickupTime + ' ・ 總計 ' + money(total) + '，到店付款。請報訂單編號或電話後三碼取餐。';
+    $('demo-note').style.display = isDemo ? 'block' : 'none';
+    cart = {}; saveCart(); refreshQtyLabels(); refreshCartBar();
+    btn.disabled = false; btn.textContent = '送出訂單';
+  }
+  function fail(msg) {
+    btn.disabled = false; btn.textContent = '送出訂單';
+    alert(msg || '送出失敗，請改用電話訂購：02-2709-3446');
+  }
+
+  if (!CONFIG.APPS_SCRIPT_URL) {
+    var demoId = 'DEMO-' + Date.now().toString(36).toUpperCase().slice(-6);
+    setTimeout(function () { done(demoId, payload.clientTotal, true); }, 500);
+    return;
+  }
+  fetch(CONFIG.APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  }).then(function (r) { return r.json(); }).then(function (res) {
+    if (res && res.ok) done(res.orderId, res.total, false);
+    else fail(res && res.error ? res.error : undefined);
+  }).catch(function () { fail(); });
+}
+
+/* --- 啟動 --- */
+document.addEventListener('DOMContentLoaded', function () {
+  loadCart();
+  var ready = CONFIG.SHEET_ID ? loadFromSheet().catch(function () { return FALLBACK; })
+                              : Promise.resolve(FALLBACK);
+  ready.then(function (menu) {
+    if (!menu.premiumFlavors) menu.premiumFlavors = FALLBACK.premiumFlavors;
+    if (!menu.premiumFlavorPrice) menu.premiumFlavorPrice = FALLBACK.premiumFlavorPrice;
+    if (!menu.bundleDiscount) menu.bundleDiscount = FALLBACK.bundleDiscount;
+    MENU = menu;
+    // 清掉菜單裡已不存在的購物車品項
+    Object.keys(cart).forEach(function (id) { if (!itemById(id)) delete cart[id]; });
+    renderMenu();
+  });
+  $('cart-bar').addEventListener('click', openSheet);
+  $('sheet-close').addEventListener('click', closeSheet);
+  $('checkout-sheet').addEventListener('click', function (e) { if (e.target === this) closeSheet(); });
+  $('co-form').addEventListener('submit', submitOrder);
+  $('success-close').addEventListener('click', closeSheet);
+});
+</script>
+</body>
+</html>
