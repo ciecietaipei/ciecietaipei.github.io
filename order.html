@@ -70,6 +70,7 @@
     <h1><a href="index.html" target="_top">CIE CIE TAIPEI <small>信義安和・健康餐線上點餐</small></a></h1>
     <p class="tagline">✦ 元氣輕養餐 ・ 外帶自取 ✦</p>
     <p id="supply-hours" style="color:#e8e8e8;">供應時間：讀取中…</p>
+    <p id="closed-banner" style="display:none;color:#ffb3b3;border:1px solid #a33;border-radius:8px;padding:8px 12px;"></p>
     <a href="tel:+886227093446" class="cta-button pulse-effect"><i class="fas fa-phone"></i> 02-2709-3446 來電訂購</a>
   </div>
 </header>
@@ -153,7 +154,7 @@ var CONFIG = {
 
 /* 內建後備菜單（試算表讀不到時用；正式資料以試算表為準） */
 var FALLBACK = {
-  settings: { supplyHours: '平日 11:30–18:00（內用或外帶）', pickupSlots: ['盡快取餐', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'] },
+  settings: { supplyHours: '平日 11:30–18:00（內用或外帶）', orderWindow: { enabled: false, days: [1, 2, 3, 4, 5], start: '11:00', end: '18:00' }, pickupSlots: ['盡快取餐', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'] },
   items: [
     { id: 'chicken', type: 'main', name: '日嚐舒雞', price: 140, img: 'foods/chicken.png', badge: '490 kcal・蛋白質 27.5g', desc: '減脂王牌。精選厚實雞胸肉，用舒肥工法慢溫熟成，打破雞胸肉乾柴的印象，肉質細嫩多汁。' },
     { id: 'beef', type: 'main', name: 'Fit 牛五花', price: 140, img: 'foods/beef.png', badge: '625 kcal・蛋白質 24g', desc: '想吃牛肉也能輕盈無負擔。嚴選帶有迷人油脂香氣的牛五花，去油、鎖住肉香，口感軟嫩不肥膩。' },
@@ -238,6 +239,12 @@ function loadFromSheet() {
       bundleDiscount: parseInt(kv.bundleDiscount, 10) || FALLBACK.bundleDiscount,
       settings: {
         supplyHours: kv.supplyHours || FALLBACK.settings.supplyHours,
+        orderWindow: {
+          enabled: /^(TRUE|1|YES)$/i.test(kv.orderWindowEnabled || ''),
+          days: (kv.orderDays || '1,2,3,4,5').split(/[,、\s]+/).map(function (x) { return parseInt(x, 10); }).filter(function (x) { return !isNaN(x) && x >= 0 && x <= 6; }),
+          start: kv.orderStartTime || '11:00',
+          end: kv.orderEndTime || '18:00'
+        },
         pickupSlots: (kv.pickupSlots || '盡快取餐').split(/[、,]/).map(function (s) { return s.trim(); }).filter(Boolean)
       },
       items: items.length ? items : FALLBACK.items,
@@ -350,6 +357,31 @@ function cartDiscount() {
 }
 function cartTotal() { return Math.max(0, cartLines().reduce(function (s, l) { return s + l.subtotal; }, 0) - cartDiscount()); }
 function cartCount() { return cartLines().reduce(function (s, l) { return s + l.qty; }, 0); }
+function orderOpenNow() {
+  var w = MENU && MENU.settings && MENU.settings.orderWindow;
+  if (!w || !w.enabled) return true;
+  var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
+  function toMin(t) { var p = String(t || '').split(':'); return (parseInt(p[0], 10) || 0) * 60 + (parseInt(p[1], 10) || 0); }
+  var mins = now.getHours() * 60 + now.getMinutes();
+  return w.days.indexOf(now.getDay()) >= 0 && mins >= toMin(w.start) && mins < toMin(w.end);
+}
+function refreshWindowState() {
+  if (!MENU) return;
+  var w = MENU.settings.orderWindow || { enabled: false, days: [], start: '11:00', end: '18:00' };
+  var open = orderOpenNow();
+  var banner = $('closed-banner');
+  if (banner) {
+    var dayNames = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+    var label = w.days.length === 7 ? '每天' : (w.days.join(',') === '1,2,3,4,5' ? '週一至週五' : w.days.map(function (x) { return dayNames[x]; }).join('、'));
+    banner.textContent = '目前非點餐時段（' + label + ' ' + w.start + '–' + w.end + '），可以先瀏覽菜單，時段內再下單，謝謝。';
+    banner.style.display = open ? 'none' : 'block';
+  }
+  var btn = $('submit-btn');
+  if (btn && btn.textContent !== '送出中…') {
+    btn.disabled = !open;
+    btn.textContent = open ? '送出訂單' : '目前非點餐時段';
+  }
+}
 function refreshCartBar() {
   var n = cartCount();
   $('cart-bar').classList.toggle('show', n > 0);
@@ -377,6 +409,7 @@ function closeSheet() { $('checkout-sheet').classList.remove('open'); }
 
 function submitOrder(e) {
   e.preventDefault();
+  if (!orderOpenNow()) { refreshWindowState(); alert('目前非點餐時段，請於時段內再下單，謝謝。'); return; }
   var btn = $('submit-btn');
   var payload = {
     name: $('co-name').value.trim(),
@@ -434,6 +467,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // 清掉菜單裡已不存在的購物車品項
     Object.keys(cart).forEach(function (id) { if (!itemById(id)) delete cart[id]; });
     renderMenu();
+    refreshWindowState();
+    setInterval(refreshWindowState, 60000);
   });
   $('cart-bar').addEventListener('click', openSheet);
   $('sheet-close').addEventListener('click', closeSheet);
