@@ -43,6 +43,9 @@
   .sheet-panel h3 { color: #d4af37; margin: 4px 0 12px; }
   .line-item { display: flex; justify-content: space-between; color: #eee; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.15); font-size: .98rem; gap: 8px; }
   .line-item .li-sub { color: #aaa; font-size: .85rem; display: block; }
+  .line-item .stepper button { width: 34px; height: 34px; font-size: 1.05rem; }
+  .line-item .stepper .qty { min-width: 26px; font-size: 1rem; }
+  .clear-cart { display: block; margin: 10px 0 2px auto; background: none; border: none; color: #999; font-size: .88rem; text-decoration: underline; cursor: pointer; padding: 4px 0; }
   .total-row { display: flex; justify-content: space-between; color: #fff; font-weight: 700; font-size: 1.15rem; padding: 12px 0 4px; }
   .co-form label { display: block; color: #ccc; margin: 14px 0 6px; font-size: .95rem; }
   .co-form input, .co-form select, .co-form textarea { width: 100%; box-sizing: border-box; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,.25); background: #1f1f1f; color: #fff; font-size: 1.05rem; min-height: 50px; }
@@ -108,6 +111,7 @@
     <div id="checkout-view">
       <h3>你的訂單</h3>
       <div id="line-items"></div>
+      <button type="button" id="clear-cart" class="clear-cart">清空購物車</button>
       <div class="total-row"><span>總計</span><span id="co-total">NT$0</span></div>
       <form class="co-form" id="co-form">
         <label for="co-name">姓名（取餐時核對）</label>
@@ -405,20 +409,36 @@ function refreshCartBar() {
   $('cart-bar').classList.toggle('show', n > 0);
   $('cart-summary').textContent = n + ' 項 ・ ' + money(cartTotal());
 }
-function saveCart() { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) {} }
-function loadCart() { try { cart = JSON.parse(localStorage.getItem(CART_KEY)) || {}; } catch (e) { cart = {}; } }
+function saveCart() { try { localStorage.setItem(CART_KEY, JSON.stringify({ t: Date.now(), items: cart })); } catch (e) {} }
+var CART_TTL_MS = 3 * 60 * 60 * 1000;
+function loadCart() {
+  try {
+    var parsed = JSON.parse(localStorage.getItem(CART_KEY));
+    if (parsed && parsed.items) {
+      cart = (Date.now() - (parsed.t || 0) > CART_TTL_MS) ? {} : (parsed.items || {});
+    } else {
+      cart = parsed || {};
+    }
+  } catch (e) { cart = {}; }
+}
 
 /* --- 結帳 --- */
+function renderSheetItems() {
+  var lines = cartLines();
+  var disc = cartDiscount();
+  $('line-items').innerHTML = lines.map(function (l) {
+    return '<div class="line-item"><span>' + l.name +
+      (l.flavor ? '<span class="li-sub">調味：' + l.flavor + (l.flavorPrice ? '（+$' + l.flavorPrice + '）' : '') + '</span>' : '') +
+      '</span><span class="stepper"><button type="button" data-dec="' + l.id + '" aria-label="減少">−</button>' +
+      '<span class="qty">' + l.qty + '</span>' +
+      '<button type="button" data-inc="' + l.id + '" aria-label="增加">＋</button></span><span>' + money(l.subtotal) + '</span></div>';
+  }).join('') + (disc > 0 ? '<div class="line-item"><span>超值套餐折扣（加購飲品）</span><span>−' + money(disc) + '</span></div>' : '');
+  $('co-total').textContent = money(cartTotal());
+}
 function openSheet() {
   var lines = cartLines();
   if (!lines.length) return;
-  var disc = cartDiscount();
-  $('line-items').innerHTML = lines.map(function (l) {
-    return '<div class="line-item"><span>' + l.name + ' × ' + l.qty +
-      (l.flavor ? '<span class="li-sub">調味：' + l.flavor + (l.flavorPrice ? '（+$' + l.flavorPrice + '）' : '') + '</span>' : '') +
-      '</span><span>' + money(l.subtotal) + '</span></div>';
-  }).join('') + (disc > 0 ? '<div class="line-item"><span>超值套餐折扣（加購飲品）</span><span>−' + money(disc) + '</span></div>' : '');
-  $('co-total').textContent = money(cartTotal());
+  renderSheetItems();
   $('checkout-view').style.display = 'block';
   $('success-view').style.display = 'none';
   $('checkout-sheet').classList.add('open');
@@ -489,6 +509,16 @@ document.addEventListener('DOMContentLoaded', function () {
     setInterval(refreshWindowState, 60000);
   });
   $('cart-bar').addEventListener('click', openSheet);
+  $('line-items').addEventListener('click', function (e) {
+    var inc = e.target.getAttribute('data-inc'), dec = e.target.getAttribute('data-dec');
+    if (!inc && !dec) return;
+    changeQty(inc || dec, inc ? 1 : -1);
+    if (!cartLines().length) closeSheet(); else renderSheetItems();
+  });
+  $('clear-cart').addEventListener('click', function () {
+    if (!confirm('確定要清空購物車嗎？')) return;
+    cart = {}; saveCart(); refreshQtyLabels(); refreshCartBar(); closeSheet();
+  });
   $('sheet-close').addEventListener('click', closeSheet);
   $('checkout-sheet').addEventListener('click', function (e) { if (e.target === this) closeSheet(); });
   $('co-form').addEventListener('submit', submitOrder);
