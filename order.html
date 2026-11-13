@@ -382,6 +382,25 @@ function orderOpenNow() {
   var mins = now.getHours() * 60 + now.getMinutes();
   return w.days.indexOf(now.getDay()) >= 0 && mins >= toMin(w.start) && mins < toMin(w.end);
 }
+function fetchSwitchState() {
+  fetch(CONFIG.APPS_SCRIPT_URL, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (res) {
+    if (!res || !MENU || !MENU.settings) return;
+    if (typeof res.orderEnabled === 'boolean') {
+      MENU.settings.orderSwitch = MENU.settings.orderSwitch || { enabled: true, message: '' };
+      MENU.settings.orderSwitch.enabled = res.orderEnabled;
+      if (res.orderClosedMessage) MENU.settings.orderSwitch.message = res.orderClosedMessage;
+    }
+    if (res.orderWindow) {
+      MENU.settings.orderWindow = {
+        enabled: !!res.orderWindow.enabled,
+        days: res.orderWindow.days || [],
+        start: res.orderWindow.start || '11:00',
+        end: res.orderWindow.end || '18:00'
+      };
+    }
+    refreshWindowState();
+  }).catch(function () {});
+}
 function refreshWindowState() {
   if (!MENU) return;
   var w = MENU.settings.orderWindow || { enabled: false, days: [], start: '11:00', end: '18:00' };
@@ -506,7 +525,8 @@ document.addEventListener('DOMContentLoaded', function () {
     Object.keys(cart).forEach(function (id) { if (!itemById(id)) delete cart[id]; });
     renderMenu();
     refreshWindowState();
-    setInterval(refreshWindowState, 60000);
+    fetchSwitchState();
+    setInterval(function () { refreshWindowState(); fetchSwitchState(); }, 60000);
   });
   $('cart-bar').addEventListener('click', openSheet);
   $('line-items').addEventListener('click', function (e) {
